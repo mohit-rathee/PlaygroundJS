@@ -152,6 +152,7 @@ function Playground() {
     }
     function add(stroke: Stroke) {
         setLastAction('add')
+        console.log('add')
         const newLength = (layerLength + stroke.coordinates.length)
         if (newLength >= THRESHOLD_VALUE) {
             // add new empty layer
@@ -175,10 +176,7 @@ function Playground() {
                 strokes: [...layer.strokes.splice(0, strokePointer.stroke), stroke]
             }
             if (strokePointer.layer != layersStack.length) {
-                setLayersStack([...layersStack.splice(0, strokePointer.layer), {
-                    length: layerLength,
-                    strokes: layer.strokes.splice(0, strokePointer.stroke)
-                }])
+                setLayersStack([...layersStack.splice(0, strokePointer.layer)])
 
             }
             setLayer(newLayerState)

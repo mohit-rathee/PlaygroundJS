@@ -76,7 +76,7 @@ const LayerStack = ({ startDrawing, draw, stopDrawing, canvasRef, lastLayerIndex
         (_, index) => index
     );
     return (
-        <div className="relative w-4/5 bg-white rounded-sm border-2 border-red-300" >
+        <div className="relative w-[947] bg-white rounded-sm border-2 border-red-300" >
             {layers_canvas.map((index: number) => {
                 if (index != lastLayerIndex) {
                     return (
