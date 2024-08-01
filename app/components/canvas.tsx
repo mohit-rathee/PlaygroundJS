@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 function Canvas({ canvasRef, addStroke, lastLayerIndex }: canvasProp) {
     const [isDrawing, setIsDrawing] = useState<boolean>(false)
     const [currentStroke, setCurrentStroke] = useState<pointer[]>([])
+    const [color, setColor] = useState<String>('black')
 
 
 
@@ -19,8 +20,10 @@ function Canvas({ canvasRef, addStroke, lastLayerIndex }: canvasProp) {
         setIsDrawing(true)
         setCurrentStroke([startingPoint])
         const context = canvas.getContext('2d')
-        context?.beginPath()
-        context?.moveTo(startingPoint.x, startingPoint.y);
+        if (!context) return;
+        context.beginPath()
+        context.moveTo(startingPoint.x, startingPoint.y);
+        context.strokeStyle = color
     }
 
     //function handleMouseMove
@@ -55,18 +58,22 @@ function Canvas({ canvasRef, addStroke, lastLayerIndex }: canvasProp) {
         context?.stroke()
         context?.closePath();
         const newStroke: Stroke = {
+            color: color,
             coordinates: [...currentStroke, stopingPoint],
         }
         addStroke(newStroke);
     }
     return (
-        <LayerStack
-            startDrawing={startDrawing}
-            draw={draw}
-            stopDrawing={stopDrawing}
-            canvasRef={canvasRef}
-            lastLayerIndex={lastLayerIndex}
-        />
+        <>
+            <LayerStack
+                startDrawing={startDrawing}
+                draw={draw}
+                stopDrawing={stopDrawing}
+                canvasRef={canvasRef}
+                lastLayerIndex={lastLayerIndex}
+            />
+            <ColorPalette onColorSelect={setColor} />
+        </>
     )
 }
 
@@ -110,4 +117,32 @@ const LayerStack = ({ startDrawing, draw, stopDrawing, canvasRef, lastLayerIndex
     )
 }
 
+
+const colors = [
+    'red',
+    'blue',
+    'black',
+    'green',
+    'orange',
+    'pink',
+];
+
+const ColorPalette = ({ onColorSelect }) => {
+    return (
+        <>
+            <aside className="w-24 bg-gray-200 p-2 shadow-lg">
+                <div className="flex flex-col gap-2">
+                    {colors.map((color) => (
+                        <div
+                            key={color}
+                            className="w-full h-10 cursor-pointer"
+                            style={{ backgroundColor: color }}
+                            onClick={() => onColorSelect(color)}
+                        ></div>
+                    ))}
+                </div>
+            </aside>
+        </>
+    );
+};
 export default Canvas

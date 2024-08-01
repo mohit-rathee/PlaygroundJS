@@ -4,8 +4,8 @@ interface pointer {
 }
 interface Stroke {
     coordinates: pointer[];
+    color: String;
     // style
-    // color
     // width ...etc
 };
 interface Layer {
@@ -22,6 +22,8 @@ type DrawingState = Layer[];
 interface boardProp {
     undo: () => void;
     redo: () => void;
+    strokePointer: stroke_pointer;
+    layerLength: Number;
 }
 interface canvasProp {
     canvasRef: React.RefObject<HTMLCanvasElement[]>;

@@ -1,4 +1,4 @@
-export default function Board({ undo, redo}: boardProp): JSX.Element {
+export default function Board({ undo, redo, strokePointer, layerLength}: boardProp): JSX.Element {
     return (
         <div className='w-1/5 pt-2 h-full flex flex-col bg-sky-50 rounded-sm'>
             <div className='text-center  h-10'>Dashboard</div>
@@ -13,6 +13,9 @@ export default function Board({ undo, redo}: boardProp): JSX.Element {
                 >
                     redo
                 </button>
+                layer: {strokePointer.layer}<br />
+                stroke: {strokePointer.stroke}<br />
+                top-layer length: {layerLength.toString()}<br />
             </div>
         </div>
     )

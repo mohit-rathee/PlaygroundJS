@@ -25,6 +25,7 @@ function redrawLayer(layerCanvas: any, firstStroke: number, lastStroke: number, 
         const stroke = layerData.strokes[i]
         const stroke_points = stroke.coordinates
         context.beginPath();
+        context.strokeStyle = stroke.color
         context.moveTo(stroke_points[0].x, stroke_points[0].y);
         stroke_points.forEach((point: pointer, index: number) => {
             if (index > 0) {
@@ -217,6 +218,8 @@ function Playground() {
             <Board
                 undo={undo}
                 redo={redo}
+                strokePointer={strokePointer}
+                layerLength={layerLength}
             // del={(index: number) => dispatch({ type: 'delete', payload: index })}
             />
             <Canvas
