@@ -22,6 +22,7 @@ type DrawingState = Layer[];
 interface boardProp {
     undo: () => void;
     redo: () => void;
+    save: () => void;
     strokePointer: stroke_pointer;
     layerLength: Number;
 }

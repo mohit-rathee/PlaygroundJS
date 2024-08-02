@@ -151,6 +151,34 @@ function Playground() {
             return
         }
     }
+    function save() {
+        setLastAction('save')
+        console.log('save')
+        const mergedCanvas = document.createElement('canvas');
+        const mergedCtx = mergedCanvas.getContext('2d');
+
+        mergedCanvas.width = 947;
+        mergedCanvas.height = 550;
+
+        // Draw each canvas onto the merged canvas
+        if (!mergedCtx) return;
+        mergedCtx.fillStyle="white"
+        mergedCtx.fillRect(0,0,947,550)
+        canvasRef.current.forEach((canvas) => {
+            mergedCtx.drawImage(canvas, 0, 0);
+        });
+
+        // Convert the merged canvas to an image
+        const dataURL = mergedCanvas.toDataURL('image/jpeg');
+
+        // Create a link element and trigger download
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = 'drawing.jpg';
+        link.click();
+    }
+
+
     function add(stroke: Stroke) {
         setLastAction('add')
         console.log('add')
@@ -218,6 +246,7 @@ function Playground() {
             <Board
                 undo={undo}
                 redo={redo}
+                save={save}
                 strokePointer={strokePointer}
                 layerLength={layerLength}
             // del={(index: number) => dispatch({ type: 'delete', payload: index })}
