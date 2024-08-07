@@ -24,8 +24,8 @@ function Canvas({ canvasRef, addStroke, lastLayerIndex }: canvasProp) {
         if (!context) return;
         context.beginPath()
         context.moveTo(startingPoint.x, startingPoint.y);
-        context.strokeStyle = color
-        context.lineWidth = lineWidth
+        context.strokeStyle = color.toString();
+        context.lineWidth = lineWidth.valueOf()
     }
 
     //function handleMouseMove

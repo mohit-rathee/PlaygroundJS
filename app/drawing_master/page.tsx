@@ -25,8 +25,8 @@ function redrawLayer(layerCanvas: any, firstStroke: number, lastStroke: number, 
         const stroke = layerData.strokes[i]
         const stroke_points = stroke.coordinates
         context.beginPath();
-        context.strokeStyle = stroke.color
-        context.lineWidth = stroke.width
+        context.strokeStyle = stroke.color.toString();
+        context.lineWidth = stroke.width.valueOf()
         context.moveTo(stroke_points[0].x, stroke_points[0].y);
         stroke_points.forEach((point: pointer, index: number) => {
             if (index > 0) {
