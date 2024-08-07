@@ -7,7 +7,7 @@ import Board from '../components/side_bar';
 export default function Home() {
     return (
         <HomeTemplate
-            title="Mouse Locater"
+            title="Drawing Master"
             childComponent={<Playground />}
         />
     );
@@ -26,6 +26,7 @@ function redrawLayer(layerCanvas: any, firstStroke: number, lastStroke: number, 
         const stroke_points = stroke.coordinates
         context.beginPath();
         context.strokeStyle = stroke.color
+        context.lineWidth = stroke.width
         context.moveTo(stroke_points[0].x, stroke_points[0].y);
         stroke_points.forEach((point: pointer, index: number) => {
             if (index > 0) {

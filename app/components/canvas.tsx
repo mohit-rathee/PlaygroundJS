@@ -5,6 +5,7 @@ function Canvas({ canvasRef, addStroke, lastLayerIndex }: canvasProp) {
     const [isDrawing, setIsDrawing] = useState<boolean>(false)
     const [currentStroke, setCurrentStroke] = useState<pointer[]>([])
     const [color, setColor] = useState<String>('black')
+    const [lineWidth, setLineWidth] = useState<Number>(1);
 
 
 
@@ -24,6 +25,7 @@ function Canvas({ canvasRef, addStroke, lastLayerIndex }: canvasProp) {
         context.beginPath()
         context.moveTo(startingPoint.x, startingPoint.y);
         context.strokeStyle = color
+        context.lineWidth = lineWidth
     }
 
     //function handleMouseMove
@@ -59,6 +61,7 @@ function Canvas({ canvasRef, addStroke, lastLayerIndex }: canvasProp) {
         context?.closePath();
         const newStroke: Stroke = {
             color: color,
+            width: lineWidth,
             coordinates: [...currentStroke, stopingPoint],
         }
         addStroke(newStroke);
@@ -72,7 +75,11 @@ function Canvas({ canvasRef, addStroke, lastLayerIndex }: canvasProp) {
                 canvasRef={canvasRef}
                 lastLayerIndex={lastLayerIndex}
             />
-            <ColorPalette onColorSelect={setColor} />
+            <ColorPalette
+                onColorSelect={setColor}
+                setLineWidth={setLineWidth}
+                lineWidth={lineWidth}
+            />
         </>
     )
 }
@@ -127,22 +134,42 @@ const colors = [
     'pink',
 ];
 
-const ColorPalette = ({ onColorSelect }) => {
+const ColorPalette = ({ onColorSelect, setLineWidth, lineWidth }: any) => {
+    const handleSliderChange = (event: any) => {
+        const value = event.target.value;
+        setLineWidth(value);
+    };
+
     return (
-        <>
-            <aside className="w-24 bg-gray-200 p-2 shadow-lg">
+        <div className="flex flex-col gap-2 w-full h-full">
+            <aside className="bg-gray-300 p-2 shadow-lg">
                 <div className="flex flex-col gap-2">
                     {colors.map((color) => (
                         <div
                             key={color}
-                            className="w-full h-10 cursor-pointer"
+                            className="w-5 h-10 cursor-pointer"
                             style={{ backgroundColor: color }}
                             onClick={() => onColorSelect(color)}
                         ></div>
                     ))}
                 </div>
             </aside>
-        </>
+            <div className="p-4">
+                <div className="mt-4">
+                    <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={lineWidth}
+                        onChange={handleSliderChange}
+                        className="w-full"
+                    />
+                    <span className="block mt-2">
+                        Size: {lineWidth}
+                    </span>
+                </div>
+            </div>
+        </div>
     );
 };
 export default Canvas

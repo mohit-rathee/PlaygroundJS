@@ -20,7 +20,7 @@ const Explain: React.FC = () => {
       </p>
       <div className='flex flex-wrap gap-4 justify-center'>
         {/*Route Buttons*/}
-        <Button url="/mouse_locator" text="Mouse Locator" />
+        <Button url="/drawing_master" text="Drawing Master" />
       </div>
     </div>
   );

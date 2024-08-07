@@ -5,6 +5,7 @@ interface pointer {
 interface Stroke {
     coordinates: pointer[];
     color: String;
+    width: Number
     // style
     // width ...etc
 };
