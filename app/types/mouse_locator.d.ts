@@ -31,4 +31,7 @@ interface canvasProp {
     canvasRef: React.RefObject<HTMLCanvasElement[]>;
     addStroke: (stroke: Stroke) => void;
     lastLayerIndex: number;
+    undo: ()=>void;
+    redo: ()=>void;
+    save: ()=>void;
 }

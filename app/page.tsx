@@ -1,6 +1,6 @@
 import './globals.css';
-import HomeTemplate from './components/HomeTemplate'
-import Button from './components/button'
+import HomeTemplate from './components/layout/HomeTemplate'
+import Button from './components/common/button'
 
 
 export default function Home() {
