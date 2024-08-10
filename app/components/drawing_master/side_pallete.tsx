@@ -6,7 +6,7 @@ const colors = [
     'purple',
     'teal',
 ];
-export default function SidePallete({ onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
+export default function SidePallete({ layerLength,strokePointer,onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
     const handleSliderChange = (event: any) => {
         const value = event.target.value;
         setLineWidth(value);
@@ -64,6 +64,9 @@ export default function SidePallete({ onColorSelect, setLineWidth, lineWidth, un
                     save
                 </button>
             </div>
+                layerLength:{layerLength}<br />
+                layer:{strokePointer.layer}<br />
+                stroke_id:{strokePointer.stroke_id}<br />
         </div>
     );
 };

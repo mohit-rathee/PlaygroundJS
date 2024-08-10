@@ -1,72 +1,93 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SidePallete from "./side_pallete";
 
-function Canvas({ canvasRef, addStroke, lastLayerIndex, undo, redo, save }: canvasProp) {
-    const [isDrawing, setIsDrawing] = useState<boolean>(false)
-    const [currentStroke, setCurrentStroke] = useState<pointer[]>([])
+function Canvas({ layerLength, strokePointer, canvasRef, addStroke, layerCount, undo, redo, save }: any) {
+    // const [currentStroke,setCurrentStroke] = useState<point[]>([])
+    const currentStroke = useRef<point[]>([])
+
     const [color, setColor] = useState<String>('gray')
     const [lineWidth, setLineWidth] = useState<Number>(5);
 
+    const colorRef = useRef<String>('gray')
+    const lineWidthRef = useRef<Number>(5)
+    const mainCanvasRef = useRef<HTMLCanvasElement>(null)
 
+    //function handleMouseMove
+    const draw = (event: MouseEvent) => {
+        if (!mainCanvasRef.current) return;
+        const canvas = mainCanvasRef.current
+        const newPoint = {
+            x: event.clientX,
+            y: event.clientY,
+        };
+        const context = canvas.getContext('2d')
+        context?.lineTo(newPoint.x, newPoint.y);
+        context?.stroke();
+        // OPTIMISATION: only give good points, don't repeat last point
+        currentStroke.current.push(newPoint)
+        // setCurrentStroke(prev=>[...prev,newPoint])
+    }
 
     // handleMouseDown
-    const startDrawing = (event: React.MouseEvent) => {
-        if (!canvasRef.current) return;
-        const canvas = canvasRef.current[canvasRef.current.length - 1]
-        const rect = canvas?.getBoundingClientRect() || { left: 0, top: 0 };
+    const startDrawing = (event: MouseEvent) => {
+        if (!mainCanvasRef.current) return;
+        const canvas = mainCanvasRef.current
+        canvas.style.zIndex = '100'
         const startingPoint = {
-            x: Number((event.clientX - rect.left).toFixed(2)),
-            y: Number((event.clientY - rect.top).toFixed(2)),
+            x: event.clientX,
+            y: event.clientY,
         };
-        setIsDrawing(true)
-        setCurrentStroke([startingPoint])
+        currentStroke.current = [startingPoint]
+        // setCurrentStroke([startingPoint])
         const context = canvas.getContext('2d')
         if (!context) return;
         context.beginPath()
         context.moveTo(startingPoint.x, startingPoint.y);
-        context.strokeStyle = color.toString();
-        context.lineWidth = lineWidth.valueOf()
-    }
-
-    //function handleMouseMove
-    const draw = (event: React.MouseEvent) => {
-        if (!canvasRef.current) return;
-        const canvas = canvasRef.current[canvasRef.current.length - 1]
-        const rect = canvas.getBoundingClientRect() || { left: 0, top: 0 };
-        const newPoint = {
-            x: Number((event.clientX - rect.left).toFixed(2)),
-            y: Number((event.clientY - rect.top).toFixed(2)),
-        };
-        if (isDrawing) {
-            const context = canvas.getContext('2d')
-            context?.lineTo(newPoint.x, newPoint.y);
-            context?.stroke();
-            setCurrentStroke((currentStroke) => [...currentStroke, newPoint])
-        }
+        context.strokeStyle = colorRef.current.toString();
+        context.lineWidth = lineWidthRef.current.valueOf()
+        canvas.addEventListener('mousemove', draw)
     }
 
     // handleMouseUp
-    const stopDrawing = (event: React.MouseEvent) => {
-        if (!canvasRef.current) return;
-        setIsDrawing(false)
-        const canvas = canvasRef.current[canvasRef.current.length - 1]
-        const rect = canvas.getBoundingClientRect() || { left: 0, top: 0 };
-        const stopingPoint = {
-            x: Number((event.clientX - rect.left).toFixed(2)),
-            y: Number((event.clientY - rect.top).toFixed(2)),
-        };
+    const stopDrawing = () => {
+        if (!mainCanvasRef.current) return;
+        const canvas = mainCanvasRef.current
+        canvas.style.zIndex = '0'
         const context = canvas.getContext('2d')
-        context?.moveTo(stopingPoint.x, stopingPoint.y)
-        context?.stroke()
         context?.closePath();
         const newStroke: Stroke = {
             color: color,
             width: lineWidth,
-            coordinates: [...currentStroke, stopingPoint],
+            coordinates: structuredClone(currentStroke.current),
+            // to be calculated by addStroke function
+            id: NaN,
+            layer: NaN
         }
+        console.log(newStroke)
         addStroke(newStroke);
+        // clear mainCanvas
+        context?.clearRect(0, 0, canvas.width, canvas.height)
+        canvas.removeEventListener('mousemove', draw)
     }
+
+    useEffect(() => {
+        // add event listeners every time
+        console.log('adding event listeners on mainCanvasRef')
+        if (!mainCanvasRef.current) return;
+        const canvas = mainCanvasRef.current
+        canvas.addEventListener('mousedown', startDrawing)
+        canvas.addEventListener('mouseup', stopDrawing)
+        return () => {
+            canvas.removeEventListener('mousedown', startDrawing)
+            canvas.removeEventListener('mouseup', stopDrawing)
+        }
+    })
+    useEffect(() => {
+        colorRef.current = color
+        lineWidthRef.current = lineWidth
+    }, [color, lineWidth])
+
     return (
         <div className="w-full p-2 h-full px-2 flex gap-5 bg-gray-500">
             <SidePallete
@@ -76,21 +97,21 @@ function Canvas({ canvasRef, addStroke, lastLayerIndex, undo, redo, save }: canv
                 undo={undo}
                 redo={redo}
                 save={save}
+                strokePointer={strokePointer}
+                layerLength={layerLength}
             />
             <LayerStack
-                startDrawing={startDrawing}
-                draw={draw}
-                stopDrawing={stopDrawing}
                 canvasRef={canvasRef}
-                lastLayerIndex={lastLayerIndex}
+                mainCanvasRef={mainCanvasRef}
+                lastLayerIndex={layerCount}
             />
         </div>
     )
 }
 
-const LayerStack = ({ startDrawing, draw, stopDrawing, canvasRef, lastLayerIndex }: any) => {
+const LayerStack = ({ canvasRef, mainCanvasRef, lastLayerIndex }: any) => {
     const layers_canvas = Array.from(
-        { length: lastLayerIndex + 1 },
+        { length: lastLayerIndex },
         (_, index) => index
     );
     const [dimensions, setDimensions] = useState({
@@ -130,7 +151,7 @@ const LayerStack = ({ startDrawing, draw, stopDrawing, canvasRef, lastLayerIndex
             {layers_canvas.map((index: number) => {
                 if (index != lastLayerIndex) {
                     return (
-                        <canvas className='fixed top-0 z-0 left-0 w-screen h-screen'
+                        <canvas className='fixed top-0 left-0 w-screen h-screen'
                             ref={(el) => { canvasRef.current[index] = el }}
                             key={index}
                             width={dimensions.width}
@@ -139,23 +160,18 @@ const LayerStack = ({ startDrawing, draw, stopDrawing, canvasRef, lastLayerIndex
                                 background: 'transparent',
                             }}
                         />)
-                } else {
-                    return (
-                        <canvas className='fixed top-0 z-0 left-0 w-screen h-screen'
-                            ref={(el) => { canvasRef.current[lastLayerIndex] = el }}
-                            key={lastLayerIndex}
-                            width={dimensions.width}
-                            height={dimensions.height}
-                            onMouseDown={startDrawing}
-                            onMouseMove={draw}
-                            onMouseUp={stopDrawing}
-                            //TODO make it react to resizes
-                            style={{
-                                background: 'transparent',
-                            }}
-                        />)
                 }
             })}
+            <canvas className='fixed top-0 left-0 w-screen h-screen'
+                ref={mainCanvasRef}
+                key={lastLayerIndex}
+                width={dimensions.width}
+                height={dimensions.height}
+                //TODO make it react to resizes
+                style={{
+                    background: 'transparent',
+                }}
+            />
         </div>
     )
 }

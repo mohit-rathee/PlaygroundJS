@@ -1,24 +1,22 @@
-interface pointer {
+interface point {
     x: number;
     y: number;
 }
 interface Stroke {
-    coordinates: pointer[];
+    id: Number;
+    layer: Number;
+    coordinates: point[];
     color: String;
-    width: Number
+    width: Number;
     // style
     // width ...etc
 };
-interface Layer {
-    strokes: Stroke[];
-    length: number;
-}
 
 interface stroke_pointer {
     layer: number; // current layer index
-    stroke: number; // no of strokes to draw
+    stroke_id: number; // no of strokes to draw
 }
-type DrawingState = Layer[];
+type DrawingState = Stroke[]
 
 interface boardProp {
     undo: () => void;
@@ -30,8 +28,8 @@ interface boardProp {
 interface canvasProp {
     canvasRef: React.RefObject<HTMLCanvasElement[]>;
     addStroke: (stroke: Stroke) => void;
-    lastLayerIndex: number;
-    undo: ()=>void;
-    redo: ()=>void;
-    save: ()=>void;
+    layerCount: number;
+    undo: () => void;
+    redo: () => void;
+    save: () => void;
 }
