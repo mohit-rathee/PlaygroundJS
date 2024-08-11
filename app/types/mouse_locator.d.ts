@@ -11,7 +11,6 @@ interface Stroke {
     // style
     // width ...etc
 };
-
 interface Layer {
     strokes: Stroke[];
     length: number;
@@ -38,3 +37,4 @@ interface canvasProp {
     redo: () => void;
     save: () => void;
 }
+type canvas_ref = React.RefObject<HTMLCanvasElement[]>;

@@ -1,8 +1,9 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import SidePallete from "./side_pallete";
+import SidePallete from "./sidePallete";
+import { LayerStack, MainCanvas } from "./layerStack";
 
-function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add, undo, redo, save }: any) {
+function DrawingBoard({ canvasRef, canvasContainerRef, add, undo, redo, save }: any) {
     const currentStroke = useRef<point[]>([])
 
     const [color, setColor] = useState<String>('darkred')
@@ -67,12 +68,12 @@ function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add
         }
         const imageData = mainCanvasRef.current.toDataURL()
         console.log(newStroke)
-        add(newStroke,imageData);
+        add(newStroke, imageData);
         // clear mainCanvas
         context?.clearRect(0, 0, canvas.width, canvas.height)
         canvas.removeEventListener('mousemove', draw)
         canvas.removeEventListener('mouseup', stopDrawing)
-        updateState(state+1)
+        updateState(state + 1)
     }
 
     useEffect(() => {
@@ -90,31 +91,6 @@ function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add
         lineWidthRef.current = lineWidth
     }, [color, lineWidth])
 
-    return (
-        <div className="w-full p-2 h-full px-2 flex gap-5 bg-gray-500">
-            <SidePallete
-                onColorSelect={setColor}
-                setLineWidth={setLineWidth}
-                lineWidth={lineWidth}
-                undo={undo}
-                redo={redo}
-                save={save}
-                strokePointer={strokePointer}
-                layerLength={layerLength}
-                rerenders = {state}
-            />
-            <LayerStack
-                canvasRef={canvasRef}
-                canvasContainerRef={canvasContainerRef}
-                mainCanvasRef={mainCanvasRef}
-            />
-        </div>
-    )
-}
-
-const LayerStack = React.memo(({ canvasRef, canvasContainerRef, mainCanvasRef }: any) => {
-    console.error('ReRendering')
-    const layers_canvas = [0]
     const [dimensions, setDimensions] = useState({
         'width': 0,
         'height': 0,
@@ -146,35 +122,28 @@ const LayerStack = React.memo(({ canvasRef, canvasContainerRef, mainCanvasRef }:
         }
         setDimensions(dimensions)
     }, []);
-
     return (
-        <div >
-            <div ref={canvasContainerRef}>
-            {layers_canvas.map((index: number) => {
-                return (
-                    <canvas className='fixed top-0 left-0 w-screen h-screen'
-                        ref={(el) => { canvasRef.current[index] = el }}
-                        key={index}
-                        width={dimensions.width}
-                        height={dimensions.height}
-                        style={{
-                            background: 'transparent',
-                        }}
-                    />)
-            })}
-            </div>
-            <canvas className='fixed top-0 left-0 w-screen h-screen'
-                ref={mainCanvasRef}
-                width={dimensions.width}
-                height={dimensions.height}
-                //TODO make it react to resizes
-                style={{
-                    background: 'transparent',
-                }}
+        <div className="w-full p-2 h-full px-2 flex gap-5 bg-gray-500">
+            <SidePallete
+                onColorSelect={setColor}
+                setLineWidth={setLineWidth}
+                lineWidth={lineWidth}
+                undo={undo}
+                redo={redo}
+                save={save}
+            />
+            <LayerStack
+                canvasRef={canvasRef}
+                canvasContainerRef={canvasContainerRef}
+                dimensions={dimensions}
+            />
+            <MainCanvas
+                mainCanvasRef={mainCanvasRef}
+                dimensions={dimensions}
             />
         </div>
     )
-})
+}
 
 
-export default Canvas
+export default DrawingBoard

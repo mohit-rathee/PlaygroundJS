@@ -26,7 +26,7 @@ export function draw_by_image(
     canvasRef: React.RefObject<HTMLCanvasElement[]>,
     canvas_no: number,
     imgData: string) {
-    if(!canvasRef.current)return;
+    if (!canvasRef.current) return;
     const canvas = canvasRef.current[canvas_no]
     const context = canvas.getContext('2d')
     const img = new Image()
@@ -39,11 +39,11 @@ export function draw_by_image(
 export function draw_by_points(
     canvasRef: React.RefObject<HTMLCanvasElement[]>,
     canvas_no: number,
-    stroke:Stroke) {
-    if(!canvasRef.current)return;
+    stroke: Stroke) {
+    if (!canvasRef.current) return;
     const canvas = canvasRef.current[canvas_no]
     const context = canvas.getContext('2d')
-    if(!context)return;
+    if (!context) return;
     context.lineWidth = stroke.width
     const stroke_points = stroke.coordinates
     context.beginPath();
@@ -58,4 +58,33 @@ export function draw_by_points(
     });
     context.closePath()
 
+}
+export function save(canvasRef: canvas_ref) {
+    console.log('save')
+    const mergedCanvas = document.createElement('canvas');
+    const mergedCtx = mergedCanvas.getContext('2d');
+
+    console.log(canvasRef.current)
+    if (!canvasRef.current) return
+    const canvasArray = canvasRef.current
+    const canvas = canvasArray[0]
+    mergedCanvas.width = canvas.width;
+    mergedCanvas.height = canvas.height;
+
+    // Draw each canvas onto the merged canvas
+    if (!mergedCtx) return;
+    mergedCtx.fillStyle = "white"
+    mergedCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height)
+    canvasRef.current.forEach((canvas) => {
+        mergedCtx.drawImage(canvas, 0, 0);
+    });
+
+    // Convert the merged canvas to an image
+    const dataURL = mergedCanvas.toDataURL('image/jpeg');
+
+    // Create a link element and trigger download
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'drawing.jpg';
+    link.click();
 }
