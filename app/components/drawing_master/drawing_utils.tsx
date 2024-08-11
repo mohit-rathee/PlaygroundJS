@@ -22,7 +22,11 @@ export function redrawLayer(canvasRef: any, canvas_no: number, start: number, en
     context.closePath()
 }
 
-export function draw_by_image(canvasRef, canvas_no, imgData) {
+export function draw_by_image(
+    canvasRef: React.RefObject<HTMLCanvasElement[]>,
+    canvas_no: number,
+    imgData: string) {
+    if(!canvasRef.current)return;
     const canvas = canvasRef.current[canvas_no]
     const context = canvas.getContext('2d')
     const img = new Image()
@@ -32,9 +36,14 @@ export function draw_by_image(canvasRef, canvas_no, imgData) {
     }
 
 }
-export function draw_by_points(canvasRef, canvas_no, stroke) {
+export function draw_by_points(
+    canvasRef: React.RefObject<HTMLCanvasElement[]>,
+    canvas_no: number,
+    stroke:Stroke) {
+    if(!canvasRef.current)return;
     const canvas = canvasRef.current[canvas_no]
     const context = canvas.getContext('2d')
+    if(!context)return;
     context.lineWidth = stroke.width
     const stroke_points = stroke.coordinates
     context.beginPath();

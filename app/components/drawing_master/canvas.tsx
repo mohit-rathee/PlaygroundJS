@@ -3,11 +3,10 @@ import React, { useEffect, useRef, useState } from "react";
 import SidePallete from "./side_pallete";
 
 function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add, undo, redo, save }: any) {
-    // const [currentStroke,setCurrentStroke] = useState<point[]>([])
     const currentStroke = useRef<point[]>([])
 
     const [color, setColor] = useState<String>('darkred')
-    const [lineWidth, setLineWidth] = useState<Number>(5);
+    const [lineWidth, setLineWidth] = useState<number>(5);
     const [state, updateState] = useState<number>(0);
 
     const colorRef = useRef<String>('gray')

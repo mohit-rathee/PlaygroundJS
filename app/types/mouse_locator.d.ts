@@ -4,10 +4,10 @@ interface point {
 }
 interface Stroke {
     id: Number;
-    layer: Number;
+    layer: number;
     coordinates: point[];
     color: String;
-    width: Number;
+    width: number;
     // style
     // width ...etc
 };
