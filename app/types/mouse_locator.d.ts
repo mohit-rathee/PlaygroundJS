@@ -12,11 +12,16 @@ interface Stroke {
     // width ...etc
 };
 
+interface Layer {
+    strokes: Stroke[];
+    length: number;
+}
+
 interface stroke_pointer {
     layer: number; // current layer index
     stroke_id: number; // no of strokes to draw
 }
-type DrawingState = Stroke[]
+type DrawingState = Layer[];
 
 interface boardProp {
     undo: () => void;

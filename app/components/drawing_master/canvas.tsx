@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import SidePallete from "./side_pallete";
 
-function Canvas({ layerLength, strokePointer, canvasRef, addStroke, layerCount, undo, redo, save }: any) {
+function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add, undo, redo, save }: any) {
     // const [currentStroke,setCurrentStroke] = useState<point[]>([])
     const currentStroke = useRef<point[]>([])
 
@@ -47,6 +47,7 @@ function Canvas({ layerLength, strokePointer, canvasRef, addStroke, layerCount, 
         context.strokeStyle = colorRef.current.toString();
         context.lineWidth = lineWidthRef.current.valueOf()
         canvas.addEventListener('mousemove', draw)
+        canvas.addEventListener('mouseup', stopDrawing)
     }
 
     // handleMouseUp
@@ -60,15 +61,17 @@ function Canvas({ layerLength, strokePointer, canvasRef, addStroke, layerCount, 
             color: color,
             width: lineWidth,
             coordinates: structuredClone(currentStroke.current),
-            // to be calculated by addStroke function
+            // to be calculated by add function
             id: NaN,
             layer: NaN
         }
+        const imageData = mainCanvasRef.current.toDataURL()
         console.log(newStroke)
-        addStroke(newStroke);
+        add(newStroke,imageData);
         // clear mainCanvas
         context?.clearRect(0, 0, canvas.width, canvas.height)
         canvas.removeEventListener('mousemove', draw)
+        canvas.removeEventListener('mouseup', stopDrawing)
     }
 
     useEffect(() => {
@@ -77,10 +80,8 @@ function Canvas({ layerLength, strokePointer, canvasRef, addStroke, layerCount, 
         if (!mainCanvasRef.current) return;
         const canvas = mainCanvasRef.current
         canvas.addEventListener('mousedown', startDrawing)
-        canvas.addEventListener('mouseup', stopDrawing)
         return () => {
             canvas.removeEventListener('mousedown', startDrawing)
-            canvas.removeEventListener('mouseup', stopDrawing)
         }
     })
     useEffect(() => {
@@ -102,18 +103,16 @@ function Canvas({ layerLength, strokePointer, canvasRef, addStroke, layerCount, 
             />
             <LayerStack
                 canvasRef={canvasRef}
+                canvasContainerRef={canvasContainerRef}
                 mainCanvasRef={mainCanvasRef}
-                lastLayerIndex={layerCount}
             />
         </div>
     )
 }
 
-const LayerStack = ({ canvasRef, mainCanvasRef, lastLayerIndex }: any) => {
-    const layers_canvas = Array.from(
-        { length: lastLayerIndex },
-        (_, index) => index
-    );
+const LayerStack = React.memo(({ canvasRef, canvasContainerRef, mainCanvasRef }: any) => {
+    console.error('ReRendering')
+    const layers_canvas = [0]
     const [dimensions, setDimensions] = useState({
         'width': 0,
         'height': 0,
@@ -148,23 +147,22 @@ const LayerStack = ({ canvasRef, mainCanvasRef, lastLayerIndex }: any) => {
 
     return (
         <div >
+            <div ref={canvasContainerRef}>
             {layers_canvas.map((index: number) => {
-                if (index != lastLayerIndex) {
-                    return (
-                        <canvas className='fixed top-0 left-0 w-screen h-screen'
-                            ref={(el) => { canvasRef.current[index] = el }}
-                            key={index}
-                            width={dimensions.width}
-                            height={dimensions.height}
-                            style={{
-                                background: 'transparent',
-                            }}
-                        />)
-                }
+                return (
+                    <canvas className='fixed top-0 left-0 w-screen h-screen'
+                        ref={(el) => { canvasRef.current[index] = el }}
+                        key={index}
+                        width={dimensions.width}
+                        height={dimensions.height}
+                        style={{
+                            background: 'transparent',
+                        }}
+                    />)
             })}
+            </div>
             <canvas className='fixed top-0 left-0 w-screen h-screen'
                 ref={mainCanvasRef}
-                key={lastLayerIndex}
                 width={dimensions.width}
                 height={dimensions.height}
                 //TODO make it react to resizes
@@ -174,7 +172,7 @@ const LayerStack = ({ canvasRef, mainCanvasRef, lastLayerIndex }: any) => {
             />
         </div>
     )
-}
+})
 
 
 export default Canvas
