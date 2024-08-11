@@ -6,11 +6,12 @@ const colors = [
     'purple',
     'teal',
 ];
-export default function SidePallete({ layerLength,strokePointer,onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
+export default function SidePallete({ layerLength,strokePointer,onColorSelect, setLineWidth, lineWidth, undo, redo, save, rerenders }: any) {
     const handleSliderChange = (event: any) => {
         const value = event.target.value;
         setLineWidth(value);
     };
+    console.log('layerLength: ',layerLength.current)
 
     return (
         <div className='w-28 p-2 z-50 h-full flex flex-col bg-gray-700 rounded-sm'>
@@ -64,9 +65,10 @@ export default function SidePallete({ layerLength,strokePointer,onColorSelect, s
                     save
                 </button>
             </div>
-                layerLength:{layerLength}<br />
-                layer:{strokePointer.layer}<br />
-                stroke_id:{strokePointer.stroke_id}<br />
+                Rerenders: {rerenders.toString()}<br />
+                layerLength:{layerLength.current.toString()}<br />
+                layer:{strokePointer.current.layer}<br />
+                stroke_id:{strokePointer.current.stroke_id}<br />
         </div>
     );
 };

@@ -96,7 +96,7 @@ export default function Playground() {
     return (
         <div className='w-full h-full flex-col bg-gray-200 gap-2 flex items-center justify-start'>
             <Canvas
-                layerLength={layerLength.current}
+                layerLength={layerLength}
                 strokePointer={strokePointerRef}
                 canvasRef={canvasRef}
                 canvasContainerRef={canvasContainerRef}

@@ -8,6 +8,7 @@ function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add
 
     const [color, setColor] = useState<String>('gray')
     const [lineWidth, setLineWidth] = useState<Number>(5);
+    const [state, updateState] = useState<number>(0);
 
     const colorRef = useRef<String>('gray')
     const lineWidthRef = useRef<Number>(5)
@@ -72,6 +73,7 @@ function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add
         context?.clearRect(0, 0, canvas.width, canvas.height)
         canvas.removeEventListener('mousemove', draw)
         canvas.removeEventListener('mouseup', stopDrawing)
+        updateState(state+1)
     }
 
     useEffect(() => {
@@ -100,6 +102,7 @@ function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add
                 save={save}
                 strokePointer={strokePointer}
                 layerLength={layerLength}
+                rerenders = {state}
             />
             <LayerStack
                 canvasRef={canvasRef}
