@@ -6,7 +6,7 @@ function Canvas({ layerLength, strokePointer, canvasRef, canvasContainerRef, add
     // const [currentStroke,setCurrentStroke] = useState<point[]>([])
     const currentStroke = useRef<point[]>([])
 
-    const [color, setColor] = useState<String>('gray')
+    const [color, setColor] = useState<String>('darkred')
     const [lineWidth, setLineWidth] = useState<Number>(5);
     const [state, updateState] = useState<number>(0);
 
