@@ -95,7 +95,31 @@ export default function Playground() {
         console.log('drawingState', layerStack)
         console.log('strokePointer', strokePointer)
     }
-    function save() {
+     function save() {
+        console.log('save')
+        const mergedCanvas = document.createElement('canvas');
+        const mergedCtx = mergedCanvas.getContext('2d');
+
+        const canvas = canvasRef.current[0]
+        mergedCanvas.width = canvas.width;
+        mergedCanvas.height = canvas.height;
+
+        // Draw each canvas onto the merged canvas
+        if (!mergedCtx) return;
+        mergedCtx.fillStyle = "white"
+        mergedCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height)
+        canvasRef.current.forEach((canvas) => {
+            mergedCtx.drawImage(canvas, 0, 0);
+        });
+
+        // Convert the merged canvas to an image
+        const dataURL = mergedCanvas.toDataURL('image/jpeg');
+
+        // Create a link element and trigger download
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = 'drawing.jpg';
+        link.click();
     }
 
     function add(stroke: Stroke, imgData: string) {
