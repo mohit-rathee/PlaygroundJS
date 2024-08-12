@@ -22,6 +22,33 @@ export function redrawLayer(canvasRef: any, canvas_no: number, start: number, en
     context.closePath()
 }
 
+export function hideLayer(
+    canvasRef: React.RefObject<HTMLCanvasElement[]>,
+    canvas_no: number,
+) {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current[canvas_no]
+    canvas.style.display = 'none'
+}
+export function showLayer(
+    canvasRef: React.RefObject<HTMLCanvasElement[]>,
+    canvas_no: number,
+) {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current[canvas_no]
+    canvas.style.display = 'block'
+}
+export function clearLayer(
+    canvasRef: React.RefObject<HTMLCanvasElement[]>,
+    canvas_no: number,
+) {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current[canvas_no]
+    const context = canvas.getContext('2d')
+    context?.clearRect(0, 0, canvas.width, canvas.height)
+    canvas.style.display = 'block'
+}
+
 export function draw_by_image(
     canvasRef: React.RefObject<HTMLCanvasElement[]>,
     canvas_no: number,

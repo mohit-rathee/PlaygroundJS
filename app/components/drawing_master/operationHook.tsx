@@ -1,5 +1,5 @@
 import React from "react";
-import { redrawLayer, draw_by_image, draw_by_points } from './drawing_utils';
+import { redrawLayer, hideLayer, showLayer, clearLayer, draw_by_image, draw_by_points } from './drawing_utils';
 import { THRESHOLD_VALUE } from "./initials";
 
 export default function useOperations(
@@ -54,6 +54,9 @@ export default function useOperations(
                 newCanvas.style.background = 'transparent';
                 canvasContainerRef.current?.appendChild(newCanvas)
                 canvasRef.current.push(newCanvas)
+            }else{
+                // const canvas_no = strokePointer.layer - 1
+                clearLayer(canvasRef,strokePointer.layer - 1)
             }
             const canvas_no = strokePointer.layer - 1
             draw_by_image(canvasRef, canvas_no, imgData)
@@ -69,8 +72,13 @@ export default function useOperations(
             layerStack[layerStack.length - 1].strokes.push(stroke)
             layerStack[layerStack.length - 1].length = newLength
 
-            // Add
             const canvas_no = strokePointer.layer - 1
+
+            if(strokePointer.stroke_id == 1){
+                clearLayer(canvasRef,canvas_no)
+            }
+
+            // Add
             draw_by_image(canvasRef, canvas_no, imgData)
             console.log('layerLength:', newLength)
         }
@@ -124,7 +132,11 @@ export default function useOperations(
         const layer_no = strokePointer.layer - 1
         const stroke_id = strokePointer.stroke_id
         const layerData = layerStack[layer_no]
-        redrawLayer(canvasRef, layer_no, 0, stroke_id, layerData)
+        if (stroke_id == 0) {
+            hideLayer(canvasRef, layer_no)
+        } else {
+            redrawLayer(canvasRef, layer_no, 0, stroke_id, layerData)
+        }
         // debug
         console.log('drawingState', layerStack)
         console.log('strokePointer', strokePointer)
@@ -175,9 +187,12 @@ export default function useOperations(
 
         // draw latest stroke
         const canvas_no = strokePointer.layer - 1
-        const stroke = layerStack[canvas_no].strokes[strokePointer.stroke_id - 1]
-        draw_by_points(canvasRef, canvas_no, stroke)
-
+        if (strokePointer.stroke_id == 1) {
+            showLayer(canvasRef,canvas_no)
+        } else {
+            const stroke = layerStack[canvas_no].strokes[strokePointer.stroke_id - 1]
+            draw_by_points(canvasRef, canvas_no, stroke)
+        }
         //debug
         console.log('drawingState', layerStack)
         console.log('strokePointer', strokePointer)
