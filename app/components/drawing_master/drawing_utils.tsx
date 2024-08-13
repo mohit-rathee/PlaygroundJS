@@ -103,7 +103,9 @@ export function save(canvasRef: canvas_ref) {
     mergedCtx.fillStyle = "white"
     mergedCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height)
     canvasRef.current.forEach((canvas) => {
-        mergedCtx.drawImage(canvas, 0, 0);
+        if(canvas.style.display=='block'){
+            mergedCtx.drawImage(canvas, 0, 0);
+        }
     });
 
     // Convert the merged canvas to an image
