@@ -1,24 +1,28 @@
-import React from "react";
-import { redrawLayer, hideLayer, showLayer, clearLayer, draw_by_image, draw_by_points } from './drawing_utils';
-import { THRESHOLD_VALUE } from "./initials";
+import { THRESHOLD_VALUE } from "../initials";
+import { CanvasClass } from "./CanvasClass";
+import { initialDrawingState, initialStrokePointer } from "../initials";
 
-export default function useOperations(
-    canvasRef: React.RefObject<HTMLCanvasElement[]>,
-    canvasContainerRef: React.RefObject<HTMLDivElement>,
-    strokePointerRef: React.RefObject<stroke_pointer>,
-    drawingState: React.RefObject<DrawingState>,
-) {
-    function add(stroke: Stroke, imgData: string) {
-        if (
-            !canvasRef.current ||
-            !canvasContainerRef.current ||
-            !strokePointerRef.current ||
-            !drawingState.current
-        ) return;
+export class DrawingState {
+    private canvasList: CanvasClass[];
+    private canvasContainer: HTMLDivElement;
+    private strokePointer: StrokePointer;
+    private drawing: Drawing;
 
-        console.log('add')
-        const strokePointer = strokePointerRef.current
-        const layerStack = drawingState.current
+    constructor(
+        canvasContainer: HTMLDivElement,
+    ) {
+        this.canvasContainer = canvasContainer
+        const canvas = canvasContainer.firstChild as HTMLCanvasElement
+        const canvasClass = new CanvasClass(canvas)
+        this.canvasList = [canvasClass]
+        this.strokePointer = initialStrokePointer
+        this.drawing = initialDrawingState
+    }
+
+    addStroke(stroke: Stroke, imgData: string) {
+        console.log('adding stroke')
+        const strokePointer = this.strokePointer
+        const layerStack = this.drawing
         const layerLength = layerStack[strokePointer.layer - 1].length
 
 
@@ -45,21 +49,21 @@ export default function useOperations(
             layerStack.push(nextLayer)
             console.log('layerLength:', stroke.coordinates.length)
 
-            // Add
-            if (canvasRef.current.length < strokePointer.layer) {
+            // Adding new canvas
+            if (this.canvasList.length < strokePointer.layer) {
                 const newCanvas = document.createElement('canvas')
                 newCanvas.className = 'fixed top-0 left-0 w-screen h-screen';
                 newCanvas.width = window.innerWidth;
                 newCanvas.height = window.innerHeight;
                 newCanvas.style.background = 'transparent';
-                canvasContainerRef.current?.appendChild(newCanvas)
-                canvasRef.current.push(newCanvas)
-            }else{
-                // const canvas_no = strokePointer.layer - 1
-                clearLayer(canvasRef,strokePointer.layer - 1)
+                this.canvasContainer.appendChild(newCanvas)
+                const newCanvasClass = new CanvasClass(newCanvas)
+                this.canvasList.push(newCanvasClass)
             }
-            const canvas_no = strokePointer.layer - 1
-            draw_by_image(canvasRef, canvas_no, imgData)
+            const canvas = this.canvasList[strokePointer.layer - 1]
+            canvas.clear()
+            canvas.setVisible(true)
+            canvas.drawImage(imgData)
         } else {
             //OVERRIDE
             layerStack.length = strokePointer.layer
@@ -72,30 +76,24 @@ export default function useOperations(
             layerStack[layerStack.length - 1].strokes.push(stroke)
             layerStack[layerStack.length - 1].length = newLength
 
-            const canvas_no = strokePointer.layer - 1
+            const canvas = this.canvasList[strokePointer.layer - 1]
 
-            if(strokePointer.stroke_id == 1){
-                clearLayer(canvasRef,canvas_no)
+            if (strokePointer.stroke_id == 1) {
+                canvas.clear()
+                canvas.setVisible(true)
             }
 
             // Add
-            draw_by_image(canvasRef, canvas_no, imgData)
+            canvas.drawImage(imgData)
             console.log('layerLength:', newLength)
         }
         console.log('drawingState', layerStack)
         console.log('strokePointer', strokePointer)
     }
-    function undo() {
-        if (
-            !canvasRef.current ||
-            !canvasContainerRef.current ||
-            !strokePointerRef.current ||
-            !drawingState.current
-        ) return;
-
+    undo() {
         console.log('undo')
-        const strokePointer = strokePointerRef.current
-        const layerStack = drawingState.current
+        const strokePointer = this.strokePointer
+        const layerStack = this.drawing
         const layerLength = layerStack[strokePointer.layer - 1].length
 
         const prevStroke = strokePointer.stroke_id - 1;
@@ -129,29 +127,25 @@ export default function useOperations(
             console.log('layerLength:', currentLayer.length)
         }
         // redraw
-        const layer_no = strokePointer.layer - 1
+        const canvasIndex = strokePointer.layer - 1
+        const canvas = this.canvasList[canvasIndex]
         const stroke_id = strokePointer.stroke_id
-        const layerData = layerStack[layer_no]
+        const layerData = layerStack[canvasIndex]
         if (stroke_id == 0) {
-            hideLayer(canvasRef, layer_no)
+            canvas.setVisible(false)
         } else {
-            redrawLayer(canvasRef, layer_no, 0, stroke_id, layerData)
+            canvas.clear()
+            canvas.drawStrokes(0, stroke_id, layerData)
         }
         // debug
         console.log('drawingState', layerStack)
         console.log('strokePointer', strokePointer)
         return
     }
-    function redo() {
-        if (
-            !canvasRef.current ||
-            !canvasContainerRef.current ||
-            !strokePointerRef.current ||
-            !drawingState.current
-        ) return;
+    redo() {
         console.log('redo')
-        const strokePointer = strokePointerRef.current
-        const layerStack = drawingState.current
+        const strokePointer = this.strokePointer
+        const layerStack = this.drawing
 
         const nextStroke = strokePointer.stroke_id + 1
         const maxStroke = layerStack[strokePointer.layer - 1].strokes.length
@@ -186,16 +180,47 @@ export default function useOperations(
         }
 
         // draw latest stroke
-        const canvas_no = strokePointer.layer - 1
+        const canvasIndex = strokePointer.layer - 1
+        const canvas = this.canvasList[canvasIndex]
         if (strokePointer.stroke_id == 1) {
-            showLayer(canvasRef,canvas_no)
+            canvas.setVisible(true)
         } else {
-            const stroke = layerStack[canvas_no].strokes[strokePointer.stroke_id - 1]
-            draw_by_points(canvasRef, canvas_no, stroke)
+            const strokeIndex = strokePointer.stroke_id - 1
+            const layerData = layerStack[canvasIndex]
+            canvas.drawStrokes(strokeIndex, strokeIndex + 1, layerData)
         }
         //debug
         console.log('drawingState', layerStack)
         console.log('strokePointer', strokePointer)
     }
-    return { add, undo, redo }
+    save() {
+        console.log('save')
+        const mergedCanvas = document.createElement('canvas');
+        const mergedCtx = mergedCanvas.getContext('2d');
+
+        const canvasArray = this.canvasList
+        const canvasClass = canvasArray[0]
+        mergedCanvas.width = canvasClass.canvas.width
+        mergedCanvas.height = canvasClass.canvas.height
+
+        // Draw each canvas onto the merged canvas
+        if (!mergedCtx) return;
+        mergedCtx.fillStyle = "#6b6f7b" // gray
+        mergedCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height)
+        canvasArray.forEach((canvasClass) => {
+            if (canvasClass.canvas.style.display == 'block') {
+                mergedCtx.drawImage(canvasClass.canvas, 0, 0);
+            }
+        });
+
+        // Convert the merged canvas to an image
+        const dataURL = mergedCanvas.toDataURL('image/jpeg');
+
+        // Create a link element and trigger download
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = 'drawing.jpg';
+        link.click();
+    }
+
 }

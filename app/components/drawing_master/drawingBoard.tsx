@@ -2,13 +2,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import SidePallete from "./sidePallete";
 import { LayerStack, MainCanvas } from "./layerStack";
+import { DrawingState } from "./utils/DrawingPanel";
 
-function DrawingBoard({ canvasRef, canvasContainerRef, add, undo, redo, save }: any) {
+interface DrawingBoardProp {
+    canvasContainerRef: React.RefObject<HTMLDivElement>;
+    DrawingBoardClassRef: React.RefObject<DrawingState>;
+}
+function DrawingBoard({ canvasContainerRef, DrawingBoardClassRef }: DrawingBoardProp) {
     const currentStroke = useRef<point[]>([])
 
     const [color, setColor] = useState<String>('darkred')
     const [lineWidth, setLineWidth] = useState<number>(5);
-    const [state, updateState] = useState<number>(0);
 
     const colorRef = useRef<String>('gray')
     const lineWidthRef = useRef<Number>(5)
@@ -67,18 +71,15 @@ function DrawingBoard({ canvasRef, canvasContainerRef, add, undo, redo, save }: 
             layer: NaN
         }
         const imageData = mainCanvasRef.current.toDataURL()
-        console.log(newStroke)
-        add(newStroke, imageData);
+        DrawingBoardClassRef.current?.addStroke(newStroke, imageData);
         // clear mainCanvas
         context?.clearRect(0, 0, canvas.width, canvas.height)
         canvas.removeEventListener('mousemove', draw)
         canvas.removeEventListener('mouseup', stopDrawing)
-        updateState(state + 1)
     }
 
     useEffect(() => {
         // add event listeners every time
-        console.log('adding event listeners on mainCanvasRef')
         if (!mainCanvasRef.current) return;
         const canvas = mainCanvasRef.current
         canvas.addEventListener('mousedown', startDrawing)
@@ -122,18 +123,19 @@ function DrawingBoard({ canvasRef, canvasContainerRef, add, undo, redo, save }: 
         }
         setDimensions(dimensions)
     }, []);
+
     return (
         <div className="w-full p-2 h-full px-2 flex gap-5 bg-gray-500">
-            <SidePallete
+            {DrawingBoardClassRef.current && <SidePallete
                 onColorSelect={setColor}
                 setLineWidth={setLineWidth}
                 lineWidth={lineWidth}
-                undo={undo}
-                redo={redo}
-                save={save}
-            />
+                // ? is because typescript can't infer above conditional
+                undo={()=>DrawingBoardClassRef.current?.undo()}
+                redo={()=>DrawingBoardClassRef.current?.redo()}
+                save={()=>DrawingBoardClassRef.current?.save()}
+            />}
             <LayerStack
-                canvasRef={canvasRef}
                 canvasContainerRef={canvasContainerRef}
                 dimensions={dimensions}
             />

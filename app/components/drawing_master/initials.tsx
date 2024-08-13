@@ -1,4 +1,4 @@
-export const initialStrokePointer: stroke_pointer = {
+export const initialStrokePointer: StrokePointer = {
     layer: 1,
     stroke_id: 0
 }
@@ -8,9 +8,9 @@ export const initialLayer: Layer = {
     length: 0
 }
 
-export const initialDrawingState: DrawingState = [initialLayer]
+export const initialDrawingState: Drawing = [initialLayer]
 
-export const THRESHOLD_VALUE = 200
+export const THRESHOLD_VALUE = 500
 
 export const color_choices = [
     'darkred',

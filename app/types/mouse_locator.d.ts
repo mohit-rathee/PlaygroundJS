@@ -16,17 +16,17 @@ interface Layer {
     length: number;
 }
 
-interface stroke_pointer {
+interface StrokePointer {
     layer: number; // current layer index
     stroke_id: number; // no of strokes to draw
 }
-type DrawingState = Layer[];
+type Drawing = Layer[];
 
 interface boardProp {
     undo: () => void;
     redo: () => void;
     save: () => void;
-    strokePointer: stroke_pointer;
+    strokePointer: StrokePointer;
     layerLength: Number;
 }
 interface canvasProp {
