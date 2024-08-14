@@ -50,6 +50,7 @@ export class DrawingClass {
             // for color mapping for this layer
 
             // PUSH NEXT LAYER
+            stroke.uid=strokePointer.stroke_id
             const nextLayer: Layer = {
                 length: stroke.coordinates.length,
                 strokes: [stroke]
@@ -72,8 +73,8 @@ export class DrawingClass {
             const canvas = this.canvasList[strokePointer.layer - 1]
             canvas.clear()
             canvas.setVisible(true)
-            const uid = canvas.drawStroke(imgData, stroke)
-            stroke.uid = uid
+            // TODO get uid
+            canvas.drawStroke(imgData, stroke)
         } else {
             //OVERRIDE
             layerStack.length = strokePointer.layer
@@ -83,8 +84,10 @@ export class DrawingClass {
             strokePointer.stroke_id = strokePointer.stroke_id + 1
 
             // PUSH
-            layerStack[layerStack.length - 1].strokes.push(stroke)
-            layerStack[layerStack.length - 1].length = newLength
+            const layerData = layerStack[layerStack.length - 1]
+            stroke.uid=strokePointer.stroke_id
+            layerData.strokes.push(stroke)
+            layerData.length = newLength
 
             const canvas = this.canvasList[strokePointer.layer - 1]
 
@@ -94,8 +97,7 @@ export class DrawingClass {
             }
 
             // Add
-            const uid = canvas.drawStroke(imgData, stroke)
-            stroke.uid = uid
+            canvas.drawStroke(imgData, stroke)
             console.log('layerLength:', newLength)
         }
         console.log('drawingState', layerStack)
@@ -113,8 +115,8 @@ export class DrawingClass {
         const prevLayerIndex = currentLayerIndex - 1
 
         if (prevStroke < 0) {
-            // Already at oldest change
             if (prevLayerIndex < 0) {
+                // Already at oldest change
                 console.log('oldest change')
                 return
             }
@@ -240,14 +242,14 @@ export class DrawingClass {
                 const canvasClass = canvasList[i]
                 const uid = canvasClass.getStrokeId(p)
                 if (uid) {
-                    console.log('stroke found in layer ',i,' stroke no', uid)
+                    console.log('stroke found in layer ', i, ' stroke no', uid)
                     const layerData = this.drawing[i]
                     // canvasClass.clear()
                     // canvasClass.drawStrokes(0, uid - 1, layerData)
                     // canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
-                    return layerData.strokes[uid-1]
+                    return layerData.strokes[uid - 1]
                 } else {
-                    console.log('cant find in ',i)
+                    console.log('cant find in ', i)
                 }
             }
         }

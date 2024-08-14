@@ -3,7 +3,7 @@ export class CanvasClass {
     public pCanvas: HTMLCanvasElement;
     public rCanvas: HTMLCanvasElement;
     public isVisible: boolean;
-    private uid: number;
+    // private uid: number;
     private dimensions: Dimensions
 
     constructor(dimensions: Dimensions) {
@@ -12,36 +12,36 @@ export class CanvasClass {
         this.rCanvas = this.createNewCanvas(false)
 
         this.isVisible = true;
-        this.uid = 0
+        // this.uid = 0
     }
 
     createNewCanvas(isP: boolean) {
         const newCanvas = document.createElement('canvas')
+        newCanvas.className = 'fixed top-0 left-0 w-screen h-screen';
         if (isP) {
-            newCanvas.className = 'fixed top-0 left-0 w-[50%] h-screen';
+            newCanvas.style.display = 'block'
         } else {
-            newCanvas.className = 'fixed top-0 left-1/2 w-[50%] h-screen';
+            newCanvas.style.display = 'none'
         }
         const dimensions = this.dimensions
         newCanvas.width = dimensions.width
         newCanvas.height = dimensions.height
         newCanvas.style.background = 'transparent'
-        newCanvas.style.display = 'block'
         return newCanvas
     }
-    getUID() {
-        this.uid = this.uid + 1
-        return this.uid
-    }
+    // getUID() {
+    //     this.uid = this.uid + 1
+    //     return this.uid
+    // }
 
     setVisible(isVisible: boolean) {
         if (isVisible == true && this.isVisible == false) {
             this.pCanvas.style.display = 'block'
-            this.rCanvas.style.display = 'block'
+            // this.rCanvas.style.display = 'block'
             this.isVisible = true;
         } else if (isVisible == false && this.isVisible == true) {
             this.pCanvas.style.display = 'none'
-            this.rCanvas.style.display = 'none'
+            // this.rCanvas.style.display = 'none'
             this.isVisible = false;
         }
     }
@@ -95,7 +95,7 @@ export class CanvasClass {
         rContext.closePath()
     }
 
-    drawStroke(imgData: string, stroke: Stroke): number {
+    drawStroke(imgData: string, stroke: Stroke) {
         const contexts = this.getContext()
         const [pContext, rContext] = contexts
         // pDrawing
@@ -106,8 +106,8 @@ export class CanvasClass {
         }
         // rDrawing
         rContext.lineWidth = stroke.width + 5
-        const uid = this.getUID()
-        rContext.strokeStyle = intToRGBColor(uid)
+        console.log('UID',stroke.uid)
+        rContext.strokeStyle = intToRGBColor(stroke.uid)
         rContext.lineCap = 'round'
 
         const stroke_points = stroke.coordinates
@@ -120,9 +120,8 @@ export class CanvasClass {
             rContext.stroke()
         });
         rContext.closePath()
-        return uid
     }
-    getStrokeId(p: point):number {
+    getStrokeId(p: point): number {
         const contexts = this.getContext()
         const [_, rContext] = contexts
         const img = rContext.getImageData(p.x, p.y, 1, 1)
@@ -131,6 +130,7 @@ export class CanvasClass {
         const green = pixel[1];
         const blue = pixel[2];
         const alpha = pixel[3];
+        console.log(red,blue,green,alpha)
         if (alpha > 0) {
             const uid = rgbToINTColor(red, green, blue)
             return uid

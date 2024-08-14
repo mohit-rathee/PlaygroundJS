@@ -51,7 +51,7 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
     const startDrawing = (event: MouseEvent) => {
         const mainCanvas = mainCanvasClass.current
         const canvas = mainCanvasRef.current
-        if(!canvas) return
+        if (!canvas) return
         canvas.style.zIndex = '100'
         const startingPoint = {
             x: event.clientX,
@@ -59,7 +59,7 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         };
         currentStroke.current = [startingPoint]
         mainCanvas?.clear()
-        mainCanvas?.start(startingPoint,color,lineWidth)
+        mainCanvas?.start(startingPoint, color, lineWidth)
         canvas.addEventListener('mousemove', draw)
         canvas.addEventListener('mouseup', stopDrawing)
     }
@@ -67,7 +67,7 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
     // handleMouseUp
     const stopDrawing = () => {
         const mainCanvas = mainCanvasClass.current
-        if(!mainCanvas)return
+        if (!mainCanvas) return
         mainCanvas.canvas.style.zIndex = '0'
         const newStroke: Stroke = {
             color: colorRef.current,
@@ -75,7 +75,6 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
             coordinates: structuredClone(currentStroke.current),
             // to be calculated by add function
             uid: NaN,
-            layer: NaN,
         }
         const imageData = mainCanvas.canvas.toDataURL()
         mainCanvas.clear()
@@ -85,16 +84,13 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         mainCanvas.canvas.removeEventListener('mouseup', stopDrawing)
     }
     const selectDrawing = (event: MouseEvent) => {
-        console.log('selecting')
         if (!mainCanvasRef.current) return
+        const mainCanvas = mainCanvasClass.current
+        mainCanvas?.clear()
         const point: point = { x: event.clientX, y: event.clientY }
         const stroke = DrawingBoardClassRef.current?.select(point)
         if (stroke) {
-            const mainCanvas = mainCanvasClass.current
-            mainCanvas?.clear()
             mainCanvas?.drawSelectedStroke(stroke)
-            // mainCanvas?.canvas.removeEventListener('mousedown',selectDrawing)
-            // setSelected('draw')
         }
     }
 
@@ -105,11 +101,9 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         console.log(selected)
         switch (selected) {
             case 'draw':
-                console.log('opting draw')
                 canvas.addEventListener('mousedown', startDrawing)
                 break
             case 'select':
-                console.log('opting select')
                 canvas.addEventListener('mousedown', selectDrawing)
                 break
         }
@@ -158,9 +152,18 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
                 setLineWidth={setLineWidth}
                 lineWidth={lineWidth}
                 // ? is because typescript can't infer above conditional
-                undo={() => DrawingBoardClassRef.current?.undo()}
-                redo={() => DrawingBoardClassRef.current?.redo()}
-                save={() => DrawingBoardClassRef.current?.save()}
+                undo={() => {
+                    mainCanvasClass.current?.clear()
+                    DrawingBoardClassRef.current?.undo()
+                }}
+                redo={() => {
+                    mainCanvasClass.current?.clear()
+                    DrawingBoardClassRef.current?.redo()
+                }}
+                save={() => {
+                    mainCanvasClass.current?.clear()
+                    DrawingBoardClassRef.current?.save()
+                }}
             />}
             <LayerStack
                 canvasContainerRef={canvasContainerRef}

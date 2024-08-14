@@ -19,7 +19,7 @@ export default function Playground() {
             const canvasContainer = canvasContainerRef.current
             const refCanvasContainer = refCanvasContainerRef.current
             const dimensions = {
-                'width': window.innerWidth/2,
+                'width': window.innerWidth,
                 'height': window.innerHeight
             }
             setDimensions(dimensions)

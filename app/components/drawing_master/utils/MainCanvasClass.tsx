@@ -64,9 +64,9 @@ export class MainCanvasClass {
 
         // Draw the rectangle
         ctx.beginPath()
-        const width = pMax.x - pMin.x + 6
-        const height = pMax.y - pMin.y + 6
-        ctx.rect(pMin.x-3, pMin.y-3, width, height)
+        const width = pMax.x - pMin.x + 20
+        const height = pMax.y - pMin.y + 20
+        ctx.rect(pMin.x-10, pMin.y-10, width, height)
         ctx.strokeStyle = 'black'
         ctx.lineWidth = 2
         ctx.stroke()
@@ -77,22 +77,22 @@ export class MainCanvasClass {
         const [minP,maxP] = this.getMinMaxPoints(stroke.coordinates)
         this.drawGizmo(minP,maxP)
 
-        const context = this.context
-        context.lineWidth = stroke.width
-        // TODO add some transparency to this color
-        context.strokeStyle = stroke.color
-        context.lineCap = 'round'
-
-        const stroke_points = stroke.coordinates
-        context.beginPath();
-        context.moveTo(stroke_points[0].x, stroke_points[0].y)
-        stroke_points.forEach((point: point, index: number) => {
-            if (index > 0) {
-                context.lineTo(point.x, point.y);
-            }
-            context.stroke()
-        });
-        context.closePath()
+        // const context = this.context
+        // context.lineWidth = stroke.width
+        // // TODO add some transparency to this color
+        // context.strokeStyle = stroke.color
+        // context.lineCap = 'round'
+        //
+        // const stroke_points = stroke.coordinates
+        // context.beginPath();
+        // context.moveTo(stroke_points[0].x, stroke_points[0].y)
+        // stroke_points.forEach((point: point, index: number) => {
+        //     if (index > 0) {
+        //         context.lineTo(point.x, point.y);
+        //     }
+        //     context.stroke()
+        // });
+        // context.closePath()
     }
 
     start(p:point,color:string,width:number){
