@@ -2,100 +2,129 @@
 import React, { useEffect, useRef, useState } from "react";
 import SidePallete from "./sidePallete";
 import { LayerStack, MainCanvas } from "./layerStack";
-import { DrawingState } from "./utils/DrawingPanel";
+import { DrawingClass } from "./utils/DrawingPanel";
+import { MainCanvasClass } from "./utils/MainCanvasClass";
 
 interface DrawingBoardProp {
     canvasContainerRef: React.RefObject<HTMLDivElement>;
-    DrawingBoardClassRef: React.RefObject<DrawingState>;
+    refCanvasContainerRef: React.RefObject<HTMLDivElement>;
+    DrawingBoardClassRef: React.RefObject<DrawingClass>;
+    dimensions: Dimensions
 }
-function DrawingBoard({ canvasContainerRef, DrawingBoardClassRef }: DrawingBoardProp) {
+
+const OPTIONS = ['draw', 'select']
+
+function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardClassRef, dimensions }: DrawingBoardProp) {
     const currentStroke = useRef<point[]>([])
 
-    const [color, setColor] = useState<String>('darkred')
+    const [color, setColor] = useState<string>('darkred')
     const [lineWidth, setLineWidth] = useState<number>(5);
+    const [selected, setSelected] = useState<string>('draw')
 
-    const colorRef = useRef<String>('gray')
-    const lineWidthRef = useRef<Number>(5)
+    const colorRef = useRef<string>('gray')
+    const lineWidthRef = useRef<number>(5)
     const mainCanvasRef = useRef<HTMLCanvasElement>(null)
+    const mainCanvasClass = useRef<MainCanvasClass | null>(null)
+
+    useEffect(() => {
+        if (mainCanvasRef.current) {
+            const canvas = mainCanvasRef.current
+            mainCanvasClass.current = new MainCanvasClass(canvas)
+        }
+        else {
+            throw new Error("can't create main canvas")
+        }
+    }, [])
 
     //function handleMouseMove
     const draw = (event: MouseEvent) => {
-        if (!mainCanvasRef.current) return;
-        const canvas = mainCanvasRef.current
+        const mainCanvas = mainCanvasClass.current
         const newPoint = {
             x: event.clientX,
             y: event.clientY,
         };
-        const context = canvas.getContext('2d')
-        context?.lineTo(newPoint.x, newPoint.y);
-        context?.stroke();
-        // OPTIMISATION: only give good points, don't repeat last point
+        mainCanvas?.draw(newPoint)
         currentStroke.current.push(newPoint)
-        // setCurrentStroke(prev=>[...prev,newPoint])
     }
 
     // handleMouseDown
     const startDrawing = (event: MouseEvent) => {
-        if (!mainCanvasRef.current) return;
+        const mainCanvas = mainCanvasClass.current
         const canvas = mainCanvasRef.current
+        if(!canvas) return
         canvas.style.zIndex = '100'
         const startingPoint = {
             x: event.clientX,
             y: event.clientY,
         };
         currentStroke.current = [startingPoint]
-        // setCurrentStroke([startingPoint])
-        const context = canvas.getContext('2d')
-        if (!context) return;
-        context.beginPath()
-        context.moveTo(startingPoint.x, startingPoint.y);
-        context.strokeStyle = colorRef.current.toString();
-        context.lineWidth = lineWidthRef.current.valueOf()
+        mainCanvas?.clear()
+        mainCanvas?.start(startingPoint,color,lineWidth)
         canvas.addEventListener('mousemove', draw)
         canvas.addEventListener('mouseup', stopDrawing)
     }
 
     // handleMouseUp
     const stopDrawing = () => {
-        if (!mainCanvasRef.current) return;
-        const canvas = mainCanvasRef.current
-        canvas.style.zIndex = '0'
-        const context = canvas.getContext('2d')
-        context?.closePath();
+        const mainCanvas = mainCanvasClass.current
+        if(!mainCanvas)return
+        mainCanvas.canvas.style.zIndex = '0'
         const newStroke: Stroke = {
-            color: color,
-            width: lineWidth,
+            color: colorRef.current,
+            width: lineWidthRef.current,
             coordinates: structuredClone(currentStroke.current),
             // to be calculated by add function
-            id: NaN,
-            layer: NaN
+            uid: NaN,
+            layer: NaN,
         }
-        const imageData = mainCanvasRef.current.toDataURL()
+        const imageData = mainCanvas.canvas.toDataURL()
+        mainCanvas.clear()
         DrawingBoardClassRef.current?.addStroke(newStroke, imageData);
-        // clear mainCanvas
-        context?.clearRect(0, 0, canvas.width, canvas.height)
-        canvas.removeEventListener('mousemove', draw)
-        canvas.removeEventListener('mouseup', stopDrawing)
+
+        mainCanvas.canvas.removeEventListener('mousemove', draw)
+        mainCanvas.canvas.removeEventListener('mouseup', stopDrawing)
+    }
+    const selectDrawing = (event: MouseEvent) => {
+        console.log('selecting')
+        if (!mainCanvasRef.current) return
+        const point: point = { x: event.clientX, y: event.clientY }
+        const stroke = DrawingBoardClassRef.current?.select(point)
+        if (stroke) {
+            const mainCanvas = mainCanvasClass.current
+            mainCanvas?.clear()
+            mainCanvas?.drawSelectedStroke(stroke)
+            // mainCanvas?.canvas.removeEventListener('mousedown',selectDrawing)
+            // setSelected('draw')
+        }
     }
 
     useEffect(() => {
         // add event listeners every time
         if (!mainCanvasRef.current) return;
         const canvas = mainCanvasRef.current
-        canvas.addEventListener('mousedown', startDrawing)
+        console.log(selected)
+        switch (selected) {
+            case 'draw':
+                console.log('opting draw')
+                canvas.addEventListener('mousedown', startDrawing)
+                break
+            case 'select':
+                console.log('opting select')
+                canvas.addEventListener('mousedown', selectDrawing)
+                break
+        }
+
         return () => {
             canvas.removeEventListener('mousedown', startDrawing)
+            canvas.removeEventListener('mousedown', selectDrawing)
         }
     })
+
     useEffect(() => {
         colorRef.current = color
-        lineWidthRef.current = lineWidth
+        lineWidthRef.current = Number(lineWidth)
     }, [color, lineWidth])
 
-    const [dimensions, setDimensions] = useState({
-        'width': 0,
-        'height': 0,
-    })
     useEffect(() => {
         // const handleResize = () => {
         // const dimensions = {
@@ -117,27 +146,25 @@ function DrawingBoard({ canvasContainerRef, DrawingBoardClassRef }: DrawingBoard
         //
         // return () => window.removeEventListener('resize', handleResize);
 
-        const dimensions = {
-            width: window.innerWidth,
-            height: window.innerHeight
-        }
-        setDimensions(dimensions)
     }, []);
 
     return (
         <div className="w-full p-2 h-full px-2 flex gap-5 bg-gray-500">
             {DrawingBoardClassRef.current && <SidePallete
+                selected={selected}
+                setSelected={setSelected}
+                options={OPTIONS}
                 onColorSelect={setColor}
                 setLineWidth={setLineWidth}
                 lineWidth={lineWidth}
                 // ? is because typescript can't infer above conditional
-                undo={()=>DrawingBoardClassRef.current?.undo()}
-                redo={()=>DrawingBoardClassRef.current?.redo()}
-                save={()=>DrawingBoardClassRef.current?.save()}
+                undo={() => DrawingBoardClassRef.current?.undo()}
+                redo={() => DrawingBoardClassRef.current?.redo()}
+                save={() => DrawingBoardClassRef.current?.save()}
             />}
             <LayerStack
                 canvasContainerRef={canvasContainerRef}
-                dimensions={dimensions}
+                refCanvasContainerRef={refCanvasContainerRef}
             />
             <MainCanvas
                 mainCanvasRef={mainCanvasRef}

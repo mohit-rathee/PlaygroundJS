@@ -10,7 +10,7 @@ export const initialLayer: Layer = {
 
 export const initialDrawingState: Drawing = [initialLayer]
 
-export const THRESHOLD_VALUE = 500
+export const THRESHOLD_VALUE = 100
 
 export const color_choices = [
     'darkred',

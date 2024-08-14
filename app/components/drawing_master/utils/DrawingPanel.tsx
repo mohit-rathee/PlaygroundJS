@@ -1,20 +1,28 @@
 import { THRESHOLD_VALUE } from "../initials";
 import { CanvasClass } from "./CanvasClass";
 import { initialDrawingState, initialStrokePointer } from "../initials";
-
-export class DrawingState {
+export class DrawingClass {
     private canvasList: CanvasClass[];
-    private canvasContainer: HTMLDivElement;
+    private pCanvasContainer: HTMLDivElement;
+    private rCanvasContainer: HTMLDivElement;
     private strokePointer: StrokePointer;
     private drawing: Drawing;
+    private dimensions: Dimensions;
 
     constructor(
-        canvasContainer: HTMLDivElement,
+        pCanvasContainer: HTMLDivElement,
+        rCanvasContainer: HTMLDivElement,
+        dimensions: Dimensions
     ) {
-        this.canvasContainer = canvasContainer
-        const canvas = canvasContainer.firstChild as HTMLCanvasElement
-        const canvasClass = new CanvasClass(canvas)
+        this.pCanvasContainer = pCanvasContainer
+        this.rCanvasContainer = rCanvasContainer
+        this.dimensions = dimensions
+        const canvasClass = new CanvasClass(dimensions)
         this.canvasList = [canvasClass]
+
+        this.pCanvasContainer.appendChild(canvasClass.pCanvas)
+        this.rCanvasContainer.appendChild(canvasClass.rCanvas)
+
         this.strokePointer = initialStrokePointer
         this.drawing = initialDrawingState
     }
@@ -51,19 +59,21 @@ export class DrawingState {
 
             // Adding new canvas
             if (this.canvasList.length < strokePointer.layer) {
-                const newCanvas = document.createElement('canvas')
-                newCanvas.className = 'fixed top-0 left-0 w-screen h-screen';
-                newCanvas.width = window.innerWidth;
-                newCanvas.height = window.innerHeight;
-                newCanvas.style.background = 'transparent';
-                this.canvasContainer.appendChild(newCanvas)
-                const newCanvasClass = new CanvasClass(newCanvas)
+                // const newCanvas = document.createElement('canvas')
+                // newCanvas.className = 'fixed top-0 left-0 w-screen h-screen';
+                // newCanvas.width = window.innerWidth;
+                // newCanvas.height = window.innerHeight;
+                // newCanvas.style.background = 'transparent';
+                const newCanvasClass = new CanvasClass(this.dimensions)
+                this.pCanvasContainer.appendChild(newCanvasClass.pCanvas)
+                this.rCanvasContainer.appendChild(newCanvasClass.rCanvas)
                 this.canvasList.push(newCanvasClass)
             }
             const canvas = this.canvasList[strokePointer.layer - 1]
             canvas.clear()
             canvas.setVisible(true)
-            canvas.drawImage(imgData)
+            const uid = canvas.drawStroke(imgData, stroke)
+            stroke.uid = uid
         } else {
             //OVERRIDE
             layerStack.length = strokePointer.layer
@@ -84,7 +94,8 @@ export class DrawingState {
             }
 
             // Add
-            canvas.drawImage(imgData)
+            const uid = canvas.drawStroke(imgData, stroke)
+            stroke.uid = uid
             console.log('layerLength:', newLength)
         }
         console.log('drawingState', layerStack)
@@ -200,16 +211,16 @@ export class DrawingState {
 
         const canvasArray = this.canvasList
         const canvasClass = canvasArray[0]
-        mergedCanvas.width = canvasClass.canvas.width
-        mergedCanvas.height = canvasClass.canvas.height
+        mergedCanvas.width = canvasClass.pCanvas.width
+        mergedCanvas.height = canvasClass.pCanvas.height
 
         // Draw each canvas onto the merged canvas
         if (!mergedCtx) return;
         mergedCtx.fillStyle = "#6b6f7b" // gray
         mergedCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height)
         canvasArray.forEach((canvasClass) => {
-            if (canvasClass.canvas.style.display == 'block') {
-                mergedCtx.drawImage(canvasClass.canvas, 0, 0);
+            if (canvasClass.pCanvas.style.display == 'block') {
+                mergedCtx.drawImage(canvasClass.pCanvas, 0, 0);
             }
         });
 
@@ -221,6 +232,27 @@ export class DrawingState {
         link.href = dataURL;
         link.download = 'drawing.jpg';
         link.click();
+    }
+    select(p: point) {
+        const canvasList = this.canvasList
+        for (let i = canvasList.length - 1; i >= 0; i--) {
+            if (canvasList[i].isVisible) {
+                const canvasClass = canvasList[i]
+                const uid = canvasClass.getStrokeId(p)
+                if (uid) {
+                    console.log('stroke found in layer ',i,' stroke no', uid)
+                    const layerData = this.drawing[i]
+                    // canvasClass.clear()
+                    // canvasClass.drawStrokes(0, uid - 1, layerData)
+                    // canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
+                    return layerData.strokes[uid-1]
+                } else {
+                    console.log('cant find in ',i)
+                }
+            }
+        }
+
+
     }
 
 }

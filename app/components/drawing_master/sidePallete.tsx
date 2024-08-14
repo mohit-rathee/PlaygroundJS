@@ -1,6 +1,6 @@
 import { color_choices } from "./initials";
 
-export default function SidePallete({ onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
+export default function SidePallete({ options, selected, setSelected, onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
     const handleSliderChange = (event: any) => {
         const value = event.target.value;
         setLineWidth(value);
@@ -8,6 +8,14 @@ export default function SidePallete({ onColorSelect, setLineWidth, lineWidth, un
 
     return (
         <div className='w-28 p-2 z-50 h-full flex flex-col bg-gray-700 rounded-sm'>
+            {options.map((option: string) => (
+                <div
+                    key={option}
+                    className={`p-1 rounded-md border-2 bg-blue-200 w-14 cursor-pointer
+                ${selected === option ? 'border-blue-800' : 'border-blue-200'} `}
+                    onClick={() => setSelected(option)}
+                >{option}</div>
+            ))}
             <span className="block mt-2 text-sky-50">
                 Color:
             </span>

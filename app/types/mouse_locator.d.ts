@@ -3,10 +3,10 @@ interface point {
     y: number;
 }
 interface Stroke {
-    id: Number;
+    uid: number;
     layer: number;
     coordinates: point[];
-    color: String;
+    color: string;
     width: number;
     // style
     // width ...etc
@@ -15,6 +15,7 @@ interface Layer {
     strokes: Stroke[];
     length: number;
 }
+type Dimensions = {'width':number,'height':number}
 
 interface StrokePointer {
     layer: number; // current layer index

@@ -1,19 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DrawingBoard from './drawingBoard'
-import { DrawingState as DrawingBoardClass } from './utils/DrawingPanel';
+import { DrawingClass } from './utils/DrawingPanel';
 
 
 
 export default function Playground() {
     const canvasContainerRef = useRef<HTMLDivElement | null>(null);
-    const drawingBoardClass = useRef<DrawingBoardClass | null>(null)
+    const refCanvasContainerRef = useRef<HTMLDivElement | null>(null);
+    const drawingClass = useRef<DrawingClass | null>(null)
+    const [dimensions, setDimensions] = useState({
+        'width': 0,
+        'height': 0,
+    })
     useEffect(() => {
-        if (canvasContainerRef.current) { 
+        console.log(canvasContainerRef.current)
+        console.log(refCanvasContainerRef.current)
+        if (canvasContainerRef.current && refCanvasContainerRef.current) { 
             const canvasContainer = canvasContainerRef.current
-            drawingBoardClass.current = new DrawingBoardClass(canvasContainer)
+            const refCanvasContainer = refCanvasContainerRef.current
+            const dimensions = {
+                'width': window.innerWidth/2,
+                'height': window.innerHeight
+            }
+            setDimensions(dimensions)
+            drawingClass.current = new DrawingClass(canvasContainer, refCanvasContainer, dimensions)
         }
         else {
-            throw Error("can't create canvas container")
+            throw new Error("can't create canvas container")
         }
     }, [])
 
@@ -22,7 +35,9 @@ export default function Playground() {
         <div className='w-full h-full flex-col bg-gray-200 gap-2 flex items-center justify-start'>
             <DrawingBoard
                 canvasContainerRef={canvasContainerRef}
-                DrawingBoardClassRef={drawingBoardClass}
+                refCanvasContainerRef={refCanvasContainerRef}
+                DrawingBoardClassRef={drawingClass}
+                dimensions = {dimensions}
             />
         </div>
     )
