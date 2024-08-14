@@ -24,3 +24,5 @@ export const MainCanvas = React.memo(({ mainCanvasRef, dimensions }: any) => {
         />
     )
 })
+MainCanvas.displayName='MainCanvas'
+LayerStack.displayName='LayerStack'

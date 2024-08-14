@@ -4,7 +4,6 @@ import SidePallete from "./sidePallete";
 import { LayerStack, MainCanvas } from "./layerStack";
 import { DrawingClass } from "./utils/DrawingClass";
 import { MainCanvasClass } from "./utils/MainCanvasClass";
-import { initialStroke } from "./initials";
 
 interface DrawingBoardProp {
     canvasContainerRef: React.RefObject<HTMLDivElement>;
@@ -54,7 +53,6 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
             x: event.clientX,
             y: event.clientY,
         };
-        console.log(initialStroke)
         mainCanvas?.clear()
         mainCanvas?.start(startingPoint, color, Number(lineWidth))
         mainCanvas?.canvas.addEventListener('mousemove', draw)
