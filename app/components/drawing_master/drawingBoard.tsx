@@ -2,8 +2,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import SidePallete from "./sidePallete";
 import { LayerStack, MainCanvas } from "./layerStack";
-import { DrawingClass } from "./utils/DrawingPanel";
+import { DrawingClass } from "./utils/DrawingClass";
 import { MainCanvasClass } from "./utils/MainCanvasClass";
+import { initialStroke } from "./initials";
 
 interface DrawingBoardProp {
     canvasContainerRef: React.RefObject<HTMLDivElement>;
@@ -15,8 +16,7 @@ interface DrawingBoardProp {
 const OPTIONS = ['draw', 'select']
 
 function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardClassRef, dimensions }: DrawingBoardProp) {
-    const currentStroke = useRef<point[]>([])
-
+    console.log('rerendering')
     const [color, setColor] = useState<string>('darkred')
     const [lineWidth, setLineWidth] = useState<number>(5);
     const [selected, setSelected] = useState<string>('draw')
@@ -44,44 +44,51 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
             y: event.clientY,
         };
         mainCanvas?.draw(newPoint)
-        currentStroke.current.push(newPoint)
     }
 
     // handleMouseDown
     const startDrawing = (event: MouseEvent) => {
         const mainCanvas = mainCanvasClass.current
-        const canvas = mainCanvasRef.current
-        if (!canvas) return
-        canvas.style.zIndex = '100'
+        mainCanvas?.setOnTop(true)
         const startingPoint = {
             x: event.clientX,
             y: event.clientY,
         };
-        currentStroke.current = [startingPoint]
+        console.log(initialStroke)
         mainCanvas?.clear()
-        mainCanvas?.start(startingPoint, color, lineWidth)
-        canvas.addEventListener('mousemove', draw)
-        canvas.addEventListener('mouseup', stopDrawing)
+        mainCanvas?.start(startingPoint, color, Number(lineWidth))
+        mainCanvas?.canvas.addEventListener('mousemove', draw)
+        mainCanvas?.canvas.addEventListener('mouseup', stopDrawing)
     }
 
     // handleMouseUp
     const stopDrawing = () => {
         const mainCanvas = mainCanvasClass.current
         if (!mainCanvas) return
-        mainCanvas.canvas.style.zIndex = '0'
-        const newStroke: Stroke = {
-            color: colorRef.current,
-            width: lineWidthRef.current,
-            coordinates: structuredClone(currentStroke.current),
-            // to be calculated by add function
-            uid: NaN,
-        }
-        const imageData = mainCanvas.canvas.toDataURL()
+        mainCanvas.setOnTop(false)
+        const newStroke = mainCanvas.getStroke()
+        const imageData = mainCanvas.getImageData()
         mainCanvas.clear()
-        DrawingBoardClassRef.current?.addStroke(newStroke, imageData);
-
+        DrawingBoardClassRef.current?.addStroke(newStroke, imageData)
         mainCanvas.canvas.removeEventListener('mousemove', draw)
         mainCanvas.canvas.removeEventListener('mouseup', stopDrawing)
+    }
+    const drag = (e: MouseEvent) => {
+        const pos:point = {'x':e.clientX,'y':e.clientY}
+        const mainCanvas = mainCanvasClass.current
+        mainCanvas?.dragSelectedTo(pos)
+    }
+    const placeAt = (e:MouseEvent)=>{
+        const pos:point = {'x':e.clientX,'y':e.clientY}
+        const mainCanvas = mainCanvasClass.current
+        if(!mainCanvas?.seletedStroke)return
+        const layer = mainCanvas.seletedStroke.layer
+        const stroke_id = mainCanvas.seletedStroke.stroke_id
+        DrawingBoardClassRef.current?.placeStrokeAt(layer,stroke_id,pos)
+        mainCanvas?.clear()
+        mainCanvas?.canvas.removeEventListener('mousemove',drag)
+        mainCanvas?.canvas.removeEventListener('mousedown',placeAt)
+
     }
     const selectDrawing = (event: MouseEvent) => {
         if (!mainCanvasRef.current) return
@@ -90,7 +97,11 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         const point: point = { x: event.clientX, y: event.clientY }
         const stroke = DrawingBoardClassRef.current?.select(point)
         if (stroke) {
-            mainCanvas?.drawSelectedStroke(stroke)
+            mainCanvas?.setSelected(stroke.layer,stroke.stroke_id,stroke.stroke)
+            // mainCanvas?.drawSelectedStroke()
+            drag(event)
+            mainCanvas?.canvas.addEventListener('mousemove', drag)
+            mainCanvas?.canvas.addEventListener('mousedown',placeAt)
         }
     }
 
@@ -98,7 +109,6 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         // add event listeners every time
         if (!mainCanvasRef.current) return;
         const canvas = mainCanvasRef.current
-        console.log(selected)
         switch (selected) {
             case 'draw':
                 canvas.addEventListener('mousedown', startDrawing)

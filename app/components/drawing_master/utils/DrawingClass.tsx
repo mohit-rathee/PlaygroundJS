@@ -29,6 +29,7 @@ export class DrawingClass {
 
     addStroke(stroke: Stroke, imgData: string) {
         console.log('adding stroke')
+        console.log(stroke)
         const strokePointer = this.strokePointer
         const layerStack = this.drawing
         const layerLength = layerStack[strokePointer.layer - 1].length
@@ -50,7 +51,7 @@ export class DrawingClass {
             // for color mapping for this layer
 
             // PUSH NEXT LAYER
-            stroke.uid=strokePointer.stroke_id
+            stroke.uid = strokePointer.stroke_id
             const nextLayer: Layer = {
                 length: stroke.coordinates.length,
                 strokes: [stroke]
@@ -85,7 +86,7 @@ export class DrawingClass {
 
             // PUSH
             const layerData = layerStack[layerStack.length - 1]
-            stroke.uid=strokePointer.stroke_id
+            stroke.uid = strokePointer.stroke_id
             layerData.strokes.push(stroke)
             layerData.length = newLength
 
@@ -235,6 +236,31 @@ export class DrawingClass {
         link.download = 'drawing.jpg';
         link.click();
     }
+    placeStrokeAt(layer:number,stroke_id:number,p:point){
+        const stroke = this.drawing[layer].strokes[stroke_id-1]
+        const prevCenter = stroke.centerP
+        stroke.centerP = p
+        const shiftX = p.x - prevCenter.x
+        const shiftY = p.y - prevCenter.y
+        stroke.minP.x = stroke.minP.x + shiftX
+        stroke.minP.y = stroke.minP.y + shiftY
+        stroke.maxP.x = stroke.maxP.x + shiftX
+        stroke.maxP.y  = stroke.maxP.y + shiftY
+        this.redrawLayer(layer)
+        // draw Strokes of that layer again
+
+    }
+    redrawLayer(layerIndex:number){
+        const layerData = this.drawing[layerIndex]
+        const canvas = this.canvasList[layerIndex]
+        canvas.clear()
+        if(this.strokePointer.layer==layerIndex+1){
+            canvas.drawStrokes(0,this.strokePointer.stroke_id,layerData)
+        }else{
+            canvas.drawStrokes(0,layerData.strokes.length,layerData)
+
+        }
+    }
     select(p: point) {
         const canvasList = this.canvasList
         for (let i = canvasList.length - 1; i >= 0; i--) {
@@ -244,10 +270,14 @@ export class DrawingClass {
                 if (uid) {
                     console.log('stroke found in layer ', i, ' stroke no', uid)
                     const layerData = this.drawing[i]
-                    // canvasClass.clear()
-                    // canvasClass.drawStrokes(0, uid - 1, layerData)
-                    // canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
-                    return layerData.strokes[uid - 1]
+                    canvasClass.clear()
+                    canvasClass.drawStrokes(0, uid - 1, layerData)
+                    canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
+                    return { 
+                        'layer': i,
+                        'stroke_id': uid,
+                        'stroke': layerData.strokes[uid - 1] 
+                    }
                 } else {
                     console.log('cant find in ', i)
                 }

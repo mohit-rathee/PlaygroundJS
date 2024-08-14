@@ -8,6 +8,13 @@ export const initialLayer: Layer = {
     length: 0
 }
 
+export const initialStroke: Stroke = {
+    "uid": NaN,
+    "coordinates": [],
+    "color": '',
+    "lineWidth": NaN,
+}
+
 export const initialDrawingState: Drawing = [initialLayer]
 
 export const THRESHOLD_VALUE = 100

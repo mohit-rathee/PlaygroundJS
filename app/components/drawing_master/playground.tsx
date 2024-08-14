@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import DrawingBoard from './drawingBoard'
-import { DrawingClass } from './utils/DrawingPanel';
+import { DrawingClass } from './utils/DrawingClass';
 
 
 

@@ -6,7 +6,10 @@ interface Stroke {
     uid: number;
     coordinates: point[];
     color: string;
-    width: number;
+    lineWidth: number;
+    maxP:point;
+    minP:point;
+    centerP:point;
     // style
     // width ...etc
 };

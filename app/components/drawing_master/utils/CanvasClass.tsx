@@ -29,10 +29,6 @@ export class CanvasClass {
         newCanvas.style.background = 'transparent'
         return newCanvas
     }
-    // getUID() {
-    //     this.uid = this.uid + 1
-    //     return this.uid
-    // }
 
     setVisible(isVisible: boolean) {
         if (isVisible == true && this.isVisible == false) {
@@ -53,6 +49,8 @@ export class CanvasClass {
             const dimensions = this.dimensions
             pContext.clearRect(0, 0, dimensions.width, dimensions.height)
             rContext.clearRect(0, 0, dimensions.width, dimensions.height)
+            pContext.setTransform(1, 0, 0, 1, 0, 0);
+            rContext.setTransform(1, 0, 0, 1, 0, 0);
         }
     }
 
@@ -67,19 +65,20 @@ export class CanvasClass {
         const contexts = this.getContext()
         const [pContext, rContext] = contexts
         for (let i = start; i < end; i++) {
-            console.log(i)
             const stroke = layerData.strokes[i]
             const stroke_points = stroke.coordinates
             pContext.beginPath();
             pContext.strokeStyle = stroke.color.toString();
-            pContext.lineWidth = stroke.width.valueOf()
+            pContext.lineWidth = stroke.lineWidth.valueOf()
             pContext.lineCap = 'round'
+            pContext.translate(stroke.centerP.x,stroke.centerP.y)
             pContext.moveTo(stroke_points[0].x, stroke_points[0].y);
 
             rContext.beginPath();
             rContext.strokeStyle = intToRGBColor(stroke.uid)
-            rContext.lineWidth = stroke.width.valueOf() + 5;
+            rContext.lineWidth = stroke.lineWidth.valueOf() + 5;
             rContext.lineCap = 'round'
+            rContext.translate(stroke.centerP.x,stroke.centerP.y)
             rContext.moveTo(stroke_points[0].x, stroke_points[0].y);
 
             stroke_points.forEach((point: point, index: number) => {
@@ -90,25 +89,28 @@ export class CanvasClass {
                 pContext.stroke()
                 rContext.stroke()
             });
+            pContext.setTransform(1, 0, 0, 1, 0, 0);
+            rContext.setTransform(1, 0, 0, 1, 0, 0);
         }
-        pContext.closePath()
-        rContext.closePath()
     }
 
     drawStroke(imgData: string, stroke: Stroke) {
+
         const contexts = this.getContext()
         const [pContext, rContext] = contexts
         // pDrawing
         const img = new Image()
         img.src = imgData
         img.onload = () => {
-            pContext.drawImage(img, 0, 0);
+            requestAnimationFrame(() => {
+                pContext.drawImage(img, 0, 0);
+            })
         }
         // rDrawing
-        rContext.lineWidth = stroke.width + 5
-        console.log('UID',stroke.uid)
+        rContext.lineWidth = stroke.lineWidth + 5
         rContext.strokeStyle = intToRGBColor(stroke.uid)
         rContext.lineCap = 'round'
+        rContext.translate(stroke.centerP.x,stroke.centerP.y)
 
         const stroke_points = stroke.coordinates
         rContext.beginPath();
@@ -119,7 +121,7 @@ export class CanvasClass {
             }
             rContext.stroke()
         });
-        rContext.closePath()
+        rContext.translate(0,0)
     }
     getStrokeId(p: point): number {
         const contexts = this.getContext()
@@ -130,7 +132,6 @@ export class CanvasClass {
         const green = pixel[1];
         const blue = pixel[2];
         const alpha = pixel[3];
-        console.log(red,blue,green,alpha)
         if (alpha > 0) {
             const uid = rgbToINTColor(red, green, blue)
             return uid
