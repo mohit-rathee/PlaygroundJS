@@ -4,7 +4,6 @@ interface point {
 }
 interface Stroke {
     uid: number;
-    layer: number;
     coordinates: point[];
     color: string;
     width: number;
