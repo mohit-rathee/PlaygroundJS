@@ -6,18 +6,25 @@ export class CanvasClass {
     // private uid: number;
     private dimensions: Dimensions
 
-    constructor(dimensions: Dimensions) {
+    constructor(dimensions: Dimensions,isDebugMode:boolean) {
         this.dimensions = dimensions
-        this.pCanvas = this.createNewCanvas(true);
-        this.rCanvas = this.createNewCanvas(false)
+        this.pCanvas = this.createNewCanvas(true,true);
+        this.rCanvas = this.createNewCanvas(isDebugMode,false)
 
         this.isVisible = true;
         // this.uid = 0
     }
 
-    createNewCanvas(isP: boolean) {
+    createNewCanvas(isP: boolean,onLeft: boolean) {
         const newCanvas = document.createElement('canvas')
-        newCanvas.className = 'fixed top-0 left-0 w-screen h-screen';
+        var newCanvasClassName = 'fixed top-0  h-screen';
+        if (onLeft){
+            newCanvasClassName+=' left-0'
+        }else{
+            newCanvasClassName+=' left-[50%]'
+
+        }
+        newCanvas.className = newCanvasClassName
         if (isP) {
             newCanvas.style.display = 'block'
         } else {
@@ -107,6 +114,8 @@ export class CanvasClass {
             })
         }
         // rDrawing
+        console.log('----------')
+        console.log(this.rCanvas)
         rContext.lineWidth = stroke.lineWidth + 5
         rContext.strokeStyle = intToRGBColor(stroke.uid)
         rContext.lineCap = 'round'
@@ -121,7 +130,7 @@ export class CanvasClass {
             }
             rContext.stroke()
         });
-        rContext.translate(0,0)
+        rContext.setTransform(1, 0, 0, 1, 0, 0);
     }
     getStrokeId(p: point): number {
         const contexts = this.getContext()

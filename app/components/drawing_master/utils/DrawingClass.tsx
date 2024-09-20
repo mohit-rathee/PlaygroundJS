@@ -8,16 +8,19 @@ export class DrawingClass {
     private strokePointer: StrokePointer;
     private drawing: Drawing;
     private dimensions: Dimensions;
+    private isDebugMode: boolean;
 
     constructor(
         pCanvasContainer: HTMLDivElement,
         rCanvasContainer: HTMLDivElement,
-        dimensions: Dimensions
+        dimensions: Dimensions,
+        isDebugMode: boolean
     ) {
         this.pCanvasContainer = pCanvasContainer
         this.rCanvasContainer = rCanvasContainer
         this.dimensions = dimensions
-        const canvasClass = new CanvasClass(dimensions)
+        this.isDebugMode = isDebugMode
+        const canvasClass = new CanvasClass(dimensions,isDebugMode)
         this.canvasList = [canvasClass]
 
         this.pCanvasContainer.appendChild(canvasClass.pCanvas)
@@ -66,7 +69,7 @@ export class DrawingClass {
                 // newCanvas.width = window.innerWidth;
                 // newCanvas.height = window.innerHeight;
                 // newCanvas.style.background = 'transparent';
-                const newCanvasClass = new CanvasClass(this.dimensions)
+                const newCanvasClass = new CanvasClass(this.dimensions,this.isDebugMode)
                 this.pCanvasContainer.appendChild(newCanvasClass.pCanvas)
                 this.rCanvasContainer.appendChild(newCanvasClass.rCanvas)
                 this.canvasList.push(newCanvasClass)

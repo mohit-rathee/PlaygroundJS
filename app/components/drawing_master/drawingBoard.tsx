@@ -159,7 +159,6 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
                 onColorSelect={setColor}
                 setLineWidth={setLineWidth}
                 lineWidth={lineWidth}
-                // ? is because typescript can't infer above conditional
                 undo={() => {
                     mainCanvasClass.current?.clear()
                     DrawingBoardClassRef.current?.undo()
