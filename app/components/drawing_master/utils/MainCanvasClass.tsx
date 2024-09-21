@@ -1,13 +1,12 @@
 export class MainCanvasClass {
     public canvas: HTMLCanvasElement;
-    public seletedStroke: { 
+    public selectedStroke: { 
         'layer': number,
         'stroke_id': number,
         'stroke': Stroke
     } | null;
     // private dimensions: Dimensions
     private context: CanvasRenderingContext2D
-    // public rCanvas: HTMLCanvasElement;
     // public isVisible: boolean;
     private coordinates: point[];
     private color: string;
@@ -17,10 +16,11 @@ export class MainCanvasClass {
     private minY: number;
     private maxX: number;
     private maxY: number;
+    private imgData: string;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
-        this.seletedStroke = null;
+        this.selectedStroke = null;
         // this.dimensions = {
         //     'width': canvas.width,
         //     'height': canvas.height,
@@ -39,6 +39,7 @@ export class MainCanvasClass {
         this.minY = NaN
         this.maxX = NaN
         this.maxY = NaN
+        this.imgData = ''
     }
     getContext(): CanvasRenderingContext2D {
         const context = this.context
@@ -54,11 +55,9 @@ export class MainCanvasClass {
         // const dimensions = this.dimensions
         context.clearRect(0, 0, this.canvas.width, this.canvas.height)
         // rContext.clearRect(0, 0, dimensions.width, dimensions.height)
-        console.log('clearing')
     }
 
     drawGizmo(pMin: point, pMax: point) {
-        console.log(pMin, pMax)
         const ctx = this.context
         ctx.save()
         ctx.setLineDash([5, 5])
@@ -72,22 +71,32 @@ export class MainCanvasClass {
         ctx.lineWidth = 2
         ctx.stroke()
         ctx.restore()
-        console.log('drawing gizmo')
     }
 
     dragSelectedTo(p: point) {
-        if (!this.seletedStroke) return
+        if (!this.selectedStroke) return
         const context = this.context
         this.clear()
         context.save()
-        this.drawSelectedStroke(p)
+
+        const gapX = p.x - this.canvas.width/2
+        const gapY = p.y - this.canvas.height/2
+        // context.translate(gapX,gapY)
+        const img = new Image()
+        img.src = this.imgData
+        img.onload = () => {
+            requestAnimationFrame(() => {
+                context.drawImage(img, gapX, gapY);
+            })
+        }
+        // context.drawImage(this.imgData,gapX,gapY)
         context.restore()
 
 
     }
     drawSelectedStroke(p:point) {
         // const [minP, maxP] = this.getMinMaxPoints(stroke.coordinates)
-        const stroke = this.seletedStroke?.stroke
+        const stroke = this.selectedStroke?.stroke
         if (!stroke) return
         // this.drawGizmo(stroke.minP, stroke.maxP)
 
@@ -98,6 +107,7 @@ export class MainCanvasClass {
         context.lineCap = 'round'
 
         const stroke_points = stroke.coordinates
+        context.save()
         context.beginPath();
         context.translate(p.x,p.y)
         context.moveTo(stroke_points[0].x, stroke_points[0].y)
@@ -108,6 +118,8 @@ export class MainCanvasClass {
             context.stroke()
         });
         // context.closePath()
+        this.imgData = this.getImageData()
+        context.restore()
     }
 
     start(p: point, color: string, lineWidth: number) {
@@ -124,7 +136,6 @@ export class MainCanvasClass {
         context.strokeStyle = color
         context.lineWidth = lineWidth
         context.lineCap = 'round'
-        console.log('starting')
     }
 
     // OPTIMISATION: only give good points, don't repeat last point
@@ -156,17 +167,19 @@ export class MainCanvasClass {
             if (bool) {
                 this.canvas.style.zIndex = '100'
             } else {
-                console.log('zIndex to 0')
                 this.canvas.style.zIndex = '0'
             }
         })
     }
-    setSelected(layer:number,stroke_id:number,stroke: Stroke) {
-        this.seletedStroke = {
+    setSelected(layer:number,stroke_id:number,stroke: Stroke,e: any) {
+        this.selectedStroke = {
             'layer':layer,
             'stroke_id':stroke_id,
             'stroke':stroke
         }
+        const pos:point = {'x':e.clientX,'y':e.clientY}
+        const origin:point = {'x':this.canvas.width/2,'y':this.canvas.height/2}
+        this.drawSelectedStroke(origin)
     }
     getStroke(): Stroke {
         const maxP = { 'x': this.maxX, 'y': this.maxY }
@@ -178,7 +191,6 @@ export class MainCanvasClass {
             'x': point.x-centerX,
             'y': point.y-centerY,
         }))
-        console.log(newCoordinates)
         return {
             'uid': NaN,
             'coordinates': newCoordinates,

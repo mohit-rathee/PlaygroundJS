@@ -75,18 +75,20 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         const pos:point = {'x':e.clientX,'y':e.clientY}
         const mainCanvas = mainCanvasClass.current
         mainCanvas?.dragSelectedTo(pos)
+        console.log('draging')
     }
     const placeAt = (e:MouseEvent)=>{
         const pos:point = {'x':e.clientX,'y':e.clientY}
         const mainCanvas = mainCanvasClass.current
-        if(!mainCanvas?.seletedStroke)return
-        const layer = mainCanvas.seletedStroke.layer
-        const stroke_id = mainCanvas.seletedStroke.stroke_id
+        if(!mainCanvas?.selectedStroke)return
+        const layer = mainCanvas.selectedStroke.layer
+        const stroke_id = mainCanvas.selectedStroke.stroke_id
         DrawingBoardClassRef.current?.placeStrokeAt(layer,stroke_id,pos)
         mainCanvas?.clear()
         mainCanvas?.canvas.removeEventListener('mousemove',drag)
         mainCanvas?.canvas.removeEventListener('mousedown',placeAt)
-
+        console.log('placint at')
+        mainCanvas?.canvas.addEventListener('mousedown', selectDrawing)
     }
     const selectDrawing = (event: MouseEvent) => {
         if (!mainCanvasRef.current) return
@@ -95,11 +97,12 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         const point: point = { x: event.clientX, y: event.clientY }
         const stroke = DrawingBoardClassRef.current?.select(point)
         if (stroke) {
-            mainCanvas?.setSelected(stroke.layer,stroke.stroke_id,stroke.stroke)
+            mainCanvas?.setSelected(stroke.layer,stroke.stroke_id,stroke.stroke,event)
             // mainCanvas?.drawSelectedStroke()
             drag(event)
             mainCanvas?.canvas.addEventListener('mousemove', drag)
             mainCanvas?.canvas.addEventListener('mousedown',placeAt)
+            mainCanvas?.canvas.removeEventListener('mousedown', selectDrawing)
         }
     }
 
