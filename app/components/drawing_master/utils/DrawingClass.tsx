@@ -30,9 +30,7 @@ export class DrawingClass {
         this.drawing = initialDrawingState
     }
 
-    addStroke(stroke: Stroke, imgData: string) {
-        console.log('adding stroke')
-        console.log(stroke)
+    addStroke(stroke: Stroke) {
         const strokePointer = this.strokePointer
         const layerStack = this.drawing
         const layerLength = layerStack[strokePointer.layer - 1].length
@@ -78,7 +76,7 @@ export class DrawingClass {
             canvas.clear()
             canvas.setVisible(true)
             // TODO get uid
-            canvas.drawStroke(imgData, stroke)
+            canvas.drawStroke(stroke)
         } else {
             //OVERRIDE
             layerStack.length = strokePointer.layer
@@ -101,7 +99,7 @@ export class DrawingClass {
             }
 
             // Add
-            canvas.drawStroke(imgData, stroke)
+            canvas.drawStroke(stroke)
             console.log('layerLength:', newLength)
         }
         console.log('drawingState', layerStack)
@@ -246,8 +244,8 @@ export class DrawingClass {
         const shiftX = p.x - prevCenter.x
         const shiftY = p.y - prevCenter.y
         stroke.minP.x = stroke.minP.x + shiftX
-        stroke.minP.y = stroke.minP.y + shiftY
         stroke.maxP.x = stroke.maxP.x + shiftX
+        stroke.minP.y = stroke.minP.y + shiftY
         stroke.maxP.y  = stroke.maxP.y + shiftY
         this.redrawLayer(layer)
         // draw Strokes of that layer again

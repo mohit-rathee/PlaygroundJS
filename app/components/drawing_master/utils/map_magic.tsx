@@ -5,7 +5,8 @@ export function intToRGBColor(n: number) {
     const red = (n >> 16) & 0xFF;
     const green = (n >> 8) & 0xFF;
     const blue = n & 0xFF;
-    return `rgb(${red}, ${green}, ${blue})`;
+    return [red, green, blue]
+    // return `rgb(${red}, ${green}, ${blue})`;
 }
 export function rgbToINTColor(r: number, g: number, b: number) {
     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {

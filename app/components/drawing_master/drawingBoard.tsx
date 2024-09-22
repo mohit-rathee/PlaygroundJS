@@ -65,9 +65,9 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         if (!mainCanvas) return
         mainCanvas.setOnTop(false)
         const newStroke = mainCanvas.getStroke()
-        const imageData = mainCanvas.getImageData()
+        newStroke.image = mainCanvas.getImageData()
         mainCanvas.clear()
-        DrawingBoardClassRef.current?.addStroke(newStroke, imageData)
+        DrawingBoardClassRef.current?.addStroke(newStroke)
         mainCanvas.canvas.removeEventListener('mousemove', draw)
         mainCanvas.canvas.removeEventListener('mouseup', stopDrawing)
     }
@@ -83,7 +83,8 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         if(!mainCanvas?.selectedStroke)return
         const layer = mainCanvas.selectedStroke.layer
         const stroke_id = mainCanvas.selectedStroke.stroke_id
-        DrawingBoardClassRef.current?.placeStrokeAt(layer,stroke_id,pos)
+        const gap = mainCanvas.getGap(pos)
+        DrawingBoardClassRef.current?.placeStrokeAt(layer,stroke_id,gap)
         mainCanvas?.clear()
         mainCanvas?.canvas.removeEventListener('mousemove',drag)
         mainCanvas?.canvas.removeEventListener('mousedown',placeAt)

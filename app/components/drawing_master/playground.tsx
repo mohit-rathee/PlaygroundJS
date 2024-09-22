@@ -8,7 +8,7 @@ export default function Playground() {
     const canvasContainerRef = useRef<HTMLDivElement | null>(null);
     const refCanvasContainerRef = useRef<HTMLDivElement | null>(null);
     const drawingClass = useRef<DrawingClass | null>(null)
-    const [isDebugMode, _setDebugMode] = useState(true);
+    const [isDebugMode, _setDebugMode] = useState(false);
     const [dimensions, setDimensions] = useState({
         'width': 0,
         'height': 0,

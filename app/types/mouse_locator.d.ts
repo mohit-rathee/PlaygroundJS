@@ -5,6 +5,7 @@ interface point {
 interface Stroke {
     uid: number;
     coordinates: point[];
+    image: string;
     color: string;
     lineWidth: number;
     maxP:point;
