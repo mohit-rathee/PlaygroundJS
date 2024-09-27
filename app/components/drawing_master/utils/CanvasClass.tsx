@@ -1,3 +1,4 @@
+import { catmullRom } from "./map_magic";
 import { rgbToINTColor, intToRGBColor } from "./map_magic";
 export class CanvasClass {
     public pCanvas: HTMLCanvasElement;
@@ -15,9 +16,74 @@ export class CanvasClass {
         // this.uid = 0
     }
 
+    drawDot(p: point, radius = 5, color = 'black') {
+        const [pctx,_rctx] = this.getContext()
+        pctx.beginPath();
+        pctx.arc(p.x, p.y, radius, 0, Math.PI * 2); // Draw a full circle
+        pctx.fillStyle = color;
+        pctx.fill();
+        pctx.closePath();
+    }
+    drawNormalStrokes(stroke:Stroke){
+        const [pctx,_rctx] = this.getContext()
+        const points = stroke.coordinates
+        pctx.beginPath();
+        pctx.save()
+        pctx.lineWidth = stroke.lineWidth
+        pctx.strokeStyle = stroke.color
+        pctx.translate(stroke.centerP.x,stroke.centerP.y)
+        pctx.moveTo(points[0].x, points[0].y);
+        for (let i = 0; i < points.length - 1; i++) {
+            const p = points[i];
+            pctx.lineTo(p.x, p.y);
+        }
+        pctx.stroke()
+        for (let i = 0; i < points.length - 1; i++) {
+            const p = points[i];
+            this.drawDot(p,Math.max(stroke.lineWidth-3,3),'blue')
+        }
+        pctx.restore()
+    }
+    drawCatmullRomSpline(stroke: Stroke) {
+        const [pctx,_rctx] = this.getContext()
+
+        const points = stroke.coordinates
+        // Mirror the necessary points for smoother start and end
+        const extPoints = [
+            { x: 2 * points[0].x - points[1].x, y: 2 * points[0].y - points[1].y }, // Mirror first point
+            ...points,
+            { x: 2 * points[points.length - 1].x - points[points.length - 2].x, y: 2 * points[points.length - 1].y - points[points.length - 2].y } // Mirror last point
+        ];
+
+        requestAnimationFrame(()=>{
+        pctx.beginPath();
+        pctx.save()
+        pctx.lineWidth = stroke.lineWidth
+        pctx.strokeStyle = stroke.color
+        pctx.translate(stroke.centerP.x,stroke.centerP.y)
+        // pctx.scale(2,2)
+        pctx.moveTo(extPoints[1].x, extPoints[1].y);
+        for (let i = 0; i < extPoints.length - 3; i++) {
+            const p0 = extPoints[i];
+            const p1 = extPoints[i + 1];
+            const p2 = extPoints[i + 2];
+            const p3 = extPoints[i + 3];
+            for (let t = 0; t <= 1; t += 0.1) { 
+                const { x, y } = catmullRom(p0, p1, p2, p3, t);
+                pctx.lineTo(x, y);
+            }
+        }
+            pctx.stroke()
+        })
+        const len = extPoints.length-2
+        pctx.lineTo(extPoints[len].x, extPoints[len].y);
+        pctx.stroke()
+        pctx.restore()
+    }
     createNewCanvas(isP: boolean, onLeft: boolean) {
         const newCanvas = document.createElement('canvas')
-        var newCanvasClassName = 'fixed top-0  h-screen';
+        newCanvas.style.setProperty('image-rendering', 'pixelated');
+        var newCanvasClassName = 'fixed top-0 image h-screen';
         if (onLeft) {
             newCanvasClassName += ' left-0'
         } else {
@@ -75,20 +141,24 @@ export class CanvasClass {
         const [pContext, rContext] = contexts
         for (let i = start; i < end; i++) {
             const stroke = layerData.strokes[i]
-            const strokeImg = new Image
-            strokeImg.src = stroke.image
-            strokeImg.onload = () => {
-                requestAnimationFrame(() => {
-                    pContext.drawImage(strokeImg, stroke.centerP.x, stroke.centerP.y);
-                })
-                const modifiedImage = new Image();
-                const color = intToRGBColor(stroke.uid)
-                modifiedImage.src = this.changeImageColor(strokeImg, color);
-                modifiedImage.onload = () => {
-                    // rContext.drawImage(modifiedImage, 0, 0);
-                    rContext.drawImage(modifiedImage, stroke.centerP.x, stroke.centerP.y);
-                };
-            }
+            this.drawCatmullRomSpline(stroke)
+            // this.drawNormalStrokes(stroke)
+            // const strokeImg = new Image
+            // strokeImg.src = stroke.image
+            // strokeImg.onload = () => {
+            //     requestAnimationFrame(() => {
+            //         pContext.save()
+            //         pContext.drawImage(strokeImg, stroke.centerP.x, stroke.centerP.y);
+            //         pContext.restore()
+            //     })
+            //     const modifiedImage = new Image();
+            //     const color = intToRGBColor(stroke.uid)
+            //     modifiedImage.src = this.changeImageColor(strokeImg, color);
+            //     modifiedImage.onload = () => {
+            //         // rContext.drawImage(modifiedImage, 0, 0);
+            //         rContext.drawImage(modifiedImage, stroke.centerP.x, stroke.centerP.y);
+            //     };
+            // }
         }
         pContext.setTransform(1, 0, 0, 1, 0, 0);
         rContext.setTransform(1, 0, 0, 1, 0, 0);
@@ -98,20 +168,24 @@ export class CanvasClass {
 
         const contexts = this.getContext()
         const [pContext, rContext] = contexts
+        this.drawCatmullRomSpline(stroke)
+        // this.drawNormalStrokes(stroke)
         // pDrawing
-        const img = new Image()
-        img.src = stroke.image
-        img.onload = () => {
-            requestAnimationFrame(() => {
-                pContext.drawImage(img, 0, 0);
-            })
-            const modifiedImage = new Image();
-            const color = intToRGBColor(stroke.uid)
-            modifiedImage.src = this.changeImageColor(img, color);
-            modifiedImage.onload = () => {
-                rContext.drawImage(modifiedImage, 0, 0);
-            };
-        }
+        // const img = new Image()
+        // img.src = stroke.image
+        // img.onload = () => {
+        //     requestAnimationFrame(() => {
+        //         pContext.save()
+        //         pContext.drawImage(img, 0, 0);
+        //         pContext.restore()
+        //     })
+        //     const modifiedImage = new Image();
+        //     const color = intToRGBColor(stroke.uid)
+        //     modifiedImage.src = this.changeImageColor(img, color);
+        //     modifiedImage.onload = () => {
+        //         rContext.drawImage(modifiedImage, 0, 0);
+        //     };
+        // }
     }
     getStrokeId(p: point): number {
         const contexts = this.getContext()

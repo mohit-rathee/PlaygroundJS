@@ -1,3 +1,4 @@
+import { catmullRom } from "./map_magic";
 export class MainCanvasClass {
     public canvas: HTMLCanvasElement;
     public selectedStroke: {
@@ -9,6 +10,7 @@ export class MainCanvasClass {
     private context: CanvasRenderingContext2D
     // public isVisible: boolean;
     private coordinates: point[];
+    private threshold: number;
     private color: string;
     private lineWidth: number;
     private lastP: point;
@@ -32,6 +34,7 @@ export class MainCanvasClass {
         // this.rCanvas = this.createNewCanvas(false)
         // this.isVisible = true;
         this.coordinates = []
+        this.threshold = 0
         this.color = ''
         this.lineWidth = NaN
         this.lastP = { 'x': NaN, 'y': NaN }
@@ -40,6 +43,67 @@ export class MainCanvasClass {
         this.maxX = NaN
         this.maxY = NaN
         this.selectedPos = { x: 0, y: 0 }
+    }
+    isThresholdTouched() {
+        if (this.threshold > 10) {
+            return true
+        } else {
+            return false
+        }
+    }
+    setThreshold(n:number){
+        this.threshold = n
+    }
+    drawDot(p: point, radius = 5, color = 'black') {
+        const ctx = this.getContext()
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2); // Draw a full circle
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    drawCatmullRomSpline(points: point[]) {
+        const ctx = this.getContext();
+        // Mirror the necessary points for smoother start and end
+        ctx.closePath()
+        const extPoints = [
+            { x: 2 * points[0].x - points[1].x, y: 2 * points[0].y - points[1].y }, // Mirror first point
+            ...points,
+            { x: 2 * points[points.length - 1].x - points[points.length - 2].x, y: 2 * points[points.length - 1].y - points[points.length - 2].y } // Mirror last point
+        ];
+
+        requestAnimationFrame(() => {
+            ctx.beginPath();
+            ctx.moveTo(extPoints[1].x, extPoints[1].y);
+            for (let i = 0; i < extPoints.length - 3; i++) {
+                const p0 = extPoints[i];
+                const p1 = extPoints[i + 1];
+                const p2 = extPoints[i + 2];
+                const p3 = extPoints[i + 3];
+                for (let t = 0; t <= 1; t += 0.1) {
+                    const { x, y } = catmullRom(p0, p1, p2, p3, t);
+                    ctx.lineTo(x, y);
+                }
+            }
+            const len = extPoints.length - 2
+            ctx.lineTo(extPoints[len].x, extPoints[len].y);
+            ctx.stroke()
+            //NOTE: uncommenting will cause line to break
+            for (let i = 1; i < points.length - 2; i++) {
+            this.drawDot(points[i],3,'blue')
+            }
+            ctx.moveTo(extPoints[len].x, extPoints[len].y);
+        })
+    }
+
+    redrawCurrentDrawing() {
+        const points = this.coordinates;
+        this.clear()
+        this.drawCatmullRomSpline(points)
+        // for (let i = 0; i < points.length; i++) {
+        // }
+
     }
     getContext(): CanvasRenderingContext2D {
         const context = this.context
@@ -159,11 +223,12 @@ export class MainCanvasClass {
         // requestAnimationFrame(() => {
         context.lineTo(p.x, p.y);
         context.stroke()
+        this.threshold += 1
         // })
     }
 
     getImageData(): string {
-        return this.canvas.toDataURL()
+        return this.canvas.toDataURL("image/png")
     }
     setOnTop(bool: boolean) {
         // requestAnimationFrame(() => {
@@ -194,8 +259,8 @@ export class MainCanvasClass {
         const minP = { 'x': this.minX, 'y': this.minY }
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2
-        // const centerP = { 'x': centerX, 'y': centerY }
-        const centerP = { 'x': 0, 'y': 0 }
+        const centerP = { 'x': centerX, 'y': centerY }
+        // const centerP = { 'x': 0, 'y': 0 }
         const newCoordinates = this.coordinates.map(point => ({
             'x': point.x - centerX,
             'y': point.y - centerY,

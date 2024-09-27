@@ -25,10 +25,15 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
     const mainCanvasRef = useRef<HTMLCanvasElement>(null)
     const mainCanvasClass = useRef<MainCanvasClass | null>(null)
 
+    const timer = useRef<number>(Date.now())
+    const deltaTime = 50
+
     useEffect(() => {
         if (mainCanvasRef.current) {
             const canvas = mainCanvasRef.current
             mainCanvasClass.current = new MainCanvasClass(canvas)
+            // mainCanvasClass.current.customDrawing()
+
         }
         else {
             throw new Error("can't create main canvas")
@@ -37,12 +42,25 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
 
     //function handleMouseMove
     const draw = (event: MouseEvent) => {
+        const now = Date.now()
+        const threshold = timer.current + deltaTime
+        if (now < threshold) return
+        console.log(now)
+        console.log(threshold)
+        console.log('drawing')
         const mainCanvas = mainCanvasClass.current
         const newPoint = {
             x: event.clientX,
             y: event.clientY,
         };
-        mainCanvas?.draw(newPoint)
+        if(mainCanvasClass.current?.isThresholdTouched()){
+            mainCanvas?.draw(newPoint)
+            mainCanvasClass.current.redrawCurrentDrawing()
+            mainCanvasClass.current.setThreshold(0)
+        }else{
+            mainCanvas?.draw(newPoint)
+        }
+        timer.current = now
     }
 
     // handleMouseDown
@@ -57,6 +75,7 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         mainCanvas?.start(startingPoint, color, Number(lineWidth))
         mainCanvas?.canvas.addEventListener('mousemove', draw)
         mainCanvas?.canvas.addEventListener('mouseup', stopDrawing)
+        // timer.current = Date.now()
     }
 
     // handleMouseUp
@@ -72,22 +91,22 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         mainCanvas.canvas.removeEventListener('mouseup', stopDrawing)
     }
     const drag = (e: MouseEvent) => {
-        const pos:point = {'x':e.clientX,'y':e.clientY}
+        const pos: point = { 'x': e.clientX, 'y': e.clientY }
         const mainCanvas = mainCanvasClass.current
         mainCanvas?.dragSelectedTo(pos)
         console.log('draging')
     }
-    const placeAt = (e:MouseEvent)=>{
-        const pos:point = {'x':e.clientX,'y':e.clientY}
+    const placeAt = (e: MouseEvent) => {
+        const pos: point = { 'x': e.clientX, 'y': e.clientY }
         const mainCanvas = mainCanvasClass.current
-        if(!mainCanvas?.selectedStroke)return
+        if (!mainCanvas?.selectedStroke) return
         const layer = mainCanvas.selectedStroke.layer
         const stroke_id = mainCanvas.selectedStroke.stroke_id
         const gap = mainCanvas.getGap(pos)
-        DrawingBoardClassRef.current?.placeStrokeAt(layer,stroke_id,gap)
+        DrawingBoardClassRef.current?.placeStrokeAt(layer, stroke_id, gap)
         mainCanvas?.clear()
-        mainCanvas?.canvas.removeEventListener('mousemove',drag)
-        mainCanvas?.canvas.removeEventListener('mousedown',placeAt)
+        mainCanvas?.canvas.removeEventListener('mousemove', drag)
+        mainCanvas?.canvas.removeEventListener('mousedown', placeAt)
         console.log('placint at')
         mainCanvas?.canvas.addEventListener('mousedown', selectDrawing)
     }
@@ -98,11 +117,11 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
         const point: point = { x: event.clientX, y: event.clientY }
         const stroke = DrawingBoardClassRef.current?.select(point)
         if (stroke) {
-            mainCanvas?.setSelected(stroke.layer,stroke.stroke_id,stroke.stroke,event)
+            mainCanvas?.setSelected(stroke.layer, stroke.stroke_id, stroke.stroke, event)
             // mainCanvas?.drawSelectedStroke()
             drag(event)
             mainCanvas?.canvas.addEventListener('mousemove', drag)
-            mainCanvas?.canvas.addEventListener('mousedown',placeAt)
+            mainCanvas?.canvas.addEventListener('mousedown', placeAt)
             mainCanvas?.canvas.removeEventListener('mousedown', selectDrawing)
         }
     }
