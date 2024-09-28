@@ -2,9 +2,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import SidePallete from "./sidePallete";
 import { LayerStack, MainCanvas } from "./layerStack";
-import { DrawingClass } from "./utils/DrawingClass";
-import { MainCanvasClass } from "./utils/MainCanvasClass";
-import { EventHandlerClass as addEventHandlerClass } from "./event_handlers/mouseEvents";
+import { DrawingClass } from "../lib/DrawingClass";
+import { MainCanvasClass } from "../lib/MainCanvasClass";
+import { EventHandlerClass as addEventHandlerClass } from "../event_handlers/mouseEvents";
 
 interface DrawingBoardProp {
     canvasContainerRef: React.RefObject<HTMLDivElement>;

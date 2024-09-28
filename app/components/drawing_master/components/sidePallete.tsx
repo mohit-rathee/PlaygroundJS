@@ -1,4 +1,4 @@
-import { color_choices } from "./initials";
+import { color_choices } from "../utils/initials";
 
 export default function SidePallete({ options, selected, setSelected, onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
     const handleSliderChange = (event: any) => {

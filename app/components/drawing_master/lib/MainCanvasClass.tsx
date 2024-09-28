@@ -1,5 +1,4 @@
-import { useRef } from "react";
-import { ramerDouglasPeucker } from "./magic_functions";
+import { ramerDouglasPeucker } from "../utils/magic_functions";
 import { CanvasClass } from "./CanvasClass";
 const REDRAW_THRESHOLD = 20
 

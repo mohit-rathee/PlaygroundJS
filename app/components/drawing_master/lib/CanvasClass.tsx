@@ -1,5 +1,4 @@
-import { catmullRom, rgbToINTColor, intToRGBColor, intToRGBValue } from "./magic_functions";
-import { createNewCanvas } from "./magic_functions";
+import { createNewCanvas, catmullRom, rgbToINTColor, intToRGBColor, intToRGBValue } from "../utils/magic_functions";
 
 export function CanvasClassGenerator(dimensions: Dimensions, isDebugMode: boolean) {
     const pCanvas = createNewCanvas(dimensions, true, true);

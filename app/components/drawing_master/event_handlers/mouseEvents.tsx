@@ -1,5 +1,5 @@
-import { MainCanvasClass } from "../utils/MainCanvasClass";
-import { DrawingClass } from "../utils/DrawingClass";
+import { MainCanvasClass } from "../lib/MainCanvasClass";
+import { DrawingClass } from "../lib/DrawingClass";
 import React from "react";
 
 const DELTA_TIME = 20

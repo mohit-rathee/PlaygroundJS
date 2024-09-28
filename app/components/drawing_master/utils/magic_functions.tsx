@@ -1,4 +1,3 @@
-
 export function intToRGBValue(n: number) {
     if (n < 0 || n > 16777215) {
         throw new Error('Number out of range. Must be between 0 and 16777215.');

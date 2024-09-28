@@ -1,6 +1,6 @@
-import { THRESHOLD_VALUE } from "../initials";
+import { THRESHOLD_VALUE } from "../utils/initials";
 import { CanvasClassGenerator, CanvasClass } from "./CanvasClass";
-import { initialDrawingState, initialStrokePointer } from "../initials";
+import { initialDrawingState, initialStrokePointer } from "../utils/initials";
 export class DrawingClass {
     private canvasList: CanvasClass[];
     private pCanvasContainer: HTMLDivElement;
