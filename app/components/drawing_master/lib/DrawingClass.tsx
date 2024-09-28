@@ -37,7 +37,7 @@ export class DrawingClass {
         const layerLength = layerStack[strokePointer.layer - 1].length
 
 
-        const newLength = (layerLength + stroke.coordinates.length)
+        const newLength = (layerLength + stroke.data.points.length)
         // Override layer in undo state
 
         if (strokePointer.stroke_id != 0 && newLength >= THRESHOLD_VALUE) {
@@ -55,11 +55,11 @@ export class DrawingClass {
             // PUSH NEXT LAYER
             stroke.uid = strokePointer.stroke_id
             const nextLayer: Layer = {
-                length: stroke.coordinates.length,
+                length: stroke.data.points.length,
                 strokes: [stroke]
             }
             layerStack.push(nextLayer)
-            console.log('layerLength:', stroke.coordinates.length)
+            console.log('layerLength:', stroke.data.points.length)
 
             // Adding new canvas
             if (this.canvasList.length < strokePointer.layer) {
@@ -126,7 +126,7 @@ export class DrawingClass {
             }
             const prevLayer = layerStack[prevLayerIndex]
             const lastStroke = prevLayer.strokes[prevLayer.strokes.length - 1]
-            const lastStrokeLength = lastStroke.coordinates.length
+            const lastStrokeLength = lastStroke.data.points.length
 
             // layer length upto last 2nd stroke
             prevLayer.length = prevLayer.length - lastStrokeLength
@@ -139,7 +139,7 @@ export class DrawingClass {
             const currentLayer = layerStack[currentLayerIndex]
             strokePointer.stroke_id = prevStroke
             const layer = layerStack[strokePointer.layer - 1]
-            const currentStrokeLength = layer.strokes[prevStroke].coordinates.length
+            const currentStrokeLength = layer.strokes[prevStroke].data.points.length
             currentLayer.length = layerLength - currentStrokeLength
             console.log('layerLength:', currentLayer.length)
         }
@@ -182,12 +182,12 @@ export class DrawingClass {
             strokePointer.stroke_id = 1
             const nextLayer = layerStack[nextLayerIndex]
             // layerlength will be next layers first stroke length
-            nextLayer.length = nextLayer.strokes[0].coordinates.length
+            nextLayer.length = nextLayer.strokes[0].data.points.length
             console.log('layerLength:', nextLayer.length)
         } else {
             // redo current layer
             strokePointer.stroke_id = nextStroke
-            const nextStrokeLength = layerStack[currentLayerIndex].strokes[nextStroke - 1].coordinates.length
+            const nextStrokeLength = layerStack[currentLayerIndex].strokes[nextStroke - 1].data.points.length
             const currentLayer = layerStack[currentLayerIndex]
             // add length of next stroke in layerLength
             const layerLength = layerStack[currentLayerIndex].length

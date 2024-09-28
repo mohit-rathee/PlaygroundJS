@@ -41,28 +41,38 @@ export class CanvasClass {
         this.pContext.closePath();
     }
 
+    prepareContext(stroke: Stroke) {
+        this.pContext.save()
+        this.rContext.save()
+
+        this.pContext.beginPath();
+        this.rContext.beginPath();
+
+        this.pContext.lineWidth = stroke.lineWidth
+        this.rContext.lineWidth = stroke.lineWidth + 3
+
+        this.pContext.lineCap='round'
+        this.rContext.lineCap='round'
+
+        this.pContext.strokeStyle = stroke.color
+        this.rContext.strokeStyle = intToRGBColor(stroke.uid)
+
+        this.pContext.setTransform(1,0,0,1,0,0)
+        this.rContext.setTransform(1,0,0,1,0,0)
+
+        this.pContext.translate(stroke.centerP.x, stroke.centerP.y)
+        this.rContext.translate(stroke.centerP.x, stroke.centerP.y)
+
+    }
     drawNormalStrokes(stroke: Stroke) {
-        const points = stroke.coordinates
+        const points = stroke.data.points
         requestAnimationFrame(() => {
-            this.pContext.beginPath();
-            this.rContext.beginPath();
-
-            this.pContext.save()
-            this.rContext.save()
-
-            this.pContext.lineWidth = stroke.lineWidth
-            this.rContext.lineWidth = stroke.lineWidth + 3
-
-            this.pContext.strokeStyle = stroke.color
-            this.rContext.strokeStyle = intToRGBColor(stroke.uid)
-
-            this.pContext.translate(stroke.centerP.x, stroke.centerP.y)
-            this.rContext.translate(stroke.centerP.x, stroke.centerP.y)
+            this.prepareContext(stroke)
 
             this.pContext.moveTo(points[0].x, points[0].y);
             this.rContext.moveTo(points[0].x, points[0].y);
 
-            for (let i = 0; i < points.length - 1; i++) {
+            for (let i = 0; i < points.length; i++) {
                 const p = points[i];
                 this.pContext.lineTo(p.x, p.y);
                 this.rContext.lineTo(p.x, p.y);
@@ -81,34 +91,26 @@ export class CanvasClass {
     }
 
     drawCatmullRomSpline(stroke: Stroke) {
-        const points = stroke.coordinates
-        if (points.length < 2) return
-        const firstMirroredP = { x: 2 * points[0].x - points[1].x, y: 2 * points[0].y - points[1].y }
-        const lastMirroredP = { x: 2 * points[points.length - 1].x - points[points.length - 2].x, y: 2 * points[points.length - 1].y - points[points.length - 2].y }
+        const pts = stroke.data.points
+        if (pts.length < 2) return
+        const firstMirroredP = {
+            x: 2 * pts[0].x - pts[1].x,
+            y: 2 * pts[0].y - pts[1].y,
+        }
+        const lastMirroredP = {
+            x: 2 * pts[pts.length - 1].x - pts[pts.length - 2].x,
+            y: 2 * pts[pts.length - 1].y - pts[pts.length - 2].y,
+        }
         const extPoints = [
             firstMirroredP,
-            ...points,
+            ...pts,
             lastMirroredP
         ];
         requestAnimationFrame(() => {
-            this.pContext.save()
-            this.rContext.save()
-            this.pContext.closePath();
-            this.rContext.closePath();
-            this.pContext.beginPath();
-            this.rContext.beginPath();
+            this.prepareContext(stroke)
 
-            this.pContext.lineWidth = stroke.lineWidth
-            this.rContext.lineWidth = stroke.lineWidth + 3
-
-            this.pContext.strokeStyle = stroke.color
-            this.rContext.strokeStyle = intToRGBColor(stroke.uid)
-
-            this.pContext.translate(stroke.centerP.x, stroke.centerP.y)
-            this.rContext.translate(stroke.centerP.x, stroke.centerP.y)
-
-            this.pContext.moveTo(extPoints[1].x, extPoints[1].y);
-            this.rContext.moveTo(extPoints[1].x, extPoints[1].y);
+            this.pContext.moveTo(pts[0].x, pts[0].y);
+            this.rContext.moveTo(pts[0].x, pts[0].y);
 
             for (let i = 0; i < extPoints.length - 3; i++) {
                 const p0 = extPoints[i];
@@ -122,12 +124,10 @@ export class CanvasClass {
                 }
             }
             this.pContext.stroke()
-            this.pContext.closePath()
             this.rContext.stroke()
-            this.rContext.closePath()
 
-            // for (let i = 0; i < points.length; i++) {
-            //     this.drawDot(points[i], 3, 'blue')
+            // for (let i = 0; i < pts.length; i++) {
+            //     this.drawDot(pts[i], 3, 'blue')
             // }
 
             this.pContext.restore()
@@ -200,11 +200,29 @@ export class CanvasClass {
     }
 
     drawStroke(stroke: Stroke) {
-        //DRAW METHODS
+        switch (stroke.type) {
+            case 'Pencil': {
+                switch (stroke.data.style) {
+                    case 'Normal': {
+                        this.drawNormalStrokes(stroke);
+                        break;
+                    }
+                    case 'CatmullRom': {
+                        this.drawCatmullRomSpline(stroke)
+                        break;
+                    }
+                    default: {
+                        console.log('drawingPencil')
+                        this.drawImage(stroke)
+                        break;
+                    }
+                }
+                break;
+            }
+            // Add more cases here if needed for different stroke types
+        }
 
-        this.drawCatmullRomSpline(stroke)
-        // this.drawNormalStrokes(stroke)
-        // this.drawImage(stroke)
+
 
     }
     getStrokeId(p: point): number {

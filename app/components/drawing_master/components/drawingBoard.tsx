@@ -4,7 +4,7 @@ import SidePallete from "./sidePallete";
 import { LayerStack, MainCanvas } from "./layerStack";
 import { DrawingClass } from "../lib/DrawingClass";
 import { MainCanvasClass } from "../lib/MainCanvasClass";
-import { EventHandlerClass as addEventHandlerClass } from "../event_handlers/mouseEvents";
+import { EventHandlerClass } from "../event_handlers/mouseEvents";
 
 interface DrawingBoardProp {
     canvasContainerRef: React.RefObject<HTMLDivElement>;
@@ -14,18 +14,21 @@ interface DrawingBoardProp {
     isDebugMode: boolean
 }
 
-const OPTIONS = ['draw', 'select']
+const OPTIONS = ['drawPencil', 'select']
 
 function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardClassRef, dimensions, isDebugMode }: DrawingBoardProp) {
     const [color, setColor] = useState<string>('darkred')
     const [lineWidth, setLineWidth] = useState<number>(5);
-    const [selected, setSelected] = useState<string>('draw')
+    const [mode, setMode] = useState<string>('drawPencil')
+    const [style, setStyle] = useState<string>('CatmullRom')
 
     const colorRef = useRef<string>('gray')
+    const styleRef = useRef<string>(style)
     const lineWidthRef = useRef<number>(5)
     const mainPCanvasRef = useRef<HTMLCanvasElement>(null)
     const mainRCanvasRef = useRef<HTMLCanvasElement>(null)
-    const mainCanvasClass = useRef<MainCanvasClass | null>(null)
+    const mainCanvasClassRef = useRef<MainCanvasClass | null>(null)
+    const eventClassRef = useRef<EventHandlerClass | null>(null)
 
 
     useEffect(() => {
@@ -37,31 +40,39 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
 
         if (!pCanvas.width || !pCanvas.height) return
         if (!rCanvas.width || !rCanvas.height) return
+        if (mainCanvasClassRef.current!=null) return
 
-        mainCanvasClass.current = new MainCanvasClass(
+        mainCanvasClassRef.current = new MainCanvasClass(
             pCanvas,
             rCanvas,
             colorRef,
-            lineWidthRef
+            lineWidthRef,
+            styleRef
         )
-
-        new addEventHandlerClass(
+        eventClassRef.current = new EventHandlerClass(
             pCanvas,
-            mainCanvasClass.current,
+            mainCanvasClassRef.current,
             DrawingBoardClassRef,
-            selected
         )
 
-        mainCanvasClass.current.colorRef = colorRef
-        mainCanvasClass.current.lineWidthRef = lineWidthRef
+        mainCanvasClassRef.current.colorRef = colorRef
+        mainCanvasClassRef.current.lineWidthRef = lineWidthRef
 
-    }, [selected, mainPCanvasRef.current?.height])
+    },[DrawingBoardClassRef,mainPCanvasRef.current?.height])
+
     //height is updated later in react.
 
     useEffect(() => {
         colorRef.current = color
+        styleRef.current = style
         lineWidthRef.current = Number(lineWidth)
-    }, [color, lineWidth])
+    }, [color, lineWidth, style])
+
+    useEffect(() => {
+        const eventClass = eventClassRef.current
+        if(!eventClass)return
+        eventClass.setMode(mode)
+    },[mode])
 
     useEffect(() => {
         // const handleResize = () => {
@@ -89,22 +100,24 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
     return (
         <div className="w-full p-2 h-full px-2 flex gap-5 bg-gray-500">
             {DrawingBoardClassRef.current && <SidePallete
-                selected={selected}
-                setSelected={setSelected}
+                mode={mode}
+                setMode={setMode}
                 options={OPTIONS}
                 onColorSelect={setColor}
                 setLineWidth={setLineWidth}
                 lineWidth={lineWidth}
+                style = {style}
+                setStyle = {setStyle}
                 undo={() => {
-                    mainCanvasClass.current?.clearCanvas()
+                    mainCanvasClassRef.current?.clearCanvas()
                     DrawingBoardClassRef.current?.undo()
                 }}
                 redo={() => {
-                    mainCanvasClass.current?.clearCanvas()
+                    mainCanvasClassRef.current?.clearCanvas()
                     DrawingBoardClassRef.current?.redo()
                 }}
                 save={() => {
-                    mainCanvasClass.current?.clearCanvas()
+                    mainCanvasClassRef.current?.clearCanvas()
                     DrawingBoardClassRef.current?.save()
                 }}
             />}

@@ -3,12 +3,13 @@ import { CanvasClass } from "./CanvasClass";
 const REDRAW_THRESHOLD = 20
 
 export class MainCanvasClass extends CanvasClass {
-    public stroke: Stroke
+    public stroke: Stroke | null
     public selectedStrokeData: {
         'layer': number,
         'stroke_id': number,
     }
     public colorRef: React.MutableRefObject<string>;
+    public styleRef: React.MutableRefObject<string>;
     public lineWidthRef: React.MutableRefObject<number>;
     private threshold: number;
     private minX: number;
@@ -21,7 +22,8 @@ export class MainCanvasClass extends CanvasClass {
         pCanvas: HTMLCanvasElement,
         rCanvas: HTMLCanvasElement,
         colorRef: React.MutableRefObject<string>,
-        lineWidthRef: React.MutableRefObject<number>
+        lineWidthRef: React.MutableRefObject<number>,
+        styleRef: React.MutableRefObject<string>,
     ) {
         console.log('mainCanvas is created')
         super(pCanvas, rCanvas)
@@ -29,8 +31,9 @@ export class MainCanvasClass extends CanvasClass {
             "layer": NaN,
             "stroke_id": NaN
         }
-        this.stroke = this.getNewStroke()
+        this.stroke = null
         this.colorRef = colorRef
+        this.styleRef = styleRef
         this.lineWidthRef = lineWidthRef
         this.threshold = 0
         this.minX = NaN
@@ -39,12 +42,19 @@ export class MainCanvasClass extends CanvasClass {
         this.maxY = NaN
         this.selectedPos = { x: 0, y: 0 }
     }
-    getNewStroke() {
+    // setStyle(style:any) { this.style = style
+    //     this.stroke.data.style = style
+    // }
+    getNewStroke(): Stroke {
+        console.log('color', this.colorRef.current)
+        console.log('lineWidth', this.lineWidthRef.current)
+        console.log('style', this.styleRef.current)
         return {
             'uid': NaN,
-            'coordinates': [],
-            'color': '',
-            'lineWidth': NaN,
+            'type': 'pencil',
+            'data': { 'points': [], 'style': this.styleRef.current },
+            'color': this.colorRef.current,
+            'lineWidth': this.lineWidthRef.current,
             'minP': { x: 0, y: 0 },
             'maxP': { x: 0, y: 0 },
             'centerP': { x: 0, y: 0 },
@@ -69,49 +79,28 @@ export class MainCanvasClass extends CanvasClass {
         this.pContext.fill();
         this.pContext.closePath();
     }
-    // drawCatmullRomSpline(stroke: Stroke) {
-    //     const points = stroke.coordinates
-    //     const ctx = this.getContext();
-    //     const extPoints = [
-    //         { x: 2 * points[0].x - points[1].x, y: 2 * points[0].y - points[1].y }, // Mirror first point
-    //         ...points,
-    //         { x: 2 * points[points.length - 1].x - points[points.length - 2].x, y: 2 * points[points.length - 1].y - points[points.length - 2].y } // Mirror last point
-    //     ];
-    //
-    //     requestAnimationFrame(() => {
-    //         ctx.beginPath();
-    //         ctx.moveTo(extPoints[1].x, extPoints[1].y);
-    //         for (let i = 0; i < extPoints.length - 3; i++) {
-    //             const p0 = extPoints[i];
-    //             const p1 = extPoints[i + 1];
-    //             const p2 = extPoints[i + 2];
-    //             const p3 = extPoints[i + 3];
-    //             for (let t = 0; t <= 1; t += 0.01) {
-    //                 const { x, y } = catmullRom(p0, p1, p2, p3, t);
-    //                 ctx.lineTo(x, y);
-    //             }
-    //         }
-    //         const len = extPoints.length - 2
-    //         ctx.lineTo(extPoints[len].x, extPoints[len].y);
-    //         ctx.stroke()
-    //         // for (let i = 1; i < points.length; i++) {
-    //         //     this.drawDot(points[i], 3, 'blue')
-    //         // }
-    //         ctx.moveTo(extPoints[len].x, extPoints[len].y);
-    //     })
-    // }
 
     useRDP() {
-        const points = this.stroke.coordinates
+        if (!this.stroke) throw new Error('stroke is null')
+        const points = this.stroke.data.points
         const epsilon = 3
-        const newCoordinates = ramerDouglasPeucker(points, epsilon)
-        this.stroke.coordinates = newCoordinates
+        const newPoints = ramerDouglasPeucker(points, epsilon)
+        this.stroke.data.points = newPoints
     }
 
     redrawCurrentDrawing() {
+        if (!this.stroke) throw new Error('stroke is null')
         this.clearCanvas()
-        // this.drawCatmullRomSpline(this.stroke)
-        this.drawNormalStrokes(this.stroke)
+        switch (this.stroke.data.style) {
+            case 'Normal': {
+                this.drawNormalStrokes(this.stroke)
+                break;
+            }
+            case 'CatmullRom': {
+                this.drawCatmullRomSpline(this.stroke)
+                break;
+            }
+        }
         // for (let i = 0; i < points.length; i++) {
         // }
 
@@ -146,28 +135,35 @@ export class MainCanvasClass extends CanvasClass {
     }
 
     getNewCenterP(p: point): point {
+        if (!this.stroke) throw new Error('stroke is null')
         const strokeCenterP = this.stroke.centerP
         if (!strokeCenterP) return { x: 0, y: 0 }
         const gap = this.getGap(p)
-        console.log('Gap', gap)
+        console.log('GAP',gap)
+        this.selectedPos = p
         return { x: strokeCenterP.x + gap.x, y: strokeCenterP.y + gap.y }
     }
 
     dragSelectedTo(p: point) {
-        if (!this.stroke) return
-        this.clearCanvas()
+        console.log('POS',p)
+        if (!this.stroke) throw new Error('stroke is null')
+        // this.clearCanvas()
 
-        const gap = this.getGap(p)
-        // this.drawCatmullRomSpline(this.selectedStroke)
-        this.pContext.translate(gap.x, gap.y)
-        const img = new Image()
-        img.src = this.stroke.image
-        img.onload = () => {
-            requestAnimationFrame(() => {
-                this.pContext.drawImage(img, gap.x, gap.y);
-            })
-        }
-        this.pContext.restore()
+        const newCenterP = this.getNewCenterP(p)
+        console.log('CENTER',newCenterP)
+        this.stroke.centerP = newCenterP
+        this.redrawCurrentDrawing()
+        // const gap = this.getGap(p)
+        // this.drawCatmullRomSpline(this.stroke)
+        // this.pContext.translate(gap.x, gap.y)
+        // const img = new Image()
+        // img.src = this.stroke.image
+        // img.onload = () => {
+        //     requestAnimationFrame(() => {
+        //         this.pContext.drawImage(img, gap.x, gap.y);
+        //     })
+        // }
+        // this.pContext.restore()
 
 
     }
@@ -201,15 +197,14 @@ export class MainCanvasClass extends CanvasClass {
     //
 
     start(p: point) {
-        this.stroke.coordinates = [p]
+        this.stroke = this.getNewStroke()
+        this.stroke.data.points = [p]
         this.minX = p.x
         this.minY = p.y
         this.maxX = p.x
         this.maxY = p.y
         this.pContext.beginPath()
         this.pContext.moveTo(p.x, p.y);
-        this.stroke.color = this.colorRef.current
-        this.stroke.lineWidth = this.lineWidthRef.current
         this.pContext.strokeStyle = this.stroke.color
         this.pContext.lineWidth = this.stroke.lineWidth
         this.pContext.lineCap = 'round'
@@ -224,7 +219,7 @@ export class MainCanvasClass extends CanvasClass {
         else if (p.y > this.maxY) { this.maxY = p.y }
 
         //push
-        this.stroke.coordinates.push(p)
+        this.stroke?.data.points.push(p)
         // requestAnimationFrame(() => {
         this.pContext.lineTo(p.x, p.y);
         this.pContext.stroke()
@@ -262,20 +257,24 @@ export class MainCanvasClass extends CanvasClass {
 
     }
     getStroke(): Stroke {
-        const maxP = { 'x': this.maxX, 'y': this.maxY }
-        const minP = { 'x': this.minX, 'y': this.minY }
+        if (!this.stroke) throw new Error('stroke is null')
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2
+        const maxP = { 'x': this.maxX-centerX, 'y': this.maxY-centerY }
+        const minP = { 'x': this.minX-centerX, 'y': this.minY-centerY }
         const centerP = { 'x': centerX, 'y': centerY }
-        const newCoordinates = this.stroke.coordinates.map(point => ({
+        const newPoints = this.stroke.data.points.map(point => ({
             'x': point.x - centerX,
             'y': point.y - centerY,
         }))
+        
         const color = this.stroke.color
         const lineWidth = this.stroke.lineWidth
-        const stroke =  {
+        const style = this.stroke.data.style
+        const stroke = {
             'uid': NaN,
-            'coordinates': newCoordinates,
+            'type': 'Pencil',
+            'data': { 'points': newPoints, 'style': style },
             'color': color,
             'lineWidth': lineWidth,
             'maxP': maxP,
@@ -283,7 +282,7 @@ export class MainCanvasClass extends CanvasClass {
             'centerP': centerP,
             'image': ''
         }
-        this.stroke = this.getNewStroke()
+        this.stroke = null
         return stroke
     }
 }

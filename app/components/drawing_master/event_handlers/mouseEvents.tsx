@@ -14,33 +14,36 @@ export class EventHandlerClass {
         canvas: HTMLCanvasElement,
         canvasClass: MainCanvasClass,
         drawingClass: React.RefObject<DrawingClass>,
-        selected: string
+        // selected: string
     ) {
         this.canvas = canvas
         this.mainCanvas = canvasClass
         this.drawing = drawingClass
-        this.mode = selected
+        this.mode = ''
         this.timer = Date.now()
-        switch (this.mode) {
-            case 'draw':
-                canvas.addEventListener('mousedown', this.startEvent)
+        this.setMode('drawPencil')
+
+    }
+    setMode(mode: string) {
+        console.log(this.mode)
+        console.log(mode)
+        if(this.mode == mode)return
+        this.mode = mode
+        switch (mode) {
+            case 'drawPencil':
+                this.canvas.addEventListener('mousedown', this.startPencilEvent)
+                this.canvas.removeEventListener('mousedown', this.selectEvent)
                 console.log('added startDrawing EventListener')
                 break
             case 'select':
-                canvas.addEventListener('mousedown', this.selectEvent)
+                this.canvas.addEventListener('mousedown', this.selectEvent)
+                this.canvas.removeEventListener('mousedown', this.startPencilEvent)
                 console.log('added select EventListener')
                 break
         }
-
-
-        // return () => {
-        //     canvas.removeEventListener('mousedown', startDrawing)
-        //     canvas.removeEventListener('mousedown', selectDrawing)
-        // }
     }
     // handleMouseDown
-    startEvent = (e: MouseEvent) => {
-        console.log('start drawing')
+    startPencilEvent = (e: MouseEvent) => {
         this.mainCanvas.setOnTop(true)
         const startingPoint = {
             x: e.clientX,
@@ -48,13 +51,13 @@ export class EventHandlerClass {
         };
         this.mainCanvas.clearCanvas()
         this.mainCanvas.start(startingPoint)
-        this.mainCanvas.pCanvas.addEventListener('mousemove', this.drawEvent)
-        this.mainCanvas.pCanvas.addEventListener('mouseup', this.stopEvent)
+        this.mainCanvas.pCanvas.addEventListener('mousemove', this.drawPencilEvent)
+        this.mainCanvas.pCanvas.addEventListener('mouseup', this.stopPencilEvent)
         this.timer = Date.now()
     }
 
     //function handleMouseMove
-    drawEvent = (event: MouseEvent) => {
+    drawPencilEvent = (event: MouseEvent) => {
         const now = Date.now()
         const threshold = this.timer + DELTA_TIME
         if (now < threshold) return
@@ -74,8 +77,7 @@ export class EventHandlerClass {
     }
 
     // handleMouseUp
-    stopEvent = () => {
-        console.log('stop drawing')
+    stopPencilEvent = () => {
         this.mainCanvas.setOnTop(false)
         this.mainCanvas.useRDP()
         const newStroke = this.mainCanvas.getStroke()
@@ -85,8 +87,8 @@ export class EventHandlerClass {
         // ctx?.clearRect(0,0,this.canvas.width,this.canvas.height)
         // TODO take a fuction from outside to do so
         this.drawing.current?.addStroke(newStroke)
-        this.mainCanvas.pCanvas.removeEventListener('mousemove', this.drawEvent)
-        this.mainCanvas.pCanvas.removeEventListener('mouseup', this.stopEvent)
+        this.mainCanvas.pCanvas.removeEventListener('mousemove', this.drawPencilEvent)
+        this.mainCanvas.pCanvas.removeEventListener('mouseup', this.stopPencilEvent)
     }
     dragEvent = (e: MouseEvent) => {
         const pos: point = { 'x': e.clientX, 'y': e.clientY }
@@ -98,7 +100,6 @@ export class EventHandlerClass {
         const stroke_id = this.mainCanvas.selectedStrokeData?.stroke_id
         const newCenterP = this.mainCanvas.getNewCenterP(pos)
         const imgData = this.mainCanvas.getImageData()
-        console.log('newCenterP', newCenterP)
         this.drawing.current?.placeStrokeAt(layer, stroke_id, newCenterP, imgData)
         this.mainCanvas?.clearCanvas()
         this.mainCanvas?.pCanvas.removeEventListener('mousemove', this.dragEvent)
@@ -109,7 +110,6 @@ export class EventHandlerClass {
         this.mainCanvas?.clearCanvas()
         const point: point = { x: event.clientX, y: event.clientY }
         const stroke = this.drawing.current?.select(point)
-        console.log('stroke:', stroke)
         if (stroke) {
             this.mainCanvas?.setSelected(stroke.layer, stroke.stroke_id, stroke.stroke, event)
             // this.canvasClass?.drawSelectedStroke()

@@ -2,9 +2,14 @@ interface point {
     x: number;
     y: number;
 }
+interface Pencil {
+    points: point[];
+    style: string;
+}
 interface Stroke {
     uid: number;
-    coordinates: point[];
+    type: string;
+    data: Pencil;
     image: string;
     color: string;
     lineWidth: number;
