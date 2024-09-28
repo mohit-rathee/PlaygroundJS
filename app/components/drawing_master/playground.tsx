@@ -8,15 +8,15 @@ export default function Playground() {
     const canvasContainerRef = useRef<HTMLDivElement | null>(null);
     const refCanvasContainerRef = useRef<HTMLDivElement | null>(null);
     const drawingClass = useRef<DrawingClass | null>(null)
-    const [isDebugMode, _setDebugMode] = useState(false);
+    const [isDebugMode, _setDebugMode] = useState(true);
     const [dimensions, setDimensions] = useState({
         'width': 0,
         'height': 0,
     })
 
     useEffect(() => {
-        console.log(canvasContainerRef.current)
-        console.log(refCanvasContainerRef.current)
+        console.log('pDiv',canvasContainerRef.current)
+        console.log('rDiv',refCanvasContainerRef.current)
         if (canvasContainerRef.current && refCanvasContainerRef.current) { 
             const canvasContainer = canvasContainerRef.current
             const refCanvasContainer = refCanvasContainerRef.current
@@ -27,14 +27,15 @@ export default function Playground() {
             if (isDebugMode){
                 dimensions.width = dimensions.width/2
             }
-            console.log(dimensions)
             setDimensions(dimensions)
-            drawingClass.current = new DrawingClass(canvasContainer, refCanvasContainer, dimensions,isDebugMode)
+            if(dimensions.width && dimensions.height){
+                drawingClass.current = new DrawingClass(canvasContainer, refCanvasContainer, dimensions,isDebugMode)
+            }
         }
         else {
             throw new Error("can't create canvas container")
         }
-    }, [])
+    }, [isDebugMode])
 
 
     return (
@@ -44,6 +45,7 @@ export default function Playground() {
                 refCanvasContainerRef={refCanvasContainerRef}
                 DrawingBoardClassRef={drawingClass}
                 dimensions = {dimensions}
+                isDebugMode = {isDebugMode}
             />
         </div>
     )

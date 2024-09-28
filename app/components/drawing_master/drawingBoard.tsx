@@ -4,146 +4,59 @@ import SidePallete from "./sidePallete";
 import { LayerStack, MainCanvas } from "./layerStack";
 import { DrawingClass } from "./utils/DrawingClass";
 import { MainCanvasClass } from "./utils/MainCanvasClass";
+import { EventHandlerClass as addEventHandlerClass } from "./event_handlers/mouseEvents";
 
 interface DrawingBoardProp {
     canvasContainerRef: React.RefObject<HTMLDivElement>;
     refCanvasContainerRef: React.RefObject<HTMLDivElement>;
     DrawingBoardClassRef: React.RefObject<DrawingClass>;
     dimensions: Dimensions
+    isDebugMode: boolean
 }
 
 const OPTIONS = ['draw', 'select']
 
-function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardClassRef, dimensions }: DrawingBoardProp) {
-    console.log('rerendering')
+function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardClassRef, dimensions, isDebugMode }: DrawingBoardProp) {
     const [color, setColor] = useState<string>('darkred')
     const [lineWidth, setLineWidth] = useState<number>(5);
     const [selected, setSelected] = useState<string>('draw')
 
     const colorRef = useRef<string>('gray')
     const lineWidthRef = useRef<number>(5)
-    const mainCanvasRef = useRef<HTMLCanvasElement>(null)
+    const mainPCanvasRef = useRef<HTMLCanvasElement>(null)
+    const mainRCanvasRef = useRef<HTMLCanvasElement>(null)
     const mainCanvasClass = useRef<MainCanvasClass | null>(null)
 
-    const timer = useRef<number>(Date.now())
-    const deltaTime = 50
 
     useEffect(() => {
-        if (mainCanvasRef.current) {
-            const canvas = mainCanvasRef.current
-            mainCanvasClass.current = new MainCanvasClass(canvas)
-            // mainCanvasClass.current.customDrawing()
+        if (!mainPCanvasRef.current || !mainRCanvasRef.current) {
+            throw new Error("can't create main canvas") }
 
-        }
-        else {
-            throw new Error("can't create main canvas")
-        }
-    }, [])
+        const pCanvas = mainPCanvasRef.current
+        const rCanvas = mainRCanvasRef.current
 
-    //function handleMouseMove
-    const draw = (event: MouseEvent) => {
-        const now = Date.now()
-        const threshold = timer.current + deltaTime
-        if (now < threshold) return
-        console.log(now)
-        console.log(threshold)
-        console.log('drawing')
-        const mainCanvas = mainCanvasClass.current
-        const newPoint = {
-            x: event.clientX,
-            y: event.clientY,
-        };
-        if(mainCanvasClass.current?.isThresholdTouched()){
-            mainCanvas?.draw(newPoint)
-            mainCanvasClass.current.redrawCurrentDrawing()
-            mainCanvasClass.current.setThreshold(0)
-        }else{
-            mainCanvas?.draw(newPoint)
-        }
-        timer.current = now
-    }
+        if (!pCanvas.width || !pCanvas.height) return
+        if (!rCanvas.width || !rCanvas.height) return
 
-    // handleMouseDown
-    const startDrawing = (event: MouseEvent) => {
-        const mainCanvas = mainCanvasClass.current
-        mainCanvas?.setOnTop(true)
-        const startingPoint = {
-            x: event.clientX,
-            y: event.clientY,
-        };
-        mainCanvas?.clear()
-        mainCanvas?.start(startingPoint, color, Number(lineWidth))
-        mainCanvas?.canvas.addEventListener('mousemove', draw)
-        mainCanvas?.canvas.addEventListener('mouseup', stopDrawing)
-        // timer.current = Date.now()
-    }
+        mainCanvasClass.current = new MainCanvasClass(
+            pCanvas,
+            rCanvas,
+            colorRef,
+            lineWidthRef
+        )
 
-    // handleMouseUp
-    const stopDrawing = () => {
-        const mainCanvas = mainCanvasClass.current
-        if (!mainCanvas) return
-        mainCanvas.setOnTop(false)
-        const newStroke = mainCanvas.getStroke()
-        newStroke.image = mainCanvas.getImageData()
-        mainCanvas.clear()
-        DrawingBoardClassRef.current?.addStroke(newStroke)
-        mainCanvas.canvas.removeEventListener('mousemove', draw)
-        mainCanvas.canvas.removeEventListener('mouseup', stopDrawing)
-    }
-    const drag = (e: MouseEvent) => {
-        const pos: point = { 'x': e.clientX, 'y': e.clientY }
-        const mainCanvas = mainCanvasClass.current
-        mainCanvas?.dragSelectedTo(pos)
-        console.log('draging')
-    }
-    const placeAt = (e: MouseEvent) => {
-        const pos: point = { 'x': e.clientX, 'y': e.clientY }
-        const mainCanvas = mainCanvasClass.current
-        if (!mainCanvas?.selectedStroke) return
-        const layer = mainCanvas.selectedStroke.layer
-        const stroke_id = mainCanvas.selectedStroke.stroke_id
-        const gap = mainCanvas.getGap(pos)
-        DrawingBoardClassRef.current?.placeStrokeAt(layer, stroke_id, gap)
-        mainCanvas?.clear()
-        mainCanvas?.canvas.removeEventListener('mousemove', drag)
-        mainCanvas?.canvas.removeEventListener('mousedown', placeAt)
-        console.log('placint at')
-        mainCanvas?.canvas.addEventListener('mousedown', selectDrawing)
-    }
-    const selectDrawing = (event: MouseEvent) => {
-        if (!mainCanvasRef.current) return
-        const mainCanvas = mainCanvasClass.current
-        mainCanvas?.clear()
-        const point: point = { x: event.clientX, y: event.clientY }
-        const stroke = DrawingBoardClassRef.current?.select(point)
-        if (stroke) {
-            mainCanvas?.setSelected(stroke.layer, stroke.stroke_id, stroke.stroke, event)
-            // mainCanvas?.drawSelectedStroke()
-            drag(event)
-            mainCanvas?.canvas.addEventListener('mousemove', drag)
-            mainCanvas?.canvas.addEventListener('mousedown', placeAt)
-            mainCanvas?.canvas.removeEventListener('mousedown', selectDrawing)
-        }
-    }
+        new addEventHandlerClass(
+            pCanvas,
+            mainCanvasClass.current,
+            DrawingBoardClassRef,
+            selected
+        )
 
-    useEffect(() => {
-        // add event listeners every time
-        if (!mainCanvasRef.current) return;
-        const canvas = mainCanvasRef.current
-        switch (selected) {
-            case 'draw':
-                canvas.addEventListener('mousedown', startDrawing)
-                break
-            case 'select':
-                canvas.addEventListener('mousedown', selectDrawing)
-                break
-        }
+        mainCanvasClass.current.colorRef = colorRef
+        mainCanvasClass.current.lineWidthRef = lineWidthRef
 
-        return () => {
-            canvas.removeEventListener('mousedown', startDrawing)
-            canvas.removeEventListener('mousedown', selectDrawing)
-        }
-    })
+    }, [selected, mainPCanvasRef.current?.height])
+    //height is updated later in react.
 
     useEffect(() => {
         colorRef.current = color
@@ -183,15 +96,15 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
                 setLineWidth={setLineWidth}
                 lineWidth={lineWidth}
                 undo={() => {
-                    mainCanvasClass.current?.clear()
+                    mainCanvasClass.current?.clearCanvas()
                     DrawingBoardClassRef.current?.undo()
                 }}
                 redo={() => {
-                    mainCanvasClass.current?.clear()
+                    mainCanvasClass.current?.clearCanvas()
                     DrawingBoardClassRef.current?.redo()
                 }}
                 save={() => {
-                    mainCanvasClass.current?.clear()
+                    mainCanvasClass.current?.clearCanvas()
                     DrawingBoardClassRef.current?.save()
                 }}
             />}
@@ -200,8 +113,10 @@ function DrawingBoard({ canvasContainerRef, refCanvasContainerRef, DrawingBoardC
                 refCanvasContainerRef={refCanvasContainerRef}
             />
             <MainCanvas
-                mainCanvasRef={mainCanvasRef}
+                mainPCanvasRef={mainPCanvasRef}
+                mainRCanvasRef={mainRCanvasRef}
                 dimensions={dimensions}
+                isDebugMode={isDebugMode}
             />
         </div>
     )

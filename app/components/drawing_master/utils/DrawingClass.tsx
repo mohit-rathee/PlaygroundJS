@@ -1,5 +1,5 @@
 import { THRESHOLD_VALUE } from "../initials";
-import { CanvasClass } from "./CanvasClass";
+import { CanvasClassGenerator, CanvasClass } from "./CanvasClass";
 import { initialDrawingState, initialStrokePointer } from "../initials";
 export class DrawingClass {
     private canvasList: CanvasClass[];
@@ -16,13 +16,13 @@ export class DrawingClass {
         dimensions: Dimensions,
         isDebugMode: boolean
     ) {
+        console.log('DIMENSIONS',dimensions)
         this.pCanvasContainer = pCanvasContainer
         this.rCanvasContainer = rCanvasContainer
         this.dimensions = dimensions
         this.isDebugMode = isDebugMode
-        const canvasClass = new CanvasClass(dimensions,isDebugMode)
+        const canvasClass = CanvasClassGenerator(dimensions,isDebugMode)
         this.canvasList = [canvasClass]
-
         this.pCanvasContainer.appendChild(canvasClass.pCanvas)
         this.rCanvasContainer.appendChild(canvasClass.rCanvas)
 
@@ -31,6 +31,7 @@ export class DrawingClass {
     }
 
     addStroke(stroke: Stroke) {
+        console.log('adding stroke')
         const strokePointer = this.strokePointer
         const layerStack = this.drawing
         const layerLength = layerStack[strokePointer.layer - 1].length
@@ -67,13 +68,13 @@ export class DrawingClass {
                 // newCanvas.width = window.innerWidth;
                 // newCanvas.height = window.innerHeight;
                 // newCanvas.style.background = 'transparent';
-                const newCanvasClass = new CanvasClass(this.dimensions,this.isDebugMode)
+                const newCanvasClass = CanvasClassGenerator(this.dimensions,this.isDebugMode)
                 this.pCanvasContainer.appendChild(newCanvasClass.pCanvas)
                 this.rCanvasContainer.appendChild(newCanvasClass.rCanvas)
                 this.canvasList.push(newCanvasClass)
             }
             const canvas = this.canvasList[strokePointer.layer - 1]
-            canvas.clear()
+            canvas.clearCanvas()
             canvas.setVisible(true)
             // TODO get uid
             canvas.drawStroke(stroke)
@@ -94,13 +95,14 @@ export class DrawingClass {
             const canvas = this.canvasList[strokePointer.layer - 1]
 
             if (strokePointer.stroke_id == 1) {
-                canvas.clear()
+                canvas.clearCanvas()
                 canvas.setVisible(true)
             }
 
             // Add
             canvas.drawStroke(stroke)
             console.log('layerLength:', newLength)
+            console.log('drawing:', this.drawing)
         }
         console.log('drawingState', layerStack)
         console.log('strokePointer', strokePointer)
@@ -149,7 +151,7 @@ export class DrawingClass {
         if (stroke_id == 0) {
             canvas.setVisible(false)
         } else {
-            canvas.clear()
+            canvas.clearCanvas()
             canvas.drawStrokes(0, stroke_id, layerData)
         }
         // debug
@@ -224,7 +226,7 @@ export class DrawingClass {
         mergedCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height)
         canvasArray.forEach((canvasClass) => {
             if (canvasClass.pCanvas.style.display == 'block') {
-                mergedCtx.drawImage(canvasClass.pCanvas, 0, 0);
+                mergedCtx.drawImage(canvasClass.rCanvas, 0, 0);
             }
         });
 
@@ -237,8 +239,9 @@ export class DrawingClass {
         link.download = 'drawing.jpg';
         link.click();
     }
-    placeStrokeAt(layer:number,stroke_id:number,p:point){
+    placeStrokeAt(layer:number,stroke_id:number,p:point,img:string){
         const stroke = this.drawing[layer].strokes[stroke_id-1]
+        stroke.image = img
         const prevCenter = stroke.centerP
         stroke.centerP = p
         const shiftX = p.x - prevCenter.x
@@ -254,7 +257,7 @@ export class DrawingClass {
     redrawLayer(layerIndex:number){
         const layerData = this.drawing[layerIndex]
         const canvas = this.canvasList[layerIndex]
-        canvas.clear()
+        canvas.clearCanvas()
         if(this.strokePointer.layer==layerIndex+1){
             canvas.drawStrokes(0,this.strokePointer.stroke_id,layerData)
         }else{
@@ -271,7 +274,7 @@ export class DrawingClass {
                 if (uid) {
                     console.log('stroke found in layer ', i, ' stroke no', uid)
                     const layerData = this.drawing[i]
-                    canvasClass.clear()
+                    canvasClass.clearCanvas()
                     canvasClass.drawStrokes(0, uid - 1, layerData)
                     canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
                     return { 
