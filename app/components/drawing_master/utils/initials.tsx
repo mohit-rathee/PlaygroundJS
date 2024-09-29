@@ -23,6 +23,9 @@ export const CATMULL_ROM_PRECISION = 0.01
 
 export const REDRAW_THRESHOLD = 20
 
+export const DELTA_TIME = 20
+
+
 
 export const COLOR_CHOISES = [
     'darkred',

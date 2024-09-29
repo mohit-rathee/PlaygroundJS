@@ -9,25 +9,47 @@ export class DrawingClass {
     private drawing: Drawing;
     private dimensions: Dimensions;
     private isDebugMode: boolean;
+    public colorRef: React.MutableRefObject<string>;
+    public styleRef: React.MutableRefObject<string>;
+    public lineWidthRef: React.MutableRefObject<number>;
 
     constructor(
         pCanvasContainer: HTMLDivElement,
         rCanvasContainer: HTMLDivElement,
         dimensions: Dimensions,
-        isDebugMode: boolean
+        isDebugMode: boolean,
+        colorRef: React.MutableRefObject<string>,
+        lineWidthRef: React.MutableRefObject<number>,
+        styleRef: React.MutableRefObject<string>,
     ) {
-        console.log('DIMENSIONS',dimensions)
+        console.log('DIMENSIONS', dimensions)
         this.pCanvasContainer = pCanvasContainer
         this.rCanvasContainer = rCanvasContainer
         this.dimensions = dimensions
         this.isDebugMode = isDebugMode
-        const canvasClass = CanvasClassGenerator(dimensions,isDebugMode)
+        this.colorRef = colorRef
+        this.styleRef = styleRef
+        this.lineWidthRef = lineWidthRef
+        const canvasClass = CanvasClassGenerator(dimensions, isDebugMode)
         this.canvasList = [canvasClass]
         this.pCanvasContainer.appendChild(canvasClass.pCanvas)
         this.rCanvasContainer.appendChild(canvasClass.rCanvas)
 
         this.strokePointer = initialStrokePointer
         this.drawing = initialDrawingState
+    }
+
+    getNewStroke(): Stroke {
+        return {
+            uid: NaN,
+            type: 'Pencil',
+            data: { 'points': [], 'style': this.styleRef.current },
+            color: this.colorRef.current,
+            lineWidth: this.lineWidthRef.current,
+            cornerP: { x: 0, y: 0 },
+            centerP: { x: 0, y: 0 },
+            image: ''
+        }
     }
 
     addStroke(stroke: Stroke) {
@@ -68,7 +90,7 @@ export class DrawingClass {
                 // newCanvas.width = window.innerWidth;
                 // newCanvas.height = window.innerHeight;
                 // newCanvas.style.background = 'transparent';
-                const newCanvasClass = CanvasClassGenerator(this.dimensions,this.isDebugMode)
+                const newCanvasClass = CanvasClassGenerator(this.dimensions, this.isDebugMode)
                 this.pCanvasContainer.appendChild(newCanvasClass.pCanvas)
                 this.rCanvasContainer.appendChild(newCanvasClass.rCanvas)
                 this.canvasList.push(newCanvasClass)
@@ -239,29 +261,26 @@ export class DrawingClass {
         link.download = 'drawing.jpg';
         link.click();
     }
-    placeStrokeAt(layer:number,stroke_id:number,p:point,img:string){
-        const stroke = this.drawing[layer].strokes[stroke_id-1]
-        stroke.image = img
+    placeStrokeAt(layer: number, stroke_id: number, p: point) {
+        const stroke = this.drawing[layer].strokes[stroke_id - 1]
         const prevCenter = stroke.centerP
         stroke.centerP = p
         const shiftX = p.x - prevCenter.x
         const shiftY = p.y - prevCenter.y
-        stroke.minP.x = stroke.minP.x + shiftX
-        stroke.maxP.x = stroke.maxP.x + shiftX
-        stroke.minP.y = stroke.minP.y + shiftY
-        stroke.maxP.y  = stroke.maxP.y + shiftY
+        stroke.cornerP.x = stroke.cornerP.x + shiftX
+        stroke.cornerP.y = stroke.cornerP.y + shiftY
         this.redrawLayer(layer)
         // draw Strokes of that layer again
 
     }
-    redrawLayer(layerIndex:number){
+    redrawLayer(layerIndex: number) {
         const layerData = this.drawing[layerIndex]
         const canvas = this.canvasList[layerIndex]
         canvas.clearCanvas()
-        if(this.strokePointer.layer==layerIndex+1){
-            canvas.drawStrokes(0,this.strokePointer.stroke_id,layerData)
-        }else{
-            canvas.drawStrokes(0,layerData.strokes.length,layerData)
+        if (this.strokePointer.layer == layerIndex + 1) {
+            canvas.drawStrokes(0, this.strokePointer.stroke_id, layerData)
+        } else {
+            canvas.drawStrokes(0, layerData.strokes.length, layerData)
 
         }
     }
@@ -277,10 +296,10 @@ export class DrawingClass {
                     canvasClass.clearCanvas()
                     canvasClass.drawStrokes(0, uid - 1, layerData)
                     canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
-                    return { 
+                    return {
                         'layer': i,
                         'stroke_id': uid,
-                        'stroke': layerData.strokes[uid - 1] 
+                        'stroke': layerData.strokes[uid - 1]
                     }
                 } else {
                     console.log('cant find in ', i)

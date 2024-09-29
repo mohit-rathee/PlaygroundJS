@@ -11,7 +11,8 @@ export const LayerStack = React.memo(({ canvasContainerRef, refCanvasContainerRe
 
 export const MainCanvas = React.memo(({ mainPCanvasRef, mainRCanvasRef, dimensions, isDebugMode }: any) => {
     const canvasWidth = isDebugMode ? '50%' : '100%';
-    const rCanvasPos = isDebugMode ? 'left-[50%]' : 'left-0';
+    const rCanvasPos = isDebugMode ? '50%' : '0';
+    const rCanvasDisplay = isDebugMode ? 'block' : 'none';
     return (
         //TODO make widith to screen
         <>
@@ -32,7 +33,8 @@ export const MainCanvas = React.memo(({ mainPCanvasRef, mainRCanvasRef, dimensio
                 style={{
                     background: 'transparent',
                     width: canvasWidth,
-                    left: rCanvasPos
+                    left: rCanvasPos,
+                    display: rCanvasDisplay
                 }}
             />
         </>

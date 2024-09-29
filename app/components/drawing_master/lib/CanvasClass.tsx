@@ -39,7 +39,7 @@ export class CanvasClass {
     drawDots(stroke: Stroke) {
         const points = stroke.data.points
         if (IS_DRAW_DOTS) {
-            for (let i = 0; i < points.length ; i++) {
+            for (let i = 0; i < points.length; i++) {
                 const p = points[i];
                 this.drawDot(p, Math.max(stroke.lineWidth - 3, 3), 'blue')
             }
@@ -77,7 +77,7 @@ export class CanvasClass {
         this.rContext.translate(stroke.centerP.x, stroke.centerP.y)
 
     }
-    drawNormalStrokes(stroke: Stroke) {
+    drawStraightLines(stroke: Stroke) {
         const points = stroke.data.points
         requestAnimationFrame(() => {
             this.prepareContext(stroke)
@@ -181,14 +181,12 @@ export class CanvasClass {
 
     clearCanvas() {
         const dimensions = this.dimensions
-        this.pContext.save()
-        this.rContext.save()
+        // to avoid redrawing previous paths
+        this.pContext.beginPath()
+        this.rContext.beginPath()
 
         this.pContext.clearRect(0, 0, dimensions.width, dimensions.height)
         this.rContext.clearRect(0, 0, dimensions.width, dimensions.height)
-
-        this.pContext.restore()
-        this.rContext.restore()
 
     }
 
@@ -200,7 +198,6 @@ export class CanvasClass {
     }
 
     drawStrokes(start: number, end: number, layerData: Layer) {
-        console.log('drawing from ', start, ' to ', end)
         for (let i = start; i < end; i++) {
             const stroke = layerData.strokes[i]
             this.drawStroke(stroke)
@@ -210,17 +207,22 @@ export class CanvasClass {
     drawStroke(stroke: Stroke) {
         switch (stroke.type) {
             case 'Pencil': {
+                console.log(stroke.data.style)
                 switch (stroke.data.style) {
-                    case 'Normal': {
-                        this.drawNormalStrokes(stroke);
+                    case 'FreeForm': {
+                        this.drawStraightLines(stroke);
                         break;
                     }
                     case 'CatmullRom': {
                         this.drawCatmullRomSpline(stroke)
                         break;
                     }
+                    case 'Polygon': {
+                        this.drawStraightLines(stroke);
+                        break;
+                    }
                     default: {
-                        console.log('drawingPencil')
+                        console.log('drawingImage')
                         this.drawImage(stroke)
                         break;
                     }

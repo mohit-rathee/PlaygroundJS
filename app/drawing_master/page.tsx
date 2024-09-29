@@ -1,12 +1,12 @@
 "use client"
 import '../globals.css';
 import HomeTemplate from '../components/layout/HomeTemplate';
-import Playground from '../components/drawing_master/playground';
+import DrawingBoard from '../components/drawing_master/components/drawingBoard';
 export default function Home() {
     return (
         <HomeTemplate
             title="Drawing Master"
-            childComponent={<Playground />}
+            childComponent={<DrawingBoard />}
         />
     );
 }

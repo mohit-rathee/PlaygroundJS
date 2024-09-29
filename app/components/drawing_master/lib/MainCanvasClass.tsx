@@ -4,7 +4,7 @@ import { RDP_NORMAL, RDP_CATMULLROM } from "../utils/initials";
 
 import { REDRAW_THRESHOLD } from "../utils/initials";
 
-        
+
 export class MainCanvasClass extends CanvasClass {
     public stroke: Stroke | null
     public selectedStrokeData: {
@@ -14,7 +14,6 @@ export class MainCanvasClass extends CanvasClass {
     public colorRef: React.MutableRefObject<string>;
     public styleRef: React.MutableRefObject<string>;
     public lineWidthRef: React.MutableRefObject<number>;
-    private threshold: number;
     private minX: number;
     private minY: number;
     private maxX: number;
@@ -24,12 +23,13 @@ export class MainCanvasClass extends CanvasClass {
     constructor(
         pCanvas: HTMLCanvasElement,
         rCanvas: HTMLCanvasElement,
+        isDebugMode: boolean,
         colorRef: React.MutableRefObject<string>,
         lineWidthRef: React.MutableRefObject<number>,
         styleRef: React.MutableRefObject<string>,
     ) {
         console.log('mainCanvas is created')
-        super(pCanvas, rCanvas)
+        super(pCanvas, rCanvas, isDebugMode)
         this.selectedStrokeData = {
             "layer": NaN,
             "stroke_id": NaN
@@ -38,7 +38,6 @@ export class MainCanvasClass extends CanvasClass {
         this.colorRef = colorRef
         this.styleRef = styleRef
         this.lineWidthRef = lineWidthRef
-        this.threshold = 0
         this.minX = NaN
         this.minY = NaN
         this.maxX = NaN
@@ -65,16 +64,6 @@ export class MainCanvasClass extends CanvasClass {
         }
 
     }
-    isThresholdTouched() {
-        if (this.threshold > REDRAW_THRESHOLD) {
-            return true
-        } else {
-            return false
-        }
-    }
-    resetThreshold() {
-        this.threshold = 0
-    }
     drawDot(p: point, radius = 5, color = 'black') {
         this.pContext.beginPath();
         this.pContext.arc(p.x, p.y, radius, 0, Math.PI * 2); // Draw a full circle
@@ -98,8 +87,12 @@ export class MainCanvasClass extends CanvasClass {
         if (!this.stroke) throw new Error('stroke is null')
         this.clearCanvas()
         switch (this.stroke.data.style) {
-            case 'Normal': {
-                this.drawNormalStrokes(this.stroke)
+            case 'FreeForm': {
+                this.drawStraightLines(this.stroke)
+                break;
+            }
+            case 'Polygon': {
+                this.drawStraightLines(this.stroke)
                 break;
             }
             case 'CatmullRom': {
@@ -145,13 +138,11 @@ export class MainCanvasClass extends CanvasClass {
         const strokeCenterP = this.stroke.centerP
         if (!strokeCenterP) return { x: 0, y: 0 }
         const gap = this.getGap(p)
-        console.log('GAP', gap)
         this.selectedPos = p
         return { x: strokeCenterP.x + gap.x, y: strokeCenterP.y + gap.y }
     }
 
     dragSelectedTo(p: point) {
-        console.log('POS', p)
         if (!this.stroke) throw new Error('stroke is null')
         // this.clearCanvas()
 
@@ -216,21 +207,33 @@ export class MainCanvasClass extends CanvasClass {
         this.pContext.lineCap = 'round'
     }
 
-    // OPTIMISATION: only give good points, don't repeat last point
-    draw(p: point) {
+    updateMinMax(p: point) {
         // update min & max points
         if (p.x < this.minX) { this.minX = p.x }
         else if (p.x > this.maxX) { this.maxX = p.x }
         if (p.y < this.minY) { this.minY = p.y }
         else if (p.y > this.maxY) { this.maxY = p.y }
+    }
+    // OPTIMISATION: only give good points, don't repeat last point
+    draw(p: point) {
+        switch (this.stroke?.data.style) {
+            case 'Polygon': {
+                this.stroke?.data.points.push(p)
 
-        //push
-        this.stroke?.data.points.push(p)
+
+            } default: {
+                this.updateMinMax(p)
+
+                this.stroke?.data.points.push(p)
+
+
+            }
+        }
+
         // requestAnimationFrame(() => {
         this.pContext.lineTo(p.x, p.y);
         this.pContext.stroke()
         // })
-        this.threshold += 1
     }
 
     getImageData(): string {
@@ -244,23 +247,6 @@ export class MainCanvasClass extends CanvasClass {
             this.pCanvas.style.zIndex = '0'
         }
         // })
-    }
-    setSelected(layer: number, stroke_id: number, stroke: Stroke, e: any) {
-        this.stroke = stroke
-        this.selectedStrokeData = {
-            'layer': layer,
-            'stroke_id': stroke_id,
-        }
-        const pos: point = { 'x': e.clientX, 'y': e.clientY }
-        // const origin: point = { 'x': this.pCanvas.width / 2, 'y': this.pCanvas.height / 2 }
-        // this.drawSelectedStroke(origin)
-        this.selectedPos = {
-            x: pos.x,
-            y: pos.y,
-        }
-        console.log('selectedStroke', this.selectedPos)
-        console.log('center', this.stroke.centerP)
-
     }
     getStroke(): Stroke {
         if (!this.stroke) throw new Error('stroke is null')

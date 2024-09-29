@@ -97,13 +97,21 @@ function PencilStack({ mode, style, setMode, setStyle }: any) {
             <span className="block text-sky-50">
                 Style:
             </span>
-            <div className="flex">
+            <div className="flex flex-wrap justify-center">
                 <Button
-                    isSelected={isPencilSelected && style == 'Normal'}
+                    isSelected={isPencilSelected && style == 'FreeForm'}
                     setMode={setMode}
                     setStyle={setStyle}
-                    style={'Normal'}
+                    style={'FreeForm'}
                     name={'𝘓'}
+                    mode={'drawPencil'}
+                />
+                <Button
+                    isSelected={isPencilSelected && style == 'Polygon'}
+                    setMode={setMode}
+                    setStyle={setStyle}
+                    style={'Polygon'}
+                    name={'☖'}
                     mode={'drawPencil'}
                 />
                 <Button

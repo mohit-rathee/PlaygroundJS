@@ -13,8 +13,7 @@ interface Stroke {
     image: string;
     color: string;
     lineWidth: number;
-    maxP:point;
-    minP:point;
+    cornerP:point;
     centerP:point;
     // style
     // width ...etc
