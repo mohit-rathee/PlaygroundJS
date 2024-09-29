@@ -1,9 +1,10 @@
+import { CATMULL_ROM_PRECISION, IS_DRAW_DOTS } from "../utils/initials";
 import { createNewCanvas, catmullRom, rgbToINTColor, intToRGBColor, intToRGBValue } from "../utils/magic_functions";
 
 export function CanvasClassGenerator(dimensions: Dimensions, isDebugMode: boolean) {
     const pCanvas = createNewCanvas(dimensions, true, true);
     const rCanvas = createNewCanvas(dimensions, isDebugMode, false)
-    const canvasClass = new CanvasClass(pCanvas, rCanvas)
+    const canvasClass = new CanvasClass(pCanvas, rCanvas, isDebugMode)
     console.log('CanvasClass created for the first time')
     return canvasClass;
 }
@@ -15,11 +16,13 @@ export class CanvasClass {
     public rContext: CanvasRenderingContext2D;
     public dimensions: Dimensions;
     public isVisible: boolean;
+    private isDebugMode: boolean;
 
-    constructor(pCanvas: HTMLCanvasElement, rCanvas: HTMLCanvasElement) {
+    constructor(pCanvas: HTMLCanvasElement, rCanvas: HTMLCanvasElement, isDebugMode: boolean) {
         this.dimensions = { width: pCanvas.width, height: pCanvas.height };
         this.pCanvas = pCanvas;
         this.rCanvas = rCanvas;
+        this.isDebugMode = isDebugMode
 
         const pContext = pCanvas.getContext('2d')
         const rContext = rCanvas.getContext('2d');
@@ -33,6 +36,16 @@ export class CanvasClass {
     }
 
 
+    drawDots(stroke: Stroke) {
+        const points = stroke.data.points
+        if (IS_DRAW_DOTS) {
+            for (let i = 0; i < points.length ; i++) {
+                const p = points[i];
+                this.drawDot(p, Math.max(stroke.lineWidth - 3, 3), 'blue')
+            }
+        }
+
+    }
     drawDot(p: point, radius = 5, color = 'black') {
         this.pContext.beginPath();
         this.pContext.arc(p.x, p.y, radius, 0, Math.PI * 2); // Draw a full circle
@@ -51,14 +64,14 @@ export class CanvasClass {
         this.pContext.lineWidth = stroke.lineWidth
         this.rContext.lineWidth = stroke.lineWidth + 3
 
-        this.pContext.lineCap='round'
-        this.rContext.lineCap='round'
+        this.pContext.lineCap = 'round'
+        this.rContext.lineCap = 'round'
 
         this.pContext.strokeStyle = stroke.color
         this.rContext.strokeStyle = intToRGBColor(stroke.uid)
 
-        this.pContext.setTransform(1,0,0,1,0,0)
-        this.rContext.setTransform(1,0,0,1,0,0)
+        this.pContext.setTransform(1, 0, 0, 1, 0, 0)
+        this.rContext.setTransform(1, 0, 0, 1, 0, 0)
 
         this.pContext.translate(stroke.centerP.x, stroke.centerP.y)
         this.rContext.translate(stroke.centerP.x, stroke.centerP.y)
@@ -80,10 +93,7 @@ export class CanvasClass {
             this.pContext.stroke()
             this.rContext.stroke()
 
-            // for (let i = 0; i < points.length - 1; i++) {
-            //     const p = points[i];
-            //     this.drawDot(p, Math.max(stroke.lineWidth - 3, 3), 'blue')
-            // }
+            this.drawDots(stroke)
 
             this.pContext.restore()
             this.rContext.restore()
@@ -91,33 +101,33 @@ export class CanvasClass {
     }
 
     drawCatmullRomSpline(stroke: Stroke) {
-        const pts = stroke.data.points
-        if (pts.length < 2) return
+        const points = stroke.data.points
+        if (points.length < 2) return
         const firstMirroredP = {
-            x: 2 * pts[0].x - pts[1].x,
-            y: 2 * pts[0].y - pts[1].y,
+            x: 2 * points[0].x - points[1].x,
+            y: 2 * points[0].y - points[1].y,
         }
         const lastMirroredP = {
-            x: 2 * pts[pts.length - 1].x - pts[pts.length - 2].x,
-            y: 2 * pts[pts.length - 1].y - pts[pts.length - 2].y,
+            x: 2 * points[points.length - 1].x - points[points.length - 2].x,
+            y: 2 * points[points.length - 1].y - points[points.length - 2].y,
         }
         const extPoints = [
             firstMirroredP,
-            ...pts,
+            ...points,
             lastMirroredP
         ];
         requestAnimationFrame(() => {
             this.prepareContext(stroke)
 
-            this.pContext.moveTo(pts[0].x, pts[0].y);
-            this.rContext.moveTo(pts[0].x, pts[0].y);
+            this.pContext.moveTo(points[0].x, points[0].y);
+            this.rContext.moveTo(points[0].x, points[0].y);
 
             for (let i = 0; i < extPoints.length - 3; i++) {
                 const p0 = extPoints[i];
                 const p1 = extPoints[i + 1];
                 const p2 = extPoints[i + 2];
                 const p3 = extPoints[i + 3];
-                for (let t = 0; t <= 1; t += 0.01) {
+                for (let t = 0; t <= 1; t += CATMULL_ROM_PRECISION) {
                     const { x, y } = catmullRom(p0, p1, p2, p3, t);
                     this.pContext.lineTo(x, y);
                     this.rContext.lineTo(x, y);
@@ -126,9 +136,7 @@ export class CanvasClass {
             this.pContext.stroke()
             this.rContext.stroke()
 
-            // for (let i = 0; i < pts.length; i++) {
-            //     this.drawDot(pts[i], 3, 'blue')
-            // }
+            this.drawDots(stroke)
 
             this.pContext.restore()
             this.rContext.restore()

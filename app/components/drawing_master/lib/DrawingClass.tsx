@@ -1,4 +1,4 @@
-import { THRESHOLD_VALUE } from "../utils/initials";
+import { LAYER_THRESHOLD } from "../utils/initials";
 import { CanvasClassGenerator, CanvasClass } from "./CanvasClass";
 import { initialDrawingState, initialStrokePointer } from "../utils/initials";
 export class DrawingClass {
@@ -40,7 +40,7 @@ export class DrawingClass {
         const newLength = (layerLength + stroke.data.points.length)
         // Override layer in undo state
 
-        if (strokePointer.stroke_id != 0 && newLength >= THRESHOLD_VALUE) {
+        if (strokePointer.stroke_id != 0 && newLength >= LAYER_THRESHOLD) {
             // Override last layer strokes
             layerStack.length = strokePointer.layer
             layerStack[strokePointer.layer - 1].strokes.length = strokePointer.stroke_id

@@ -1,4 +1,7 @@
+import { COLOR_MAP_GAP } from "./initials";
+
 export function intToRGBValue(n: number) {
+    n = n*COLOR_MAP_GAP
     if (n < 0 || n > 16777215) {
         throw new Error('Number out of range. Must be between 0 and 16777215.');
     }
@@ -15,7 +18,7 @@ export function rgbToINTColor(r: number, g: number, b: number) {
     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
         throw new Error('RGB values must be between 0 and 255.');
     }
-    return (r << 16) | (g << 8) | b;
+    return ((r << 16) | (g << 8) | b)/COLOR_MAP_GAP;
 }
 
 export function catmullRom(p0: point, p1: point, p2: point, p3: point, t: number) {

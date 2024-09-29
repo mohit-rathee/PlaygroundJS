@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import DrawingBoard from './components/drawingBoard'
 import { DrawingClass } from './lib/DrawingClass';
+import { IS_DEBUG_MODE } from './utils/initials';
 
 
 
@@ -8,7 +9,7 @@ export default function Playground() {
     const canvasContainerRef = useRef<HTMLDivElement | null>(null);
     const refCanvasContainerRef = useRef<HTMLDivElement | null>(null);
     const drawingClass = useRef<DrawingClass | null>(null)
-    const [isDebugMode, _setDebugMode] = useState(false);
+    const [isDebugMode, _setDebugMode] = useState(IS_DEBUG_MODE);
     const [dimensions, setDimensions] = useState({
         'width': 0,
         'height': 0,

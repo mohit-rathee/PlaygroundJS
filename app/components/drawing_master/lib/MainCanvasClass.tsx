@@ -1,7 +1,10 @@
 import { ramerDouglasPeucker } from "../utils/magic_functions";
 import { CanvasClass } from "./CanvasClass";
-const REDRAW_THRESHOLD = 20
+import { RDP_NORMAL, RDP_CATMULLROM } from "../utils/initials";
 
+import { REDRAW_THRESHOLD } from "../utils/initials";
+
+        
 export class MainCanvasClass extends CanvasClass {
     public stroke: Stroke | null
     public selectedStrokeData: {
@@ -83,9 +86,12 @@ export class MainCanvasClass extends CanvasClass {
     useRDP() {
         if (!this.stroke) throw new Error('stroke is null')
         const points = this.stroke.data.points
-        const epsilon = 3
-        const newPoints = ramerDouglasPeucker(points, epsilon)
-        this.stroke.data.points = newPoints
+        const style = this.stroke.data.style
+        if (style == "CatmullRom") {
+            this.stroke.data.points = ramerDouglasPeucker(points, RDP_CATMULLROM)
+        } else if (style == "Normal") {
+            this.stroke.data.points = ramerDouglasPeucker(points, RDP_NORMAL)
+        }
     }
 
     redrawCurrentDrawing() {
@@ -139,18 +145,18 @@ export class MainCanvasClass extends CanvasClass {
         const strokeCenterP = this.stroke.centerP
         if (!strokeCenterP) return { x: 0, y: 0 }
         const gap = this.getGap(p)
-        console.log('GAP',gap)
+        console.log('GAP', gap)
         this.selectedPos = p
         return { x: strokeCenterP.x + gap.x, y: strokeCenterP.y + gap.y }
     }
 
     dragSelectedTo(p: point) {
-        console.log('POS',p)
+        console.log('POS', p)
         if (!this.stroke) throw new Error('stroke is null')
         // this.clearCanvas()
 
         const newCenterP = this.getNewCenterP(p)
-        console.log('CENTER',newCenterP)
+        console.log('CENTER', newCenterP)
         this.stroke.centerP = newCenterP
         this.redrawCurrentDrawing()
         // const gap = this.getGap(p)
@@ -260,14 +266,14 @@ export class MainCanvasClass extends CanvasClass {
         if (!this.stroke) throw new Error('stroke is null')
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2
-        const maxP = { 'x': this.maxX-centerX, 'y': this.maxY-centerY }
-        const minP = { 'x': this.minX-centerX, 'y': this.minY-centerY }
+        const maxP = { 'x': this.maxX - centerX, 'y': this.maxY - centerY }
+        const minP = { 'x': this.minX - centerX, 'y': this.minY - centerY }
         const centerP = { 'x': centerX, 'y': centerY }
         const newPoints = this.stroke.data.points.map(point => ({
             'x': point.x - centerX,
             'y': point.y - centerY,
         }))
-        
+
         const color = this.stroke.color
         const lineWidth = this.stroke.lineWidth
         const style = this.stroke.data.style

@@ -1,4 +1,4 @@
-import { color_choices } from "../utils/initials";
+import { COLOR_CHOISES } from "../utils/initials";
 
 export default function SidePallete({ mode, setMode, style, setStyle, onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
     const handleSliderChange = (event: any) => {
@@ -28,7 +28,7 @@ export default function SidePallete({ mode, setMode, style, setStyle, onColorSel
             </span>
             <aside>
                 <div className="flex flex-wrap justify-center gap-2">
-                    {color_choices.map((color) => (
+                    {COLOR_CHOISES.map((color) => (
                         <div
                             key={color}
                             className="w-10 h-10 cursor-pointer"
