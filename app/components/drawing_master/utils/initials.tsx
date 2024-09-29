@@ -19,6 +19,8 @@ export const RDP_NORMAL = 3;
 
 export const RDP_CATMULLROM = 6;
 
+export const DISTANCE_BTW_POINTS= 10;
+
 export const CATMULL_ROM_PRECISION = 0.01
 
 export const REDRAW_THRESHOLD = 20

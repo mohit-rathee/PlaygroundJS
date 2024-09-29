@@ -2,9 +2,9 @@ import { MainCanvasClass } from "../lib/MainCanvasClass";
 import { DrawingClass } from "../lib/DrawingClass";
 import React from "react";
 import { EventClass } from "./eventClass";
-import { DELTA_TIME, RDP_CATMULLROM, RDP_NORMAL, REDRAW_THRESHOLD as REFINE_THRESHOLD } from "../utils/initials";
+import { DELTA_TIME, DISTANCE_BTW_POINTS, RDP_CATMULLROM, RDP_NORMAL, REDRAW_THRESHOLD as REFINE_THRESHOLD } from "../utils/initials";
 import { CanvasClass } from "../lib/CanvasClass";
-import { ramerDouglasPeucker } from "../utils/magic_functions";
+import { distanceBtw2Points as distanceBtwPoints, ramerDouglasPeucker } from "../utils/magic_functions";
 
 
 export class DrawPencilEventClass extends EventClass {
@@ -81,13 +81,19 @@ export class DrawPencilEventClass extends EventClass {
             y: event.clientY,
         };
 
-        this.updateMinMax(pos)
-        this.stroke.data.points.push(pos)
+        // Only add the point if the distance is greater than threshold
+        const lastPoint = this.stroke.data.points.slice(-1)[0]
+        const distance = distanceBtwPoints(pos,lastPoint)
+        if (distance < DISTANCE_BTW_POINTS) return
 
         this.canvasClass.pContext.lineTo(pos.x, pos.y);
         this.canvasClass.pContext.stroke()
         this.canvasClass.rContext.lineTo(pos.x, pos.y);
         this.canvasClass.rContext.stroke()
+
+        this.stroke.data.points.push(pos)
+        console.log(this.stroke.data.points)
+        this.updateMinMax(pos)
 
 
         if (this.threshold > REFINE_THRESHOLD) {
@@ -140,9 +146,10 @@ export class DrawPencilEventClass extends EventClass {
         console.log(newPoints.length)
         if (style === "CatmullRom") {
             simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_CATMULLROM)
-        } else if (style === "Normal") {
+        } else if (style === "FreeForm") {
             simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_NORMAL)
         }
+        console.log(simplifiedPoints.length)
 
         this.stroke.data.points = [
             ...points.slice(0, -20),
@@ -155,7 +162,6 @@ export class DrawPencilEventClass extends EventClass {
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2
         const cornerP = { 'x': this.maxX - centerX, 'y': this.maxY - centerY }
-        // const minP = { 'x': this.minX - centerX, 'y': this.minY - centerY }
         const centerP = { 'x': centerX, 'y': centerY }
         const newPoints = this.stroke.data.points.map(point => ({
             'x': point.x - centerX,

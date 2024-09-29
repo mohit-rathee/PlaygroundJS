@@ -79,6 +79,7 @@ export class CanvasClass {
     }
     drawStraightLines(stroke: Stroke) {
         const points = stroke.data.points
+        if (!points.length) return
         requestAnimationFrame(() => {
             this.prepareContext(stroke)
 
