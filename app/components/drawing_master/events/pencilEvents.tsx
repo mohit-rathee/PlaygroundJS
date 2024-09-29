@@ -2,7 +2,7 @@ import { MainCanvasClass } from "../lib/MainCanvasClass";
 import { DrawingClass } from "../lib/DrawingClass";
 import React from "react";
 import { EventClass } from "./eventClass";
-import { DELTA_TIME, RDP_CATMULLROM, RDP_NORMAL, REDRAW_THRESHOLD } from "../utils/initials";
+import { DELTA_TIME, RDP_CATMULLROM, RDP_NORMAL, REDRAW_THRESHOLD as REFINE_THRESHOLD } from "../utils/initials";
 import { CanvasClass } from "../lib/CanvasClass";
 import { ramerDouglasPeucker } from "../utils/magic_functions";
 
@@ -90,7 +90,7 @@ export class DrawPencilEventClass extends EventClass {
         this.canvasClass.rContext.stroke()
 
 
-        if (this.threshold > REDRAW_THRESHOLD) {
+        if (this.threshold > REFINE_THRESHOLD) {
             // TODO update RDP to only work on last section on points
             console.log('threshold hits')
             this.useRDP()
@@ -123,7 +123,7 @@ export class DrawPencilEventClass extends EventClass {
         else if (p.y > this.maxY) { this.maxY = p.y }
     }
     isThresholdTouched() {
-        if (this.threshold > REDRAW_THRESHOLD) {
+        if (this.threshold > REFINE_THRESHOLD) {
             return true
         } else {
             return false
@@ -133,12 +133,23 @@ export class DrawPencilEventClass extends EventClass {
         if (!this.stroke) throw new Error('stroke is null')
         const points = this.stroke.data.points
         const style = this.stroke.data.style
-        if (style == "CatmullRom") {
-            this.stroke.data.points = ramerDouglasPeucker(points, RDP_CATMULLROM)
-        } else if (style == "Normal") {
-            this.stroke.data.points = ramerDouglasPeucker(points, RDP_NORMAL)
+
+        const newPoints = points.slice(-REFINE_THRESHOLD)
+
+        let simplifiedPoints: point[] = [];
+        console.log(newPoints.length)
+        if (style === "CatmullRom") {
+            simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_CATMULLROM)
+        } else if (style === "Normal") {
+            simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_NORMAL)
         }
+
+        this.stroke.data.points = [
+            ...points.slice(0, -20),
+            ...simplifiedPoints
+        ]
     }
+
     getStroke(): Stroke {
         if (!this.stroke) throw new Error('stroke is null')
         const centerX = (this.minX + this.maxX) / 2
