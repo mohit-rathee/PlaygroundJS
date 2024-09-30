@@ -11,8 +11,6 @@ import { IS_DEBUG_MODE } from "../utils/initials";
 import { DrawPolygonEventClass } from "../events/polygonEvents";
 import { DrawShapeEventClass } from "../events/shapeEvents";
 
-const OPTIONS = ['drawPencil', 'select']
-
 function DrawingBoard() {
 
     const [isDebugMode, _setDebugMode] = useState(IS_DEBUG_MODE);
@@ -20,15 +18,18 @@ function DrawingBoard() {
     const canvasContainerRef = useRef<HTMLDivElement | null>(null);
     const refCanvasContainerRef = useRef<HTMLDivElement | null>(null);
 
-    const drawingClass = useRef<DrawingClass | null>(null)
+    const drawingClassRef = useRef<DrawingClass | null>(null)
 
-    const [color, setColor] = useState<string>('darkred')
+    const [lineColor, setLineColor] = useState<string>('darkred')
+    const [fillColor, setFillColor] = useState<string>('darkred')
     const [lineWidth, setLineWidth] = useState<number>(5);
+    const [isFill, setIsFill] = useState<boolean>(false)
     const [mode, setMode] = useState<string>('')
-    const [style, setStyle] = useState<string>('CatmullRom')
 
-    const colorRef = useRef<string>('gray')
-    const lineWidthRef = useRef<number>(5)
+    const lineColorRef = useRef<string>(lineColor)
+    const fillColorRef = useRef<string>(fillColor)
+    const lineWidthRef = useRef<number>(lineWidth)
+    const isFillRef = useRef<boolean>(isFill)
 
     const mainPCanvasRef = useRef<HTMLCanvasElement>(null)
     const mainRCanvasRef = useRef<HTMLCanvasElement>(null)
@@ -56,7 +57,7 @@ function DrawingBoard() {
             if (!dimensions.width || !dimensions.height) return
             setDimensions(dimensions)
 
-            drawingClass.current = new DrawingClass(
+            drawingClassRef.current = new DrawingClass(
                 canvasContainer,
                 refCanvasContainer,
                 dimensions,
@@ -93,13 +94,24 @@ function DrawingBoard() {
 
 
     useEffect(() => {
-        colorRef.current = color
+        lineColorRef.current = lineColor
+        fillColorRef.current = fillColor
+        isFillRef.current = isFill
         lineWidthRef.current = Number(lineWidth)
-    }, [color, lineWidth, style])
+    }, [lineColor, lineWidth, fillColor,isFill])
 
     useEffect(() => {
         if (!mainCanvasClassRef.current) return
+        if (!drawingClassRef.current) return
 
+        const toolRefs:any = {
+            mainCanvasClass : mainCanvasClassRef.current,
+            drawingClass : drawingClassRef,
+            lineColor: lineColorRef,
+            fillColor: fillColorRef,
+            lineWidth: lineWidthRef,
+            isFill: isFillRef
+        }
         const eventClass = eventClassRef.current
         if (eventClass) {
             eventClass.deConstructor()
@@ -108,65 +120,47 @@ function DrawingBoard() {
         switch (mode) {
             case "drawFreeForm": {
                 eventClassRef.current = new DrawPencilEventClass(
-                    mainCanvasClassRef.current,
-                    drawingClass,
-                    colorRef,
-                    lineWidthRef,
+                    toolRefs,
                     "FreeForm"
                 )
                 break
             }
             case "drawCatmullRom": {
                 eventClassRef.current = new DrawPencilEventClass(
-                    mainCanvasClassRef.current,
-                    drawingClass,
-                    colorRef,
-                    lineWidthRef,
+                    toolRefs,
                     "CatmullRom"
                 )
                 break
             }
             case "drawPolygon": {
                 eventClassRef.current = new DrawPolygonEventClass(
-                    mainCanvasClassRef.current,
-                    drawingClass,
-                    colorRef,
-                    lineWidthRef,
+                    toolRefs,
                 )
                 break
             }
             case "drawRectangle": {
                 eventClassRef.current = new DrawShapeEventClass(
-                    mainCanvasClassRef.current,
-                    drawingClass,
-                    colorRef,
-                    lineWidthRef,
+                    toolRefs,
                     "Rectangle"
                 )
                 break
             }
             case "drawCircle": {
                 eventClassRef.current = new DrawShapeEventClass(
-                    mainCanvasClassRef.current,
-                    drawingClass,
-                    colorRef,
-                    lineWidthRef,
+                    toolRefs,
                     "Circle"
                 )
                 break
             }
             case "select": {
                 eventClassRef.current = new SelectEventClass(
-                    mainCanvasClassRef.current,
-                    drawingClass,
-                    colorRef,
-                    lineWidthRef,
+                    toolRefs,
                 )
                 break
             }
-            default: throw new Error(mode+' is not available')
+            default: throw new Error(mode + ' is not available')
         }
-    }, [mode, drawingClass])
+    }, [mode, drawingClassRef])
 
     useEffect(() => {
         // const handleResize = () => {
@@ -193,27 +187,28 @@ function DrawingBoard() {
 
     return (
         <div className="w-full p-2 h-full px-2 flex gap-5 bg-gray-500">
-            {drawingClass.current && <SidePallete
+            {drawingClassRef.current && <SidePallete
                 mode={mode}
                 setMode={setMode}
-                options={OPTIONS}
-                color={color}
-                onColorSelect={setColor}
-                setLineWidth={setLineWidth}
+                lineColor={lineColor}
+                setLineColor={setLineColor}
+                fillColor={fillColor}
+                setFillColor={setFillColor}
                 lineWidth={lineWidth}
-                style={style}
-                setStyle={setStyle}
+                setLineWidth={setLineWidth}
+                isFill={isFill}
+                setIsFill={setIsFill}
                 undo={() => {
                     mainCanvasClassRef.current?.clearCanvas()
-                    drawingClass.current?.undo()
+                    drawingClassRef.current?.undo()
                 }}
                 redo={() => {
                     mainCanvasClassRef.current?.clearCanvas()
-                    drawingClass.current?.redo()
+                    drawingClassRef.current?.redo()
                 }}
                 save={() => {
                     mainCanvasClassRef.current?.clearCanvas()
-                    drawingClass.current?.save()
+                    drawingClassRef.current?.save()
                 }}
             />}
             <LayerStack

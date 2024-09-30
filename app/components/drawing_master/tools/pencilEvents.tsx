@@ -1,9 +1,7 @@
-import { DrawingClass } from "../lib/DrawingClass";
-import React from "react";
 import { EventClass } from "./eventClass";
 import { DELTA_TIME, MIN_DISTANCE_BTW_PTS, RDP_CATMULLROM, RDP_NORMAL, REFINE_THRESHOLD } from "../utils/initials";
-import { CanvasClass } from "../lib/CanvasClass";
 import { distanceBtwPoints, ramerDouglasPeucker } from "../utils/magic_functions";
+import { ToolRequirements } from "../components/drawingBoard";
 
 
 export class DrawPencilEventClass extends EventClass {
@@ -19,10 +17,10 @@ export class DrawPencilEventClass extends EventClass {
     private maxY: number;
 
     constructor(
-        toolRef: any,
+        args:ToolRequirements,
         type: "FreeForm" | "CatmullRom"
     ) {
-        super(toolRef)
+        super(args)
 
         this.type = type
         this.stroke = null
@@ -65,7 +63,6 @@ export class DrawPencilEventClass extends EventClass {
 
         this.canvasClass.clearCanvas()
         this.canvasClass.prepareContext(this.stroke)
-        console.log('color',this.stroke.lineColor)
         this.canvasClass.pContext.moveTo(pos.x, pos.y);
         this.canvasClass.rContext.moveTo(pos.x, pos.y);
 
@@ -94,6 +91,7 @@ export class DrawPencilEventClass extends EventClass {
         this.canvasClass.rContext.stroke()
 
         this.stroke.points.push(pos)
+        console.log(this.stroke.points)
         this.updateMinMax(pos)
 
 

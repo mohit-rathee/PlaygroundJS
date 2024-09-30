@@ -1,3 +1,7 @@
+// import React from "react";
+// import { CanvasClass } from "../components/drawing_master/lib/CanvasClass";
+// import { DrawingClass } from "../components/drawing_master/lib/DrawingClass";
+
 type Dimensions = { 'width': number, 'height': number }
 
 interface point {
@@ -11,8 +15,10 @@ type Stroke = FreeForm | CatmullRom | Polygon | Rectangle | Circle
 
 interface BaseStroke {
     uid: number;
-    color: string;
+    lineColor: string;
     lineWidth: number;
+    fillColor: string;
+    isFill: boolean;
     cornerP: point;
     centerP: point;
 }
@@ -66,4 +72,14 @@ interface canvasprop {
     redo: () => void;
     save: () => void;
 }
+
 type canvas_ref = React.RefObject<HTMLCanvasElement[]>;
+
+// interface ToolRefs {
+//     mainCanvasClass: CanvasClass;
+//     drawingClass: React.MutableRefObject<DrawingClass>;
+//     lineColor: React.MutableRefObject<string>;
+//     fillColor: React.MutableRefObject<string>;
+//     lineWidth: React.MutableRefObject<number>;
+//     isFill: React.MutableRefObject<boolean>;
+// }

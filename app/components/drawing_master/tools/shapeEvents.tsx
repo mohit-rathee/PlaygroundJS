@@ -1,6 +1,7 @@
 import { EventClass } from "./eventClass";
 import { distanceBtwPoints } from "../utils/magic_functions";
 import { MIN_DISTANCE_BTW_PTS } from "../utils/initials";
+import { ToolRequirements } from "../components/drawingBoard";
 
 export class DrawShapeEventClass extends EventClass {
     private stroke: Rectangle | Circle | null;
@@ -11,10 +12,10 @@ export class DrawShapeEventClass extends EventClass {
 
 
     constructor(
-        toolRef: any,
+        args:ToolRequirements,
         shape: "Rectangle" | "Circle"
     ) {
-        super(toolRef)
+        super(args)
 
         this.stroke = null
         this.pointA = { x: 0, y: 0 }

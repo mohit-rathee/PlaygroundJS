@@ -1,7 +1,5 @@
-import { DrawingClass } from "../lib/DrawingClass";
-import React from "react";
 import { EventClass } from "./eventClass";
-import { CanvasClass } from "../lib/CanvasClass";
+import { ToolRequirements } from "../components/drawingBoard";
 
 
 export class SelectEventClass extends EventClass {
@@ -10,9 +8,9 @@ export class SelectEventClass extends EventClass {
     public strokeInfo: StrokePointer;
 
     constructor(
-        toolRef: any,
+        args:ToolRequirements
     ) {
-        super(toolRef)
+        super(args)
 
         this.stroke = null
         this.selectPos = { x: 0, y: 0 }

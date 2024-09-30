@@ -5,7 +5,6 @@ export function CanvasClassGenerator(dimensions: Dimensions, isDebugMode: boolea
     const pCanvas = createNewCanvas(dimensions, true, true);
     const rCanvas = createNewCanvas(dimensions, isDebugMode, false)
     const canvasClass = new CanvasClass(pCanvas, rCanvas, isDebugMode)
-    console.log('CanvasClass created for the first time')
     return canvasClass;
 }
 
@@ -69,8 +68,13 @@ export class CanvasClass {
         this.pContext.lineCap = 'round'
         this.rContext.lineCap = 'round'
 
-        this.pContext.strokeStyle = stroke.color
+        this.pContext.strokeStyle = stroke.lineColor
         this.rContext.strokeStyle = intToRGBColor(stroke.uid)
+
+        if (stroke.isFill) {
+            this.pContext.fillStyle = stroke.fillColor
+            this.rContext.fillStyle = intToRGBColor(stroke.uid)
+        }
 
         this.pContext.setTransform(1, 0, 0, 1, 0, 0)
         this.rContext.setTransform(1, 0, 0, 1, 0, 0)
@@ -85,9 +89,13 @@ export class CanvasClass {
             this.prepareContext(stroke)
             // already translated to centerP
             this.pContext.arc(0, 0, radius, 0, Math.PI * 2)
-            this.pContext.stroke()
             this.rContext.arc(0, 0, radius, 0, Math.PI * 2)
+            this.pContext.stroke()
             this.rContext.stroke()
+            if (stroke.isFill) {
+                this.pContext.fill()
+                this.rContext.fill()
+            }
             this.pContext.restore()
             this.rContext.restore()
             this.drawDots(stroke)
@@ -110,9 +118,18 @@ export class CanvasClass {
                 this.pContext.lineTo(p.x, p.y);
                 this.rContext.lineTo(p.x, p.y);
             }
+            if (stroke.isFill) {
+                this.pContext.closePath()
+                this.rContext.closePath()
+            }
             this.pContext.stroke()
             this.rContext.stroke()
 
+            if (stroke.isFill) {
+                this.pContext.fill()
+                this.rContext.fill()
+
+            }
             this.drawDots(stroke)
 
             this.pContext.restore()
@@ -154,8 +171,18 @@ export class CanvasClass {
                     this.rContext.lineTo(x, y);
                 }
             }
+            if (stroke.isFill) {
+                this.pContext.closePath()
+                this.rContext.closePath()
+            }
+
             this.pContext.stroke()
             this.rContext.stroke()
+
+            if (stroke.isFill) {
+                this.pContext.fill()
+                this.rContext.fill()
+            }
 
             this.drawDots(stroke)
 
