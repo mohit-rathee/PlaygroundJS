@@ -38,7 +38,7 @@ export function catmullRom(p0: point, p1: point, p2: point, p3: point, t: number
     return { x, y };
 }
 
-export function distanceBtw2Points(a: point, b: point) {
+export function distanceBtwPoints(a: point, b: point) {
     return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2))
 }
 

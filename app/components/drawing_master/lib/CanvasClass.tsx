@@ -182,7 +182,7 @@ export class CanvasClass {
 
     clearCanvas() {
         const dimensions = this.dimensions
-        // to avoid redrawing previous paths
+        // to clear previous paths
         this.pContext.beginPath()
         this.rContext.beginPath()
 
@@ -207,7 +207,7 @@ export class CanvasClass {
 
     drawStroke(stroke: Stroke) {
         switch (stroke.type) {
-            case 'Pencil': {
+            case "Pencil": {
                 console.log(stroke.data.style)
                 switch (stroke.data.style) {
                     case 'FreeForm': {
@@ -218,10 +218,6 @@ export class CanvasClass {
                         this.drawCatmullRomSpline(stroke)
                         break;
                     }
-                    case 'Polygon': {
-                        this.drawStraightLines(stroke);
-                        break;
-                    }
                     default: {
                         console.log('drawingImage')
                         this.drawImage(stroke)
@@ -229,6 +225,9 @@ export class CanvasClass {
                     }
                 }
                 break;
+            }case "Polygon":{
+                this.drawStraightLines(stroke)
+                break
             }
             // Add more cases here if needed for different stroke types
         }

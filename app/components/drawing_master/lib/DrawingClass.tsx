@@ -40,6 +40,7 @@ export class DrawingClass {
     }
 
     getNewStroke(): Stroke {
+        
         return {
             uid: NaN,
             type: 'Pencil',

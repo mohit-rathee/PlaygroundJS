@@ -2,22 +2,38 @@ interface point {
     x: number;
     y: number;
 }
+
 interface Pencil {
-    points: point[];
+    points: Point[];
     style: string;
 }
-interface Stroke {
-    uid: number;
-    type: string;
-    data: Pencil;
-    image: string;
-    color: string;
-    lineWidth: number;
-    cornerP:point;
-    centerP:point;
-    // style
-    // width ...etc
-};
+
+interface Polygon {
+    points: Point[];
+}
+
+type Stroke =
+    | {
+          uid: number;
+          type: 'Pencil';
+          data: Pencil;
+          image: string;
+          color: string;
+          lineWidth: number;
+          cornerP: Point;
+          centerP: Point;
+      }
+    | {
+          uid: number;
+          type: 'Polygon';
+          data: Polygon;
+          image: string;
+          color: string;
+          lineWidth: number;
+          cornerP: Point;
+          centerP: Point;
+      };
+
 interface Layer {
     strokes: Stroke[];
     length: number;

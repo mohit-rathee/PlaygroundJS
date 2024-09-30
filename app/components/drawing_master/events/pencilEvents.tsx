@@ -1,10 +1,9 @@
-import { MainCanvasClass } from "../lib/MainCanvasClass";
 import { DrawingClass } from "../lib/DrawingClass";
 import React from "react";
 import { EventClass } from "./eventClass";
-import { DELTA_TIME, DISTANCE_BTW_POINTS, RDP_CATMULLROM, RDP_NORMAL, REDRAW_THRESHOLD as REFINE_THRESHOLD } from "../utils/initials";
+import { DELTA_TIME, MIN_DISTANCE_BTW_PTS, RDP_CATMULLROM, RDP_NORMAL, REFINE_THRESHOLD } from "../utils/initials";
 import { CanvasClass } from "../lib/CanvasClass";
-import { distanceBtw2Points as distanceBtwPoints, ramerDouglasPeucker } from "../utils/magic_functions";
+import { distanceBtwPoints, ramerDouglasPeucker } from "../utils/magic_functions";
 
 
 export class DrawPencilEventClass extends EventClass {
@@ -84,7 +83,7 @@ export class DrawPencilEventClass extends EventClass {
         // Only add the point if the distance is greater than threshold
         const lastPoint = this.stroke.data.points.slice(-1)[0]
         const distance = distanceBtwPoints(pos,lastPoint)
-        if (distance < DISTANCE_BTW_POINTS) return
+        if (distance < MIN_DISTANCE_BTW_PTS) return
 
         this.canvasClass.pContext.lineTo(pos.x, pos.y);
         this.canvasClass.pContext.stroke()

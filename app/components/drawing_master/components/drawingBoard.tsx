@@ -8,6 +8,7 @@ import { EventClass } from "../events/eventClass";
 import { DrawPencilEventClass } from "../events/pencilEvents";
 import { SelectEventClass } from "../events/selectEvents";
 import { IS_DEBUG_MODE } from "../utils/initials";
+import { DrawPolygonEventClass } from "../events/polygonEvents";
 
 const OPTIONS = ['drawPencil', 'select']
 
@@ -111,6 +112,13 @@ function DrawingBoard() {
         switch (mode) {
             case "drawPencil": {
                 eventClassRef.current = new DrawPencilEventClass(
+                    mainCanvasClassRef.current,
+                    drawingClass,
+                )
+                break
+            }
+            case "drawPolygon":{
+                eventClassRef.current = new DrawPolygonEventClass(
                     mainCanvasClassRef.current,
                     drawingClass,
                 )

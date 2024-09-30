@@ -92,6 +92,8 @@ function Button({ isSelected, setMode, setStyle, style, name, mode }: any) {
 }
 function PencilStack({ mode, style, setMode, setStyle }: any) {
     const isPencilSelected = mode == 'drawPencil' ? true : false
+    const isPolygonSelected = mode == 'drawPolygon' ? true : false
+    console.log('isPolygonSelected',isPolygonSelected)
     return (
         <>
             <span className="block text-sky-50">
@@ -107,12 +109,12 @@ function PencilStack({ mode, style, setMode, setStyle }: any) {
                     mode={'drawPencil'}
                 />
                 <Button
-                    isSelected={isPencilSelected && style == 'Polygon'}
+                    isSelected={isPolygonSelected}
                     setMode={setMode}
                     setStyle={setStyle}
                     style={'Polygon'}
                     name={'☖'}
-                    mode={'drawPencil'}
+                    mode={'drawPolygon'}
                 />
                 <Button
                     isSelected={isPencilSelected && style == 'CatmullRom'}
