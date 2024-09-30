@@ -8,15 +8,6 @@ export default function SidePallete({ mode, setMode, style, setStyle, onColorSel
 
     return (
         <div className='w-28 p-1 z-50 h-full justify-center items-center flex flex-col bg-gray-700 rounded-sm'>
-            <div
-                onClick={() => {
-                    setMode('select')
-                }}
-                className={`p-1 m-1 rounded-md justify-between text-center border-2 bg-blue-200 w-14 cursor-pointer
-                    ${mode === 'select' ? 'border-blue-800' : ''} `}
-            >
-                select
-            </div>
             <ToolsStack
                 setMode={setMode}
                 setStyle={setStyle}
@@ -83,8 +74,8 @@ function Button({ setMode, name, mode, thisMode }: any) {
             onClick={() => {
                 setMode(thisMode)
             }}
-            className={`p-1 m-1 rounded-md text-center border-2 bg-blue-200 w-10 cursor-pointer
-                ${isSelected ? 'border-blue-800' : ''} `}
+            className={`p-1 m-1 rounded-md text-center border-2 w-10 cursor-pointer
+                ${isSelected ? 'border-blue-800 bg-red-200' : 'bg-blue-200'} `}
         >
             {name}
         </div>
@@ -94,8 +85,14 @@ function ToolsStack({ mode, setMode }: any) {
     return (
         <>
             <span className="block text-sky-50">
-                Style:
+                Tools:
             </span>
+                <Button
+                mode={mode}
+                setMode={setMode}
+                name={'➤'}
+                thisMode={'select'}
+            />
             <div className="flex flex-wrap justify-center">
                 <Button
                     mode={mode}
