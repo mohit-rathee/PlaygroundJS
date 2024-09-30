@@ -37,7 +37,9 @@ export class CanvasClass {
 
 
     drawDots(stroke: Stroke) {
-        const points = stroke.data.points
+        let points;
+        if (stroke.type == "Circle") points = [stroke.centerP]
+        else { points = stroke.points }
         if (IS_DRAW_DOTS) {
             for (let i = 0; i < points.length; i++) {
                 const p = points[i];
@@ -77,8 +79,25 @@ export class CanvasClass {
         this.rContext.translate(stroke.centerP.x, stroke.centerP.y)
 
     }
+    drawCircle(stroke: Stroke) {
+        if (stroke.type == "Circle") {
+            const radius = stroke.radius
+            this.prepareContext(stroke)
+            // already translated to centerP
+            this.pContext.arc(0, 0, radius, 0, Math.PI * 2)
+            this.pContext.stroke()
+            this.rContext.arc(0, 0, radius, 0, Math.PI * 2)
+            this.rContext.stroke()
+            this.pContext.restore()
+            this.rContext.restore()
+            this.drawDots(stroke)
+
+        }
+
+    }
     drawStraightLines(stroke: Stroke) {
-        const points = stroke.data.points
+        if (stroke.type == "Circle") return //except circle all have points
+        const points = stroke.points
         if (!points.length) return
         requestAnimationFrame(() => {
             this.prepareContext(stroke)
@@ -102,7 +121,8 @@ export class CanvasClass {
     }
 
     drawCatmullRomSpline(stroke: Stroke) {
-        const points = stroke.data.points
+        if (stroke.type == "Circle") return
+        const points = stroke.points
         if (points.length < 2) return
         const firstMirroredP = {
             x: 2 * points[0].x - points[1].x,
@@ -147,7 +167,7 @@ export class CanvasClass {
 
     drawImage(stroke: Stroke) {
         const strokeImg = new Image
-        strokeImg.src = stroke.image
+        // strokeImg.src = stroke.image
         strokeImg.onload = () => {
             requestAnimationFrame(() => {
                 this.pContext.save()
@@ -198,6 +218,7 @@ export class CanvasClass {
         return [pContext, rContext];
     }
 
+    //TODO send to DrawingClass
     drawStrokes(start: number, end: number, layerData: Layer) {
         for (let i = start; i < end; i++) {
             const stroke = layerData.strokes[i]
@@ -207,34 +228,32 @@ export class CanvasClass {
 
     drawStroke(stroke: Stroke) {
         switch (stroke.type) {
-            case "Pencil": {
-                console.log(stroke.data.style)
-                switch (stroke.data.style) {
-                    case 'FreeForm': {
-                        this.drawStraightLines(stroke);
-                        break;
-                    }
-                    case 'CatmullRom': {
-                        this.drawCatmullRomSpline(stroke)
-                        break;
-                    }
-                    default: {
-                        console.log('drawingImage')
-                        this.drawImage(stroke)
-                        break;
-                    }
-                }
+            case 'FreeForm': {
+                this.drawStraightLines(stroke);
                 break;
-            }case "Polygon":{
-                this.drawStraightLines(stroke)
-                break
             }
-            // Add more cases here if needed for different stroke types
+            case 'CatmullRom': {
+                this.drawCatmullRomSpline(stroke)
+                break;
+            }
+            case 'Polygon': {
+                this.drawStraightLines(stroke)
+                break;
+            }
+            case 'Rectangle': {
+                this.drawStraightLines(stroke)
+                break;
+            }
+            case 'Circle': {
+                this.drawCircle(stroke)
+                break;
+            }
+            default: {
+                throw new Error('Type not found')
+            }
         }
-
-
-
     }
+
     getStrokeId(p: point): number {
         this.rContext.resetTransform()
         const img = this.rContext.getImageData(p.x, p.y, 1, 1)

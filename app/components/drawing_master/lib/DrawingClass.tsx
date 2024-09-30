@@ -2,34 +2,29 @@ import { LAYER_THRESHOLD } from "../utils/initials";
 import { CanvasClassGenerator, CanvasClass } from "./CanvasClass";
 import { initialDrawingState, initialStrokePointer } from "../utils/initials";
 export class DrawingClass {
-    private canvasList: CanvasClass[];
     private pCanvasContainer: HTMLDivElement;
     private rCanvasContainer: HTMLDivElement;
+
+    private canvasList: CanvasClass[];
+    private drawing: DrawingVerse;
+
     private strokePointer: StrokePointer;
-    private drawing: Drawing;
+
     private dimensions: Dimensions;
     private isDebugMode: boolean;
-    public colorRef: React.MutableRefObject<string>;
-    public styleRef: React.MutableRefObject<string>;
-    public lineWidthRef: React.MutableRefObject<number>;
 
     constructor(
         pCanvasContainer: HTMLDivElement,
         rCanvasContainer: HTMLDivElement,
         dimensions: Dimensions,
         isDebugMode: boolean,
-        colorRef: React.MutableRefObject<string>,
-        lineWidthRef: React.MutableRefObject<number>,
-        styleRef: React.MutableRefObject<string>,
+        // styleRef: React.MutableRefObject<string>,
     ) {
         console.log('DIMENSIONS', dimensions)
         this.pCanvasContainer = pCanvasContainer
         this.rCanvasContainer = rCanvasContainer
         this.dimensions = dimensions
         this.isDebugMode = isDebugMode
-        this.colorRef = colorRef
-        this.styleRef = styleRef
-        this.lineWidthRef = lineWidthRef
         const canvasClass = CanvasClassGenerator(dimensions, isDebugMode)
         this.canvasList = [canvasClass]
         this.pCanvasContainer.appendChild(canvasClass.pCanvas)
@@ -39,28 +34,23 @@ export class DrawingClass {
         this.drawing = initialDrawingState
     }
 
-    getNewStroke(): Stroke {
-        
-        return {
-            uid: NaN,
-            type: 'Pencil',
-            data: { 'points': [], 'style': this.styleRef.current },
-            color: this.colorRef.current,
-            lineWidth: this.lineWidthRef.current,
-            cornerP: { x: 0, y: 0 },
-            centerP: { x: 0, y: 0 },
-            image: ''
-        }
-    }
 
+    getStrokeLength(stroke: Stroke): number {
+        if (stroke.type == "Circle" || stroke.type == "Rectangle") {
+            return 10;
+        } else {
+            return stroke.points.length
+        }
+
+    }
     addStroke(stroke: Stroke) {
         console.log('adding stroke')
         const strokePointer = this.strokePointer
         const layerStack = this.drawing
         const layerLength = layerStack[strokePointer.layer - 1].length
+        const strokeLength = this.getStrokeLength(stroke)
+        const newLength = (layerLength + strokeLength)
 
-
-        const newLength = (layerLength + stroke.data.points.length)
         // Override layer in undo state
 
         if (strokePointer.stroke_id != 0 && newLength >= LAYER_THRESHOLD) {
@@ -78,11 +68,11 @@ export class DrawingClass {
             // PUSH NEXT LAYER
             stroke.uid = strokePointer.stroke_id
             const nextLayer: Layer = {
-                length: stroke.data.points.length,
+                length: strokeLength,
                 strokes: [stroke]
             }
             layerStack.push(nextLayer)
-            console.log('layerLength:', stroke.data.points.length)
+            console.log('layerLength:', strokeLength)
 
             // Adding new canvas
             if (this.canvasList.length < strokePointer.layer) {
@@ -149,7 +139,7 @@ export class DrawingClass {
             }
             const prevLayer = layerStack[prevLayerIndex]
             const lastStroke = prevLayer.strokes[prevLayer.strokes.length - 1]
-            const lastStrokeLength = lastStroke.data.points.length
+            const lastStrokeLength = this.getStrokeLength(lastStroke)
 
             // layer length upto last 2nd stroke
             prevLayer.length = prevLayer.length - lastStrokeLength
@@ -162,7 +152,8 @@ export class DrawingClass {
             const currentLayer = layerStack[currentLayerIndex]
             strokePointer.stroke_id = prevStroke
             const layer = layerStack[strokePointer.layer - 1]
-            const currentStrokeLength = layer.strokes[prevStroke].data.points.length
+            const currentStroke = layer.strokes[prevStroke]
+            const currentStrokeLength = this.getStrokeLength(currentStroke)
             currentLayer.length = layerLength - currentStrokeLength
             console.log('layerLength:', currentLayer.length)
         }
@@ -187,7 +178,7 @@ export class DrawingClass {
         const strokePointer = this.strokePointer
         const layerStack = this.drawing
 
-        const nextStroke = strokePointer.stroke_id + 1
+        const nextStrokeIndex = strokePointer.stroke_id + 1
         const maxStroke = layerStack[strokePointer.layer - 1].strokes.length
 
         const maxLayer = layerStack.length
@@ -195,7 +186,7 @@ export class DrawingClass {
         const nextLayerIndex = currentLayerIndex + 1
 
         // redo next layer
-        if (nextStroke > maxStroke) {
+        if (nextStrokeIndex > maxStroke) {
             // Already at newest change
             if (nextLayerIndex == maxLayer) {
                 console.log('newest change')
@@ -205,12 +196,13 @@ export class DrawingClass {
             strokePointer.stroke_id = 1
             const nextLayer = layerStack[nextLayerIndex]
             // layerlength will be next layers first stroke length
-            nextLayer.length = nextLayer.strokes[0].data.points.length
+            nextLayer.length = this.getStrokeLength(nextLayer.strokes[0])
             console.log('layerLength:', nextLayer.length)
         } else {
             // redo current layer
-            strokePointer.stroke_id = nextStroke
-            const nextStrokeLength = layerStack[currentLayerIndex].strokes[nextStroke - 1].data.points.length
+            strokePointer.stroke_id = nextStrokeIndex
+            const nextStroke = layerStack[currentLayerIndex].strokes[nextStrokeIndex - 1]
+            const nextStrokeLength = this.getStrokeLength(nextStroke)
             const currentLayer = layerStack[currentLayerIndex]
             // add length of next stroke in layerLength
             const layerLength = layerStack[currentLayerIndex].length
@@ -262,15 +254,9 @@ export class DrawingClass {
         link.download = 'drawing.jpg';
         link.click();
     }
-    placeStrokeAt(layer: number, stroke_id: number, p: point) {
-        const stroke = this.drawing[layer].strokes[stroke_id - 1]
-        const prevCenter = stroke.centerP
-        stroke.centerP = p
-        const shiftX = p.x - prevCenter.x
-        const shiftY = p.y - prevCenter.y
-        stroke.cornerP.x = stroke.cornerP.x + shiftX
-        stroke.cornerP.y = stroke.cornerP.y + shiftY
-        this.redrawLayer(layer)
+    placeStrokeAt(strokeinfo: StrokePointer) {
+        // const stroke = this.drawing[strokeinfo.layer].strokes[strokeinfo.stroke_id - 1]
+        this.redrawLayer(strokeinfo.layer)
         // draw Strokes of that layer again
 
     }
@@ -285,7 +271,7 @@ export class DrawingClass {
 
         }
     }
-    select(p: point) {
+    select(p: point): [StrokePointer, Stroke] | null {
         const canvasList = this.canvasList
         for (let i = canvasList.length - 1; i >= 0; i--) {
             if (canvasList[i].isVisible) {
@@ -297,18 +283,18 @@ export class DrawingClass {
                     canvasClass.clearCanvas()
                     canvasClass.drawStrokes(0, uid - 1, layerData)
                     canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
-                    return {
-                        'layer': i,
-                        'stroke_id': uid,
-                        'stroke': layerData.strokes[uid - 1]
-                    }
+                    return [
+                        {
+                            'layer': i,
+                            'stroke_id': uid,
+                        },
+                        layerData.strokes[uid - 1]
+                    ]
                 } else {
                     console.log('cant find in ', i)
                 }
             }
         }
-
-
+        return null;
     }
-
 }

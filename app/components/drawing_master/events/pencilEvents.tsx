@@ -7,9 +7,12 @@ import { distanceBtwPoints, ramerDouglasPeucker } from "../utils/magic_functions
 
 
 export class DrawPencilEventClass extends EventClass {
+    public type: "FreeForm" | "CatmullRom";
+    public stroke: FreeForm | CatmullRom | null
+
     private timer: number;
     private threshold: number;
-    public stroke: Stroke | null
+
     private minX: number;
     private minY: number;
     private maxX: number;
@@ -18,12 +21,16 @@ export class DrawPencilEventClass extends EventClass {
     constructor(
         canvasClass: CanvasClass,
         drawingClass: React.RefObject<DrawingClass>,
+        colorRef: React.MutableRefObject<string>,
+        lineWidthRef: React.MutableRefObject<number>,
+        type: "FreeForm" | "CatmullRom"
     ) {
-        super(canvasClass, drawingClass)
+        super(canvasClass, drawingClass, colorRef, lineWidthRef)
 
+        this.type = type
+        this.stroke = null
         this.timer = Date.now()
         this.threshold = 0
-        this.stroke = null
         this.minX = Infinity
         this.minY = Infinity
         this.maxX = -Infinity
@@ -51,20 +58,18 @@ export class DrawPencilEventClass extends EventClass {
 
 
         this.timer = Date.now()
+
+        this.stroke = this.createNewStroke(this.type)
+        this.stroke.points = [pos]
+        this.minX = pos.x
+        this.minY = pos.y
+        this.maxX = pos.x
+        this.maxY = pos.y
+
         this.canvasClass.clearCanvas()
-        this.stroke = this.drawing.current.getNewStroke()
-        this.stroke.data.points = [pos]
-        this.updateMinMax(pos)
-        this.canvasClass.pContext.beginPath()
+        this.canvasClass.prepareContext(this.stroke)
         this.canvasClass.pContext.moveTo(pos.x, pos.y);
-        this.canvasClass.pContext.strokeStyle = this.stroke.color
-        this.canvasClass.pContext.lineWidth = this.stroke.lineWidth
-        this.canvasClass.pContext.lineCap = 'round'
-        this.canvasClass.rContext.beginPath()
         this.canvasClass.rContext.moveTo(pos.x, pos.y);
-        this.canvasClass.rContext.strokeStyle = this.stroke.color
-        this.canvasClass.rContext.lineWidth = this.stroke.lineWidth
-        this.canvasClass.rContext.lineCap = 'round'
 
         this.canvasClass.pCanvas.addEventListener('mousemove', this.drawPencilEvent)
         this.canvasClass.pCanvas.addEventListener('mouseup', this.stopPencilEvent)
@@ -81,8 +86,8 @@ export class DrawPencilEventClass extends EventClass {
         };
 
         // Only add the point if the distance is greater than threshold
-        const lastPoint = this.stroke.data.points.slice(-1)[0]
-        const distance = distanceBtwPoints(pos,lastPoint)
+        const lastPoint = this.stroke.points.slice(-1)[0]
+        const distance = distanceBtwPoints(pos, lastPoint)
         if (distance < MIN_DISTANCE_BTW_PTS) return
 
         this.canvasClass.pContext.lineTo(pos.x, pos.y);
@@ -90,8 +95,8 @@ export class DrawPencilEventClass extends EventClass {
         this.canvasClass.rContext.lineTo(pos.x, pos.y);
         this.canvasClass.rContext.stroke()
 
-        this.stroke.data.points.push(pos)
-        console.log(this.stroke.data.points)
+        this.stroke.points.push(pos)
+        console.log(this.stroke.points)
         this.updateMinMax(pos)
 
 
@@ -113,7 +118,7 @@ export class DrawPencilEventClass extends EventClass {
         this.setOnTop(false)
         this.useRDP()
         const newStroke = this.getStroke()
-        newStroke.image = this.canvasClass.pCanvas.toDataURL("image/jpg")
+        // newStroke.image = this.canvasClass.pCanvas.toDataURL("image/jpg")
         this.canvasClass.clearCanvas()
         this.drawing.current?.addStroke(newStroke)
 
@@ -136,21 +141,21 @@ export class DrawPencilEventClass extends EventClass {
     }
     useRDP() {
         if (!this.stroke) throw new Error('stroke is null')
-        const points = this.stroke.data.points
-        const style = this.stroke.data.style
+        const points = this.stroke.points
 
         const newPoints = points.slice(-REFINE_THRESHOLD)
 
         let simplifiedPoints: point[] = [];
         console.log(newPoints.length)
-        if (style === "CatmullRom") {
-            simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_CATMULLROM)
-        } else if (style === "FreeForm") {
-            simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_NORMAL)
-        }
-        console.log(simplifiedPoints.length)
+        switch (this.type) {
+            case "FreeForm":
+                simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_NORMAL)
+            case "CatmullRom":
+                simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_CATMULLROM)
 
-        this.stroke.data.points = [
+        }
+
+        this.stroke.points = [
             ...points.slice(0, -20),
             ...simplifiedPoints
         ]
@@ -160,26 +165,14 @@ export class DrawPencilEventClass extends EventClass {
         if (!this.stroke) throw new Error('stroke is null')
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2
-        const cornerP = { 'x': this.maxX - centerX, 'y': this.maxY - centerY }
-        const centerP = { 'x': centerX, 'y': centerY }
-        const newPoints = this.stroke.data.points.map(point => ({
+        this.stroke.cornerP = { 'x': this.maxX - centerX, 'y': this.maxY - centerY }
+        this.stroke.centerP = { 'x': centerX, 'y': centerY }
+        const newPoints = this.stroke.points.map(point => ({
             'x': point.x - centerX,
             'y': point.y - centerY,
         }))
+        this.stroke.points = newPoints
 
-        const color = this.stroke.color
-        const lineWidth = this.stroke.lineWidth
-        const style = this.stroke.data.style
-        const stroke = {
-            uid: NaN,
-            type: 'Pencil',
-            data: { 'points': newPoints, 'style': style },
-            color: color,
-            lineWidth: lineWidth,
-            cornerP: cornerP,
-            centerP: centerP,
-            image: ''
-        }
-        return stroke
+        return this.stroke
     }
 }

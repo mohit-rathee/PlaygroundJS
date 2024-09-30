@@ -9,6 +9,7 @@ import { DrawPencilEventClass } from "../events/pencilEvents";
 import { SelectEventClass } from "../events/selectEvents";
 import { IS_DEBUG_MODE } from "../utils/initials";
 import { DrawPolygonEventClass } from "../events/polygonEvents";
+import { DrawShapeEventClass } from "../events/shapeEvents";
 
 const OPTIONS = ['drawPencil', 'select']
 
@@ -27,7 +28,6 @@ function DrawingBoard() {
     const [style, setStyle] = useState<string>('CatmullRom')
 
     const colorRef = useRef<string>('gray')
-    const styleRef = useRef<string>(style)
     const lineWidthRef = useRef<number>(5)
 
     const mainPCanvasRef = useRef<HTMLCanvasElement>(null)
@@ -61,9 +61,6 @@ function DrawingBoard() {
                 refCanvasContainer,
                 dimensions,
                 isDebugMode,
-                colorRef,
-                lineWidthRef,
-                styleRef
             )
         }
         else {
@@ -89,7 +86,7 @@ function DrawingBoard() {
             isDebugMode,
         )
 
-        setMode('drawPencil')
+        setMode('drawCatmullRom')
 
     }, [mainPCanvasRef.current?.height, isDebugMode])
     //height is updated later in react.
@@ -97,7 +94,6 @@ function DrawingBoard() {
 
     useEffect(() => {
         colorRef.current = color
-        styleRef.current = style
         lineWidthRef.current = Number(lineWidth)
     }, [color, lineWidth, style])
 
@@ -110,17 +106,52 @@ function DrawingBoard() {
         }
 
         switch (mode) {
-            case "drawPencil": {
+            case "drawFreeForm": {
                 eventClassRef.current = new DrawPencilEventClass(
                     mainCanvasClassRef.current,
                     drawingClass,
+                    colorRef,
+                    lineWidthRef,
+                    "FreeForm"
                 )
                 break
             }
-            case "drawPolygon":{
+            case "drawCatmullRom": {
+                eventClassRef.current = new DrawPencilEventClass(
+                    mainCanvasClassRef.current,
+                    drawingClass,
+                    colorRef,
+                    lineWidthRef,
+                    "CatmullRom"
+                )
+                break
+            }
+            case "drawPolygon": {
                 eventClassRef.current = new DrawPolygonEventClass(
                     mainCanvasClassRef.current,
                     drawingClass,
+                    colorRef,
+                    lineWidthRef,
+                )
+                break
+            }
+            case "drawRectangle": {
+                eventClassRef.current = new DrawShapeEventClass(
+                    mainCanvasClassRef.current,
+                    drawingClass,
+                    colorRef,
+                    lineWidthRef,
+                    "Rectangle"
+                )
+                break
+            }
+            case "drawCircle": {
+                eventClassRef.current = new DrawShapeEventClass(
+                    mainCanvasClassRef.current,
+                    drawingClass,
+                    colorRef,
+                    lineWidthRef,
+                    "Circle"
                 )
                 break
             }
@@ -128,9 +159,12 @@ function DrawingBoard() {
                 eventClassRef.current = new SelectEventClass(
                     mainCanvasClassRef.current,
                     drawingClass,
+                    colorRef,
+                    lineWidthRef,
                 )
                 break
             }
+            default: throw new Error(mode+' is not available')
         }
     }, [mode, drawingClass])
 

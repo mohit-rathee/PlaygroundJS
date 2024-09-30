@@ -6,7 +6,7 @@ import { distanceBtwPoints } from "../utils/magic_functions";
 import { MIN_DISTANCE_BTW_PTS } from "../utils/initials";
 
 export class DrawPolygonEventClass extends EventClass {
-    public stroke: Stroke | null
+    private stroke: Polygon | null;
     private minX: number;
     private minY: number;
     private maxX: number;
@@ -15,8 +15,10 @@ export class DrawPolygonEventClass extends EventClass {
     constructor(
         canvasClass: CanvasClass,
         drawingClass: React.RefObject<DrawingClass>,
+        colorRef: React.MutableRefObject<string>,
+        lineWidthRef: React.MutableRefObject<number>,
     ) {
-        super(canvasClass, drawingClass)
+        super(canvasClass, drawingClass, colorRef, lineWidthRef)
 
         this.stroke = null
         this.minX = Infinity
@@ -37,29 +39,22 @@ export class DrawPolygonEventClass extends EventClass {
     }
 
     startPolygonEvent = (e: MouseEvent) => {
-        if(!this.drawing.current)return
+        if (!this.drawing.current) return
         this.setOnTop(true)
         const pos = {
             x: e.clientX,
             y: e.clientY,
         };
 
-        this.stroke = this.drawing.current.getNewStroke()
+        this.stroke = this.createNewStroke("Polygon")
         this.stroke.type = "Polygon"
-        this.stroke.data = {points:[]}
-        this.stroke.data.points = [pos]
+        this.stroke.points = [pos]
+        this.minX = pos.x
+        this.minY = pos.y
+        this.maxX = pos.x
+        this.maxY = pos.y
 
         this.canvasClass.clearCanvas()
-
-        this.canvasClass.pContext.moveTo(pos.x, pos.y);
-        this.canvasClass.pContext.strokeStyle = this.stroke.color
-        this.canvasClass.pContext.lineWidth = this.stroke.lineWidth
-        this.canvasClass.pContext.lineCap = 'round'
-
-        this.canvasClass.rContext.moveTo(pos.x, pos.y);
-        this.canvasClass.rContext.strokeStyle = this.stroke.color
-        this.canvasClass.rContext.lineWidth = this.stroke.lineWidth
-        this.canvasClass.rContext.lineCap = 'round'
 
         this.canvasClass.pCanvas.removeEventListener('mousedown', this.startPolygonEvent)
         this.canvasClass.pCanvas.addEventListener('mousedown', this.drawPolygonEvent)
@@ -76,7 +71,7 @@ export class DrawPolygonEventClass extends EventClass {
 
         this.canvasClass.clearCanvas()
 
-        const lastP = this.stroke?.data.points.slice(-1)[0]
+        const lastP = this.stroke.points.slice(-1)[0]
         const distance = distanceBtwPoints(pos, lastP)
         if (distance < MIN_DISTANCE_BTW_PTS) {
             console.log('polygon completed')
@@ -88,6 +83,7 @@ export class DrawPolygonEventClass extends EventClass {
             return
         }
 
+        this.canvasClass.prepareContext(this.stroke)
         this.canvasClass.drawStroke(this.stroke)
 
         this.canvasClass.pContext.moveTo(lastP.x, lastP.y);
@@ -96,7 +92,7 @@ export class DrawPolygonEventClass extends EventClass {
         this.canvasClass.pContext.lineTo(pos.x, pos.y);
         this.canvasClass.rContext.lineTo(pos.x, pos.y);
 
-        this.stroke.data.points.push(pos)
+        this.stroke.points.push(pos)
         this.updateMinMax(pos)
     }
 
@@ -109,15 +105,16 @@ export class DrawPolygonEventClass extends EventClass {
 
 
         this.canvasClass.clearCanvas()
+        this.canvasClass.prepareContext(this.stroke)
         this.canvasClass.drawStroke(this.stroke)
-        const lastP = this.stroke.data.points.slice(-1)[0]
-        this.canvasClass.pContext.beginPath()
-        this.canvasClass.rContext.beginPath()
+
+        const lastP = this.stroke.points.slice(-1)[0]
         this.canvasClass.pContext.moveTo(lastP.x, lastP.y);
         this.canvasClass.rContext.moveTo(lastP.x, lastP.y);
         this.canvasClass.pContext.lineTo(pos.x, pos.y);
-        this.canvasClass.pContext.stroke()
         this.canvasClass.rContext.lineTo(pos.x, pos.y);
+
+        this.canvasClass.pContext.stroke()
         this.canvasClass.rContext.stroke()
     }
 
@@ -133,25 +130,14 @@ export class DrawPolygonEventClass extends EventClass {
         if (!this.stroke) throw new Error('stroke is null')
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2
-        const cornerP = { 'x': this.maxX - centerX, 'y': this.maxY - centerY }
-        const centerP = { 'x': centerX, 'y': centerY }
-        const newPoints = this.stroke.data.points.map(point => ({
+        this.stroke.cornerP = { 'x': this.maxX - centerX, 'y': this.maxY - centerY }
+        this.stroke.centerP = { 'x': centerX, 'y': centerY }
+        const newPoints = this.stroke.points.map(point => ({
             'x': point.x - centerX,
             'y': point.y - centerY,
         }))
+        this.stroke.points = newPoints
 
-        const color = this.stroke.color
-        const lineWidth = this.stroke.lineWidth
-        const stroke:Stroke = {
-            uid: NaN,
-            type: "Polygon",
-            data: { points: newPoints },
-            color: color,
-            lineWidth: lineWidth,
-            cornerP: cornerP,
-            centerP: centerP,
-            image: ''
-        }
-        return stroke
+        return this.stroke
     }
 }

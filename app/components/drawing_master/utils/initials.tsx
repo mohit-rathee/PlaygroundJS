@@ -1,6 +1,6 @@
 export const LAYER_THRESHOLD = 100
 
-export const IS_DEBUG_MODE = false
+export const IS_DEBUG_MODE = true
 
 let color_map_gap = 1;
 
@@ -48,5 +48,5 @@ export const initialLayer: Layer = {
     length: 0
 }
 
-export const initialDrawingState: Drawing = [initialLayer]
+export const initialDrawingState: DrawingVerse = [initialLayer]
 

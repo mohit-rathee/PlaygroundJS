@@ -5,20 +5,20 @@ import { CanvasClass } from "../lib/CanvasClass";
 
 
 export class SelectEventClass extends EventClass {
+    private stroke: Stroke | null;
     private selectPos: point;
-    public stroke: Stroke | null;
-    public strokeInfo: {
-        layer: number,
-        stroke_id: number,
-    }
+    public strokeInfo: StrokePointer;
 
     constructor(
         canvasClass: CanvasClass,
         drawingClass: React.RefObject<DrawingClass>,
+        colorRef: React.MutableRefObject<string>,
+        lineWidthRef: React.MutableRefObject<number>,
     ) {
-        super(canvasClass, drawingClass)
-        this.selectPos = { x: 0, y: 0 }
+        super(canvasClass, drawingClass, colorRef, lineWidthRef)
+
         this.stroke = null
+        this.selectPos = { x: 0, y: 0 }
         this.strokeInfo = {
             layer: 0,
             stroke_id: 0,
@@ -39,20 +39,18 @@ export class SelectEventClass extends EventClass {
         this.canvasClass?.clearCanvas()
         const pos: point = { x: e.clientX, y: e.clientY }
         const selectedStroke = this.drawing.current?.select(pos)
-        if (selectedStroke) {
-            this.stroke = selectedStroke.stroke
-            this.strokeInfo.layer = selectedStroke.layer
-            this.strokeInfo.stroke_id = selectedStroke.stroke_id
-            this.selectPos = {
-                x: pos.x,
-                y: pos.y,
-            }
-            console.log('selected at', this.selectPos)
-            this.dragEvent(e)
-            this.canvasClass?.pCanvas.addEventListener('mousemove', this.dragEvent)
-            this.canvasClass?.pCanvas.addEventListener('mousedown', this.placeEvent)
-            this.canvasClass?.pCanvas.removeEventListener('mousedown', this.selectEvent)
-        }
+        if (!selectedStroke) return
+
+        this.setOnTop(true)
+        const [strokeInfo, stroke] = selectedStroke
+        this.stroke = stroke
+        this.strokeInfo = strokeInfo
+        this.selectPos = pos
+        console.log('selected at', this.selectPos)
+        this.dragEvent(e)
+        this.canvasClass?.pCanvas.addEventListener('mousemove', this.dragEvent)
+        this.canvasClass?.pCanvas.addEventListener('mousedown', this.placeEvent)
+        this.canvasClass?.pCanvas.removeEventListener('mousedown', this.selectEvent)
     }
 
     dragEvent = (e: MouseEvent) => {
@@ -66,12 +64,12 @@ export class SelectEventClass extends EventClass {
     }
 
     placeEvent = (e: MouseEvent) => {
+        if(!this.stroke)return
         const pos: point = { 'x': e.clientX, 'y': e.clientY }
-        const layer = this.strokeInfo.layer
-        const stroke_id = this.strokeInfo.stroke_id
-        const newCenterP = this.getNewCenterP(pos)
-        console.log('placed at', newCenterP)
-        this.drawing.current?.placeStrokeAt(layer, stroke_id, newCenterP)
+        this.stroke.centerP = this.getNewCenterP(pos)
+        this.setOnTop(false)
+        this.drawing.current?.placeStrokeAt(this.strokeInfo)
+
         this.canvasClass?.clearCanvas()
         this.canvasClass?.pCanvas.removeEventListener('mousemove', this.dragEvent)
         this.canvasClass?.pCanvas.removeEventListener('mousedown', this.placeEvent)

@@ -17,7 +17,7 @@ export default function SidePallete({ mode, setMode, style, setStyle, onColorSel
             >
                 select
             </div>
-            <PencilStack
+            <ToolsStack
                 setMode={setMode}
                 setStyle={setStyle}
                 mode={mode}
@@ -76,12 +76,12 @@ export default function SidePallete({ mode, setMode, style, setStyle, onColorSel
         </div>
     );
 };
-function Button({ isSelected, setMode, setStyle, style, name, mode }: any) {
+function Button({ setMode, name, mode, thisMode }: any) {
+    const isSelected = mode == thisMode
     return (
         <div
             onClick={() => {
-                setMode(mode)
-                setStyle(style)
+                setMode(thisMode)
             }}
             className={`p-1 m-1 rounded-md text-center border-2 bg-blue-200 w-10 cursor-pointer
                 ${isSelected ? 'border-blue-800' : ''} `}
@@ -90,10 +90,7 @@ function Button({ isSelected, setMode, setStyle, style, name, mode }: any) {
         </div>
     )
 }
-function PencilStack({ mode, style, setMode, setStyle }: any) {
-    const isPencilSelected = mode == 'drawPencil' ? true : false
-    const isPolygonSelected = mode == 'drawPolygon' ? true : false
-    console.log('isPolygonSelected',isPolygonSelected)
+function ToolsStack({ mode, setMode }: any) {
     return (
         <>
             <span className="block text-sky-50">
@@ -101,28 +98,34 @@ function PencilStack({ mode, style, setMode, setStyle }: any) {
             </span>
             <div className="flex flex-wrap justify-center">
                 <Button
-                    isSelected={isPencilSelected && style == 'FreeForm'}
+                    mode={mode}
                     setMode={setMode}
-                    setStyle={setStyle}
-                    style={'FreeForm'}
                     name={'𝘓'}
-                    mode={'drawPencil'}
+                    thisMode={'drawFreeForm'}
                 />
                 <Button
-                    isSelected={isPolygonSelected}
+                    mode={mode}
                     setMode={setMode}
-                    setStyle={setStyle}
-                    style={'Polygon'}
-                    name={'☖'}
-                    mode={'drawPolygon'}
-                />
-                <Button
-                    isSelected={isPencilSelected && style == 'CatmullRom'}
-                    setMode={setMode}
-                    setStyle={setStyle}
-                    style={'CatmullRom'}
                     name={'𞋎'}
-                    mode={'drawPencil'}
+                    thisMode={'drawCatmullRom'}
+                />
+                <Button
+                    mode={mode}
+                    setMode={setMode}
+                    name={'☖'}
+                    thisMode={'drawPolygon'}
+                />
+                <Button
+                    mode={mode}
+                    setMode={setMode}
+                    name={'☐'}
+                    thisMode={'drawRectangle'}
+                />
+                <Button
+                    mode={mode}
+                    setMode={setMode}
+                    name={'⃝'}
+                    thisMode={'drawCircle'}
                 />
             </div>
         </>
