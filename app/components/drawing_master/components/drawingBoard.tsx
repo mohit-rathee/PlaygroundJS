@@ -197,6 +197,7 @@ function DrawingBoard() {
                 mode={mode}
                 setMode={setMode}
                 options={OPTIONS}
+                color={color}
                 onColorSelect={setColor}
                 setLineWidth={setLineWidth}
                 lineWidth={lineWidth}

@@ -1,6 +1,6 @@
 import { COLOR_CHOISES } from "../utils/initials";
 
-export default function SidePallete({ mode, setMode, style, setStyle, onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
+export default function SidePallete({ mode, setMode, color: currColor, onColorSelect, setLineWidth, lineWidth, undo, redo, save }: any) {
     const handleSliderChange = (event: any) => {
         const value = event.target.value;
         setLineWidth(value);
@@ -10,9 +10,7 @@ export default function SidePallete({ mode, setMode, style, setStyle, onColorSel
         <div className='w-28 p-1 z-50 h-full justify-center items-center flex flex-col bg-gray-700 rounded-sm'>
             <ToolsStack
                 setMode={setMode}
-                setStyle={setStyle}
                 mode={mode}
-                style={style}
             />
             <span className="block mt-2 text-sky-50">
                 Color:
@@ -22,7 +20,8 @@ export default function SidePallete({ mode, setMode, style, setStyle, onColorSel
                     {COLOR_CHOISES.map((color) => (
                         <div
                             key={color}
-                            className="w-10 h-10 cursor-pointer"
+                            className={`w-10 h-10 cursor-pointer
+                                ${color === currColor ? 'border-4 rounded' : ''}`}
                             style={{ backgroundColor: color }}
                             onClick={() => onColorSelect(color)}
                         ></div>
@@ -75,7 +74,7 @@ function Button({ setMode, name, mode, thisMode }: any) {
                 setMode(thisMode)
             }}
             className={`p-1 m-1 rounded-md text-center border-2 w-10 cursor-pointer
-                ${isSelected ? 'border-blue-800 bg-red-200' : 'bg-blue-200'} `}
+                ${isSelected ? 'border-white bg-red-200 border-4' : 'bg-blue-200'} `}
         >
             {name}
         </div>
@@ -87,7 +86,7 @@ function ToolsStack({ mode, setMode }: any) {
             <span className="block text-sky-50">
                 Tools:
             </span>
-                <Button
+            <Button
                 mode={mode}
                 setMode={setMode}
                 name={'➤'}
