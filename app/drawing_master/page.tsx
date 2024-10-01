@@ -1,7 +1,7 @@
 "use client"
 import '../globals.css';
 import HomeTemplate from '../components/layout/HomeTemplate';
-import DrawingBoard from '../components/drawing_master/components/drawingBoard';
+import DrawingBoard from './components/drawingBoard';
 export default function Home() {
     return (
         <HomeTemplate
