@@ -37,7 +37,8 @@ interface Polygon extends BaseStroke {
 }
 interface Rectangle extends BaseStroke {
     type: "Rectangle"
-    points: [point, point, point, point, point];
+    width: number;
+    height: number;
 }
 interface Circle extends BaseStroke {
     type: "Circle"

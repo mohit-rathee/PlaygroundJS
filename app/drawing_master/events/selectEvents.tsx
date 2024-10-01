@@ -56,10 +56,11 @@ export class SelectEventClass extends EventClass {
         this.stroke.centerP = newCenterP
         this.canvasClass.clearCanvas()
         this.canvasClass.drawStroke(this.stroke)
+        this.drawGizmo(this.stroke)
     }
 
     placeEvent = (e: MouseEvent) => {
-        if(!this.stroke)return
+        if (!this.stroke) return
         const pos: point = { 'x': e.clientX, 'y': e.clientY }
         this.stroke.centerP = this.getNewCenterP(pos)
         this.setOnTop(false)
@@ -79,20 +80,35 @@ export class SelectEventClass extends EventClass {
         return { x: centerP.x + gap.x, y: centerP.y + gap.y }
     }
 
-    // drawGizmo(pMin: point, pMax: point) {
-    //     const ctx = this.context
-    //     ctx.save()
-    //     ctx.setLineDash([5, 5])
-    //
-    //     // Draw the rectangle
-    //     ctx.beginPath()
-    //     const width = pMax.x - pMin.x + 20
-    //     const height = pMax.y - pMin.y + 20
-    //     ctx.rect(pMin.x - 10, pMin.y - 10, width, height)
-    //     ctx.strokeStyle = 'black'
-    //     ctx.lineWidth = 2
-    //     ctx.stroke()
-    //     ctx.restore()
-    // }
+    drawGizmo(stroke: Stroke) {
+        if (!this.stroke) return
+        const pCtx = this.canvasClass.pContext
+        const rCtx = this.canvasClass.rContext
+        pCtx.save()
+        rCtx.save()
+        pCtx.setLineDash([5, 5])
+        rCtx.setLineDash([5, 5])
+
+        // Draw the rectangle
+        pCtx.beginPath()
+        rCtx.beginPath()
+
+        pCtx.translate(stroke.centerP.x, stroke.centerP.y)
+        rCtx.translate(stroke.centerP.x, stroke.centerP.y)
+
+        const cornerP = stroke.cornerP
+        const width = Math.abs(2 * cornerP.x) +20
+        const height = Math.abs(2 * cornerP.y) +20
+        pCtx.rect(cornerP.x-10, cornerP.y-10, width, height)
+        rCtx.rect(cornerP.x-10, cornerP.y-10, width, height)
+        pCtx.strokeStyle = 'black'
+        rCtx.strokeStyle = 'black'
+        pCtx.lineWidth = 2
+        rCtx.lineWidth = 2
+        pCtx.stroke()
+        rCtx.stroke()
+        pCtx.restore()
+        rCtx.restore()
+    }
 
 }

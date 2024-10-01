@@ -91,23 +91,28 @@ export class DrawShapeEventClass extends EventClass {
         if (!this.stroke) throw new Error('stroke is null')
         const ptA = this.pointA
         const ptB = this.pointB
-        this.stroke.centerP = { x: (ptA.x + ptB.x) / 2, y: (ptA.y + ptB.y) / 2 }
-        this.stroke.cornerP = ptA
+        const center = { x: (ptA.x + ptB.x) / 2, y: (ptA.y + ptB.y) / 2 }
+        this.stroke.centerP = center
+
         switch (this.stroke.type) {
             case "Rectangle": {
-/*top-left */   const pt1 = { x: ptA.x - this.stroke.centerP.x, y: ptA.y - this.stroke.centerP.y }
-/*top-right */  const pt3 = { x: ptB.x - this.stroke.centerP.x, y: ptB.y - this.stroke.centerP.y }
-/*bottom-left */const pt2 = { x: pt3.x, y: pt1.y };
-/*bottom-right*/const pt4 = { x: pt1.x, y: pt3.y };
-                this.stroke.points = [pt1, pt2, pt3, pt4, pt1]//order matters
+                const minP = {x:Math.min(ptA.x,ptB.x),y:Math.min(ptA.y,ptB.y)}
+                //translating
+                minP.x -= center.x
+                minP.y -= center.y
+
+                this.stroke.cornerP = minP
+                this.stroke.width = Math.abs(ptA.x-ptB.x)
+                this.stroke.height = Math.abs(ptA.y-ptB.y)
                 return this.stroke
             }
             case "Circle": {
-                this.stroke.radius = Math.max(
+                const radius = Math.max(
                     distanceBtwPoints(ptA, ptB) / 2,
                     MIN_DISTANCE_BTW_PTS
                 )
-                console.log(this.stroke.centerP)
+                this.stroke.cornerP={x:-radius.toFixed(2),y:-radius.toFixed(2)}
+                this.stroke.radius = radius
                 return this.stroke
             } default: { throw new Error('Shape is wrong') }
 

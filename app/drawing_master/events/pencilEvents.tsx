@@ -107,6 +107,9 @@ export class DrawPencilEventClass extends EventClass {
             this.canvasClass.clearCanvas()
             this.canvasClass.drawStroke(this.stroke)
             this.threshold = 0
+
+            this.canvasClass.pContext.moveTo(pos.x, pos.y);
+            this.canvasClass.rContext.moveTo(pos.x, pos.y);
         } else {
             this.threshold += 1
         }
@@ -165,7 +168,7 @@ export class DrawPencilEventClass extends EventClass {
         if (!this.stroke) throw new Error('stroke is null')
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2
-        this.stroke.cornerP = { 'x': this.maxX - centerX, 'y': this.maxY - centerY }
+        this.stroke.cornerP = { 'x': this.minX - centerX, 'y': this.minY - centerY }
         this.stroke.centerP = { 'x': centerX, 'y': centerY }
         const newPoints = this.stroke.points.map(point => ({
             'x': point.x - centerX,

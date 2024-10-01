@@ -35,24 +35,43 @@ export class CanvasClass {
     }
 
 
+    drawImpPoints(stroke: Stroke) {
+        if (
+            !isNaN(stroke.uid) ||
+            (stroke.type == "Circle" || stroke.type == "Rectangle")
+        ) {
+            const center = { x: 0, y: 0 };
+            const corner = stroke.cornerP;
+            const oppCorner = { x: -corner.x, y: -corner.y }
+            const sideCorner = { x: corner.x, y: oppCorner.y }
+            const oppSideCorner = { x: -sideCorner.x, y: -sideCorner.y }
+
+            const impPoints = [center, corner, oppCorner, sideCorner, oppSideCorner]
+
+            for (let i = 0; i < impPoints.length; i++) {
+                const p = impPoints[i];
+                this.drawDot(p, Math.max(stroke.lineWidth - 3, 3), 'orange')
+            }
+        }
+    }
     drawDots(stroke: Stroke) {
-        let points;
-        if (stroke.type == "Circle") points = [stroke.centerP]
-        else { points = stroke.points }
-        if (IS_DRAW_DOTS) {
+        if (!IS_DRAW_DOTS) return
+        // if (!isNaN(stroke.uid)) {
+        if (stroke.type != "Circle" && stroke.type != "Rectangle") {
+            const points = stroke.points
             for (let i = 0; i < points.length; i++) {
                 const p = points[i];
                 this.drawDot(p, Math.max(stroke.lineWidth - 3, 3), 'blue')
             }
         }
-
+        // }
     }
+
     drawDot(p: point, radius = 5, color = 'black') {
         this.pContext.beginPath();
         this.pContext.arc(p.x, p.y, radius, 0, Math.PI * 2); // Draw a full circle
         this.pContext.fillStyle = color;
         this.pContext.fill();
-        this.pContext.closePath();
     }
 
     prepareContext(stroke: Stroke) {
@@ -96,15 +115,35 @@ export class CanvasClass {
                 this.pContext.fill()
                 this.rContext.fill()
             }
+            this.drawImpPoints(stroke)
             this.pContext.restore()
             this.rContext.restore()
-            this.drawDots(stroke)
 
         }
-
     }
+    drawRectange(stroke: Stroke) {
+        if (stroke.type == "Rectangle") {
+            const corner = stroke.cornerP
+            const width = stroke.width
+            const height = stroke.height
+            this.prepareContext(stroke)
+            // already translated to centerP
+            this.pContext.rect(corner.x, corner.y, width, height)
+            this.rContext.rect(corner.x, corner.y, width, height)
+            this.pContext.stroke()
+            this.rContext.stroke()
+            if (stroke.isFill) {
+                this.pContext.fill()
+                this.rContext.fill()
+            }
+            this.drawImpPoints(stroke)
+            this.pContext.restore()
+            this.rContext.restore()
+        }
+    }
+
     drawStraightLines(stroke: Stroke) {
-        if (stroke.type == "Circle") return //except circle all have points
+        if (stroke.type == "Circle" || stroke.type == "Rectangle") return
         const points = stroke.points
         if (!points.length) return
         requestAnimationFrame(() => {
@@ -127,6 +166,7 @@ export class CanvasClass {
 
             }
             this.drawDots(stroke)
+            this.drawImpPoints(stroke)
 
             this.pContext.restore()
             this.rContext.restore()
@@ -134,7 +174,7 @@ export class CanvasClass {
     }
 
     drawCatmullRomSpline(stroke: Stroke) {
-        if (stroke.type == "Circle") return
+        if (stroke.type == "Circle" || stroke.type == "Rectangle") return
         const points = stroke.points
         if (points.length < 2) return
         const firstMirroredP = {
@@ -177,6 +217,7 @@ export class CanvasClass {
             }
 
             this.drawDots(stroke)
+            this.drawImpPoints(stroke)
 
             this.pContext.restore()
             this.rContext.restore()
@@ -260,7 +301,7 @@ export class CanvasClass {
                 break;
             }
             case 'Rectangle': {
-                this.drawStraightLines(stroke)
+                this.drawRectange(stroke)
                 break;
             }
             case 'Circle': {
