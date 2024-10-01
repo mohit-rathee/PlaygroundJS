@@ -118,10 +118,6 @@ export class CanvasClass {
                 this.pContext.lineTo(p.x, p.y);
                 this.rContext.lineTo(p.x, p.y);
             }
-            if (stroke.isFill) {
-                this.pContext.closePath()
-                this.rContext.closePath()
-            }
             this.pContext.stroke()
             this.rContext.stroke()
 
@@ -170,10 +166,6 @@ export class CanvasClass {
                     this.pContext.lineTo(x, y);
                     this.rContext.lineTo(x, y);
                 }
-            }
-            if (stroke.isFill) {
-                this.pContext.closePath()
-                this.rContext.closePath()
             }
 
             this.pContext.stroke()

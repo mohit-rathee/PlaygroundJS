@@ -2,8 +2,6 @@ import { DrawingClass } from "../lib/DrawingClass";
 import React from "react";
 import { CanvasClass } from "../lib/CanvasClass";
 
-// Function overloads
-
 export class EventClass {
     public canvasClass: CanvasClass;
     public drawing: React.RefObject<DrawingClass>;

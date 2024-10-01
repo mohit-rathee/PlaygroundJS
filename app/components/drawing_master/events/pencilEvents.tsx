@@ -1,8 +1,5 @@
-import { DrawingClass } from "../lib/DrawingClass";
-import React from "react";
 import { EventClass } from "./eventClass";
 import { DELTA_TIME, MIN_DISTANCE_BTW_PTS, RDP_CATMULLROM, RDP_NORMAL, REFINE_THRESHOLD } from "../utils/initials";
-import { CanvasClass } from "../lib/CanvasClass";
 import { distanceBtwPoints, ramerDouglasPeucker } from "../utils/magic_functions";
 
 
@@ -65,7 +62,7 @@ export class DrawPencilEventClass extends EventClass {
 
         this.canvasClass.clearCanvas()
         this.canvasClass.prepareContext(this.stroke)
-        console.log('color',this.stroke.lineColor)
+        console.log('color', this.stroke.lineColor)
         this.canvasClass.pContext.moveTo(pos.x, pos.y);
         this.canvasClass.rContext.moveTo(pos.x, pos.y);
 
@@ -89,9 +86,14 @@ export class DrawPencilEventClass extends EventClass {
         if (distance < MIN_DISTANCE_BTW_PTS) return
 
         this.canvasClass.pContext.lineTo(pos.x, pos.y);
-        this.canvasClass.pContext.stroke()
         this.canvasClass.rContext.lineTo(pos.x, pos.y);
+
+        this.canvasClass.pContext.stroke()
         this.canvasClass.rContext.stroke()
+        if (this.stroke.isFill) {
+            this.canvasClass.pContext.fill()
+            this.canvasClass.rContext.fill()
+        }
 
         this.stroke.points.push(pos)
         this.updateMinMax(pos)

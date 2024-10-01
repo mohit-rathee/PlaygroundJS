@@ -1,7 +1,4 @@
-import { DrawingClass } from "../lib/DrawingClass";
-import React from "react";
 import { EventClass } from "./eventClass";
-import { CanvasClass } from "../lib/CanvasClass";
 
 
 export class SelectEventClass extends EventClass {
