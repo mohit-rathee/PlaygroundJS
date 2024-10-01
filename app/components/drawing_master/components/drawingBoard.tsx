@@ -10,6 +10,7 @@ import { SelectEventClass } from "../events/selectEvents";
 import { IS_DEBUG_MODE } from "../utils/initials";
 import { DrawPolygonEventClass } from "../events/polygonEvents";
 import { DrawShapeEventClass } from "../events/shapeEvents";
+import { ToolRefs } from "../types";
 
 function DrawingBoard() {
 
@@ -98,15 +99,15 @@ function DrawingBoard() {
         fillColorRef.current = fillColor
         isFillRef.current = isFill
         lineWidthRef.current = Number(lineWidth)
-    }, [lineColor, lineWidth, fillColor,isFill])
+    }, [lineColor, lineWidth, fillColor, isFill])
 
     useEffect(() => {
         if (!mainCanvasClassRef.current) return
         if (!drawingClassRef.current) return
 
-        const toolRefs:any = {
-            mainCanvasClass : mainCanvasClassRef.current,
-            drawingClass : drawingClassRef,
+        const toolRefs: ToolRefs = {
+            mainCanvasClass: mainCanvasClassRef.current,
+            drawingClass: drawingClassRef,
             lineColor: lineColorRef,
             fillColor: fillColorRef,
             lineWidth: lineWidthRef,

@@ -1,6 +1,7 @@
 import { EventClass } from "./eventClass";
 import { DELTA_TIME, MIN_DISTANCE_BTW_PTS, RDP_CATMULLROM, RDP_NORMAL, REFINE_THRESHOLD } from "../utils/initials";
 import { distanceBtwPoints, ramerDouglasPeucker } from "../utils/magic_functions";
+import { ToolRefs } from "../types";
 
 
 export class DrawPencilEventClass extends EventClass {
@@ -16,7 +17,7 @@ export class DrawPencilEventClass extends EventClass {
     private maxY: number;
 
     constructor(
-        toolRef: any,
+        toolRef: ToolRefs,
         type: "FreeForm" | "CatmullRom"
     ) {
         super(toolRef)

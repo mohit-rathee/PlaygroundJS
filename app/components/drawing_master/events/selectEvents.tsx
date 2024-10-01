@@ -1,3 +1,4 @@
+import { ToolRefs } from "../types";
 import { EventClass } from "./eventClass";
 
 
@@ -7,7 +8,7 @@ export class SelectEventClass extends EventClass {
     public strokeInfo: StrokePointer;
 
     constructor(
-        toolRef: any,
+        toolRef: ToolRefs,
     ) {
         super(toolRef)
 

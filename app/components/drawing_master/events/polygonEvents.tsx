@@ -1,9 +1,7 @@
-import { DrawingClass } from "../lib/DrawingClass";
-import React from "react";
 import { EventClass } from "./eventClass";
-import { CanvasClass } from "../lib/CanvasClass";
 import { distanceBtwPoints } from "../utils/magic_functions";
 import { MIN_DISTANCE_BTW_PTS } from "../utils/initials";
+import { ToolRefs } from "../types";
 
 export class DrawPolygonEventClass extends EventClass {
     private stroke: Polygon | null;
@@ -13,7 +11,7 @@ export class DrawPolygonEventClass extends EventClass {
     private maxY: number;
 
     constructor(
-        toolRef: any,
+        toolRef: ToolRefs,
     ) {
         super(toolRef)
 

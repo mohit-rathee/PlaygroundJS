@@ -1,6 +1,7 @@
 import { DrawingClass } from "../lib/DrawingClass";
 import React from "react";
 import { CanvasClass } from "../lib/CanvasClass";
+import { ToolRefs } from "../types";
 
 export class EventClass {
     public canvasClass: CanvasClass;
@@ -13,7 +14,7 @@ export class EventClass {
     private lineWidthRef: React.MutableRefObject<number>;
 
     constructor(
-        toolRefs: any
+        toolRefs: ToolRefs
     ) {
         this.canvasClass = toolRefs.mainCanvasClass
         this.drawing = toolRefs.drawingClass

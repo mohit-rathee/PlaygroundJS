@@ -1,6 +1,7 @@
 import { EventClass } from "./eventClass";
 import { distanceBtwPoints } from "../utils/magic_functions";
 import { MIN_DISTANCE_BTW_PTS } from "../utils/initials";
+import { ToolRefs } from "../types";
 
 export class DrawShapeEventClass extends EventClass {
     private stroke: Rectangle | Circle | null;
@@ -11,7 +12,7 @@ export class DrawShapeEventClass extends EventClass {
 
 
     constructor(
-        toolRef: any,
+        toolRef: ToolRefs,
         shape: "Rectangle" | "Circle"
     ) {
         super(toolRef)
