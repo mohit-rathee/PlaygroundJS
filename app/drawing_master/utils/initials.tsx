@@ -1,14 +1,21 @@
 export const LAYER_THRESHOLD = 100
 
-export const IS_DEBUG_MODE = true
+const isDebugMode = process.env.IS_DEBUG_MODE
+let is_debug_mode;
+if (isDebugMode == 'true')
+    is_debug_mode = true
+else
+    is_debug_mode = false
+
+export const IS_DEBUG_MODE = is_debug_mode
 
 let color_map_gap = 1;
 
 let is_draw_dots = false
 
-if(IS_DEBUG_MODE){
-     color_map_gap = 100000
-     is_draw_dots = true
+if (IS_DEBUG_MODE) {
+    color_map_gap = 100000
+    is_draw_dots = true
 
 }
 export const COLOR_MAP_GAP = color_map_gap
@@ -19,7 +26,7 @@ export const RDP_NORMAL = 3;
 
 export const RDP_CATMULLROM = 6;
 
-export const MIN_DISTANCE_BTW_PTS= 10;
+export const MIN_DISTANCE_BTW_PTS = 10;
 
 
 export const CATMULL_ROM_PRECISION = 0.01

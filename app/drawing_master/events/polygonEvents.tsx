@@ -81,13 +81,12 @@ export class DrawPolygonEventClass extends EventClass {
 
         this.canvasClass.drawStroke(this.stroke)
 
-        this.canvasClass.prepareContext(this.stroke, () => {
-            this.canvasClass.pContext.moveTo(lastP.x, lastP.y);
-            this.canvasClass.rContext.moveTo(lastP.x, lastP.y);
+        this.canvasClass.prepareContext(this.stroke)
+        this.canvasClass.pContext.moveTo(lastP.x, lastP.y);
+        this.canvasClass.rContext.moveTo(lastP.x, lastP.y);
 
-            this.canvasClass.pContext.lineTo(pos.x, pos.y);
-            // this.canvasClass.rContext.lineTo(pos.x, pos.y);
-        })
+        this.canvasClass.pContext.lineTo(pos.x, pos.y);
+        // this.canvasClass.rContext.lineTo(pos.x, pos.y);
 
 
         this.stroke.points.push(pos)
