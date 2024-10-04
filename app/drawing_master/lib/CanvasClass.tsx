@@ -146,31 +146,29 @@ export class CanvasClass {
         if (stroke.type == "Circle" || stroke.type == "Rectangle") return
         const points = stroke.points
         if (!points.length) return
-        requestAnimationFrame(() => {
-            this.prepareContext(stroke)
+        this.prepareContext(stroke)
 
-            this.pContext.moveTo(points[0].x, points[0].y);
-            this.rContext.moveTo(points[0].x, points[0].y);
+        this.pContext.moveTo(points[0].x, points[0].y);
+        this.rContext.moveTo(points[0].x, points[0].y);
 
-            for (let i = 0; i < points.length; i++) {
-                const p = points[i];
-                this.pContext.lineTo(p.x, p.y);
-                this.rContext.lineTo(p.x, p.y);
-            }
-            this.pContext.stroke()
-            this.rContext.stroke()
+        for (let i = 0; i < points.length; i++) {
+            const p = points[i];
+            this.pContext.lineTo(p.x, p.y);
+            this.rContext.lineTo(p.x, p.y);
+        }
+        this.pContext.stroke()
+        this.rContext.stroke()
 
-            if (stroke.isFill) {
-                this.pContext.fill()
-                this.rContext.fill()
+        if (stroke.isFill) {
+            this.pContext.fill()
+            this.rContext.fill()
 
-            }
-            this.drawDots(stroke)
-            this.drawImpPoints(stroke)
+        }
+        this.drawDots(stroke)
+        this.drawImpPoints(stroke)
 
-            this.pContext.restore()
-            this.rContext.restore()
-        })
+        this.pContext.restore()
+        this.rContext.restore()
     }
 
     drawCatmullRomSpline(stroke: Stroke) {
@@ -190,7 +188,6 @@ export class CanvasClass {
             ...points,
             lastMirroredP
         ];
-        requestAnimationFrame(() => {
             this.prepareContext(stroke)
 
             this.pContext.moveTo(points[0].x, points[0].y);
@@ -221,7 +218,6 @@ export class CanvasClass {
 
             this.pContext.restore()
             this.rContext.restore()
-        })
 
     }
 
@@ -266,8 +262,14 @@ export class CanvasClass {
         this.pContext.beginPath()
         this.rContext.beginPath()
 
+        this.pContext.setTransform(1, 0, 0, 1, 0, 0)
+        this.rContext.setTransform(1, 0, 0, 1, 0, 0)
+
         this.pContext.clearRect(0, 0, dimensions.width, dimensions.height)
         this.rContext.clearRect(0, 0, dimensions.width, dimensions.height)
+
+        this.pContext.beginPath()
+        this.rContext.beginPath()
 
     }
 
@@ -287,6 +289,7 @@ export class CanvasClass {
     }
 
     drawStroke(stroke: Stroke) {
+        if (!stroke) return
         switch (stroke.type) {
             case 'FreeForm': {
                 this.drawStraightLines(stroke);
@@ -314,7 +317,7 @@ export class CanvasClass {
         }
     }
 
-    getStrokeId(p: point): number {
+    getUID(p: point): number {
         this.rContext.resetTransform()
         const img = this.rContext.getImageData(p.x, p.y, 1, 1)
         const pixel = img.data
@@ -322,11 +325,11 @@ export class CanvasClass {
         const green = pixel[1];
         const blue = pixel[2];
         const alpha = pixel[3];
-        if (alpha > 0) {
+        if (alpha == 255) {
             const uid = rgbToINTColor(red, green, blue)
             return uid
         } else {
-            return 0
+            return NaN
         }
     }
 

@@ -24,13 +24,14 @@ export class DrawPolygonEventClass extends EventClass {
         //constructor
         console.log('adding drawPolygonEvent')
         this.canvasClass.pCanvas.addEventListener('mousedown', this.startPolygonEvent)
-        //deConstructor
-        this.deConstructor = () => {
-            console.log('removing drawPolygonEvent')
-            this.canvasClass.pCanvas.removeEventListener('mousedown', this.startPolygonEvent)
-            this.canvasClass.pCanvas.removeEventListener('mousedown', this.drawPolygonEvent)
-            this.canvasClass.pCanvas.removeEventListener('mousemove', this.drawOutlineEvent)
-        }
+    }
+
+    //deConstructor
+    deConstructor() {
+        console.log('removing drawPolygonEvent')
+        this.canvasClass.pCanvas.removeEventListener('mousedown', this.startPolygonEvent)
+        this.canvasClass.pCanvas.removeEventListener('mousedown', this.drawPolygonEvent)
+        this.canvasClass.pCanvas.removeEventListener('mousemove', this.drawOutlineEvent)
     }
 
     startPolygonEvent = (e: MouseEvent) => {
@@ -78,14 +79,16 @@ export class DrawPolygonEventClass extends EventClass {
             return
         }
 
-        this.canvasClass.prepareContext(this.stroke)
         this.canvasClass.drawStroke(this.stroke)
 
-        this.canvasClass.pContext.moveTo(lastP.x, lastP.y);
-        this.canvasClass.rContext.moveTo(lastP.x, lastP.y);
+        this.canvasClass.prepareContext(this.stroke, () => {
+            this.canvasClass.pContext.moveTo(lastP.x, lastP.y);
+            this.canvasClass.rContext.moveTo(lastP.x, lastP.y);
 
-        this.canvasClass.pContext.lineTo(pos.x, pos.y);
-        this.canvasClass.rContext.lineTo(pos.x, pos.y);
+            this.canvasClass.pContext.lineTo(pos.x, pos.y);
+            // this.canvasClass.rContext.lineTo(pos.x, pos.y);
+        })
+
 
         this.stroke.points.push(pos)
         this.updateMinMax(pos)

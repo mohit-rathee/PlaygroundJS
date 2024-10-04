@@ -72,7 +72,6 @@ export class DrawingClass {
                 strokes: [stroke]
             }
             layerStack.push(nextLayer)
-            console.log('layerLength:', strokeLength)
 
             // Adding new canvas
             if (this.canvasList.length < strokePointer.layer) {
@@ -114,10 +113,8 @@ export class DrawingClass {
 
             // Add
             canvas.drawStroke(stroke)
-            console.log('layerLength:', newLength)
             console.log('drawing:', this.drawing)
         }
-        console.log('drawingState', layerStack)
         console.log('strokePointer', strokePointer)
     }
     undo() {
@@ -146,7 +143,6 @@ export class DrawingClass {
 
             strokePointer.layer = prevLayerIndex + 1
             strokePointer.stroke_id = prevLayer.strokes.length - 1
-            console.log('layerLength:', prevLayer.length)
         } else {
             // undo current layer
             const currentLayer = layerStack[currentLayerIndex]
@@ -155,7 +151,6 @@ export class DrawingClass {
             const currentStroke = layer.strokes[prevStroke]
             const currentStrokeLength = this.getStrokeLength(currentStroke)
             currentLayer.length = layerLength - currentStrokeLength
-            console.log('layerLength:', currentLayer.length)
         }
         // redraw
         const canvasIndex = strokePointer.layer - 1
@@ -197,7 +192,6 @@ export class DrawingClass {
             const nextLayer = layerStack[nextLayerIndex]
             // layerlength will be next layers first stroke length
             nextLayer.length = this.getStrokeLength(nextLayer.strokes[0])
-            console.log('layerLength:', nextLayer.length)
         } else {
             // redo current layer
             strokePointer.stroke_id = nextStrokeIndex
@@ -207,8 +201,6 @@ export class DrawingClass {
             // add length of next stroke in layerLength
             const layerLength = layerStack[currentLayerIndex].length
             currentLayer.length = layerLength + nextStrokeLength
-            console.log('redo in same layer')
-            console.log('layerLength:', currentLayer.length)
         }
 
         // draw latest stroke
@@ -271,28 +263,34 @@ export class DrawingClass {
 
         }
     }
-    select(p: point): [StrokePointer, Stroke] | null {
+    select(pos: point): [StrokePointer, Stroke] | null {
         const canvasList = this.canvasList
+        // console.log('total',canvasList.length)
         for (let i = canvasList.length - 1; i >= 0; i--) {
             if (canvasList[i].isVisible) {
                 const canvasClass = canvasList[i]
-                const uid = canvasClass.getStrokeId(p)
-                if (uid) {
-                    console.log('stroke found in layer ', i, ' stroke no', uid)
-                    const layerData = this.drawing[i]
-                    canvasClass.clearCanvas()
-                    canvasClass.drawStrokes(0, uid - 1, layerData)
-                    canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
-                    return [
-                        {
-                            'layer': i,
-                            'stroke_id': uid,
-                        },
-                        layerData.strokes[uid - 1]
-                    ]
-                } else {
-                    console.log('cant find in ', i)
+                const uid = canvasClass.getUID(pos)
+                if (isNaN(uid)) {
+                    continue;
                 }
+                // console.log('stroke found in layer ', i, ' stroke no', uid)
+                const layerData = this.drawing[i]
+                canvasClass.clearCanvas()
+                canvasClass.drawStrokes(0, uid - 1, layerData)
+                // Patch work embed this info in stroke
+                if (this.strokePointer.layer-1 == i) {
+                    canvasClass.drawStrokes(uid, this.strokePointer.stroke_id, layerData)
+                }
+                else{
+                    canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
+                }
+                return [
+                    {
+                        'layer': i,
+                        'stroke_id': uid,
+                    },
+                    layerData.strokes[uid - 1]
+                ]
             }
         }
         return null;

@@ -26,15 +26,15 @@ export class DrawShapeEventClass extends EventClass {
         //constructor
         console.log('adding drawShapeEvent')
         this.canvasClass.pCanvas.addEventListener('mousedown', this.startShapeEvent)
-        //deConstructor
-        this.deConstructor = () => {
-            console.log('removing drawPolygonEvent')
-            this.canvasClass.pCanvas.removeEventListener('mousedown', this.startShapeEvent)
-            this.canvasClass.pCanvas.removeEventListener('mousedown', this.drawShapeEvent)
-            this.canvasClass.pCanvas.removeEventListener('mousemove', this.drawOutlineEvent)
-        }
     }
 
+    //deConstructor
+    deConstructor() {
+        console.log('removing drawPolygonEvent')
+        this.canvasClass.pCanvas.removeEventListener('mousedown', this.startShapeEvent)
+        this.canvasClass.pCanvas.removeEventListener('mousedown', this.drawShapeEvent)
+        this.canvasClass.pCanvas.removeEventListener('mousemove', this.drawOutlineEvent)
+    }
     startShapeEvent = (e: MouseEvent) => {
         if (!this.drawing.current) return
         this.setOnTop(true)
@@ -96,14 +96,14 @@ export class DrawShapeEventClass extends EventClass {
 
         switch (this.stroke.type) {
             case "Rectangle": {
-                const minP = {x:Math.min(ptA.x,ptB.x),y:Math.min(ptA.y,ptB.y)}
+                const minP = { x: Math.min(ptA.x, ptB.x), y: Math.min(ptA.y, ptB.y) }
                 //translating
                 minP.x -= center.x
                 minP.y -= center.y
 
                 this.stroke.cornerP = minP
-                this.stroke.width = Math.abs(ptA.x-ptB.x)
-                this.stroke.height = Math.abs(ptA.y-ptB.y)
+                this.stroke.width = Math.abs(ptA.x - ptB.x)
+                this.stroke.height = Math.abs(ptA.y - ptB.y)
                 return this.stroke
             }
             case "Circle": {
@@ -111,7 +111,7 @@ export class DrawShapeEventClass extends EventClass {
                     distanceBtwPoints(ptA, ptB) / 2,
                     MIN_DISTANCE_BTW_PTS
                 )
-                this.stroke.cornerP={x:-radius.toFixed(2),y:-radius.toFixed(2)}
+                this.stroke.cornerP = { x: -radius.toFixed(2), y: -radius.toFixed(2) }
                 this.stroke.radius = radius
                 return this.stroke
             } default: { throw new Error('Shape is wrong') }

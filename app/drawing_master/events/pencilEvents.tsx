@@ -34,15 +34,14 @@ export class DrawPencilEventClass extends EventClass {
         //constructor
         console.log('adding drawPencilEvent')
         this.canvasClass.pCanvas.addEventListener('mousedown', this.startPencilEvent)
-        //deConstructor
-        this.deConstructor = () => {
-            console.log('removing drawPencilEvent')
-            this.canvasClass.pCanvas.removeEventListener('mousedown', this.startPencilEvent)
-            this.canvasClass.pCanvas.removeEventListener('mousemove', this.drawPencilEvent)
-            this.canvasClass.pCanvas.removeEventListener('mouseup', this.stopPencilEvent)
-        }
     }
 
+    deConstructor() {
+        console.log('removing drawPencilEvent')
+        this.canvasClass.pCanvas.removeEventListener('mousedown', this.startPencilEvent)
+        this.canvasClass.pCanvas.removeEventListener('mousemove', this.drawPencilEvent)
+        this.canvasClass.pCanvas.removeEventListener('mouseup', this.stopPencilEvent)
+    }
     startPencilEvent = (e: MouseEvent) => {
         if (!this.drawing.current) return
         this.setOnTop(true)

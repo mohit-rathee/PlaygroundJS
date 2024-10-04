@@ -4,13 +4,13 @@ import SidePallete from "./sidePallete";
 import { LayerStack, MainCanvas } from "./layerStack";
 import { DrawingClass } from "../lib/DrawingClass";
 import { CanvasClass } from "../lib/CanvasClass";
-import { EventClass } from "../events/eventClass";
 import { DrawPencilEventClass } from "../events/pencilEvents";
 import { SelectEventClass } from "../events/selectEvents";
 import { IS_DEBUG_MODE } from "../utils/initials";
 import { DrawPolygonEventClass } from "../events/polygonEvents";
 import { DrawShapeEventClass } from "../events/shapeEvents";
 import { ToolRefs } from "../types";
+import { EventClassType } from "../types";
 
 function DrawingBoard() {
 
@@ -25,7 +25,7 @@ function DrawingBoard() {
     const [fillColor, setFillColor] = useState<string>('darkred')
     const [lineWidth, setLineWidth] = useState<number>(5);
     const [isFill, setIsFill] = useState<boolean>(false)
-    const [mode, setMode] = useState<string>('')
+    const [mode, setMode] = useState<string>("")
 
     const lineColorRef = useRef<string>(lineColor)
     const fillColorRef = useRef<string>(fillColor)
@@ -36,7 +36,7 @@ function DrawingBoard() {
     const mainRCanvasRef = useRef<HTMLCanvasElement>(null)
     const mainCanvasClassRef = useRef<CanvasClass | null>(null)
 
-    const eventClassRef = useRef<EventClass | null>(null)
+    const eventClassRef = useRef<EventClassType | null>(null)
 
     const [dimensions, setDimensions] = useState({
         'width': 0,
@@ -99,6 +99,10 @@ function DrawingBoard() {
         fillColorRef.current = fillColor
         isFillRef.current = isFill
         lineWidthRef.current = Number(lineWidth)
+        if (!eventClassRef.current) return
+        if (eventClassRef.current?.event == "select") {
+            eventClassRef.current.eventClass.reload()
+        }
     }, [lineColor, lineWidth, fillColor, isFill])
 
     useEffect(() => {
@@ -113,50 +117,69 @@ function DrawingBoard() {
             lineWidth: lineWidthRef,
             isFill: isFillRef
         }
-        const eventClass = eventClassRef.current
+        const eventClass = eventClassRef.current?.eventClass
         if (eventClass) {
             eventClass.deConstructor()
         }
 
         switch (mode) {
+            case "": return
             case "drawFreeForm": {
-                eventClassRef.current = new DrawPencilEventClass(
-                    toolRefs,
-                    "FreeForm"
-                )
+                eventClassRef.current = {
+                    event: 'drawPencil',
+                    eventClass: new DrawPencilEventClass(
+                        toolRefs,
+                        "FreeForm"
+                    )
+                }
                 break
             }
             case "drawCatmullRom": {
-                eventClassRef.current = new DrawPencilEventClass(
-                    toolRefs,
-                    "CatmullRom"
-                )
+                eventClassRef.current = {
+                    event: 'drawPencil',
+                    eventClass: new DrawPencilEventClass(
+                        toolRefs,
+                        "CatmullRom"
+                    )
+                }
                 break
             }
             case "drawPolygon": {
-                eventClassRef.current = new DrawPolygonEventClass(
-                    toolRefs,
-                )
+                eventClassRef.current = {
+                    event: 'drawPolygon',
+                    eventClass: new DrawPolygonEventClass(
+                        toolRefs,
+                    )
+                }
                 break
             }
             case "drawRectangle": {
-                eventClassRef.current = new DrawShapeEventClass(
-                    toolRefs,
-                    "Rectangle"
-                )
+                eventClassRef.current = {
+                    event: 'drawShapes',
+                    eventClass: new DrawShapeEventClass(
+                        toolRefs,
+                        "Rectangle"
+                    )
+                }
                 break
             }
             case "drawCircle": {
-                eventClassRef.current = new DrawShapeEventClass(
-                    toolRefs,
-                    "Circle"
-                )
+                eventClassRef.current = {
+                    event: 'drawShapes',
+                    eventClass: new DrawShapeEventClass(
+                        toolRefs,
+                        "Circle"
+                    )
+                }
                 break
             }
             case "select": {
-                eventClassRef.current = new SelectEventClass(
-                    toolRefs,
-                )
+                eventClassRef.current = {
+                    event: 'select',
+                    eventClass: new SelectEventClass(
+                        toolRefs,
+                    )
+                }
                 break
             }
             default: throw new Error(mode + ' is not available')
@@ -200,16 +223,19 @@ function DrawingBoard() {
                 isFill={isFill}
                 setIsFill={setIsFill}
                 undo={() => {
-                    mainCanvasClassRef.current?.clearCanvas()
+                    eventClassRef.current?.eventClass.deConstructor()
                     drawingClassRef.current?.undo()
+                    setMode("")
                 }}
                 redo={() => {
-                    mainCanvasClassRef.current?.clearCanvas()
+                    eventClassRef.current?.eventClass.deConstructor()
                     drawingClassRef.current?.redo()
+                    setMode("")
                 }}
                 save={() => {
-                    mainCanvasClassRef.current?.clearCanvas()
+                    eventClassRef.current?.eventClass.deConstructor()
                     drawingClassRef.current?.save()
+                    setMode("")
                 }}
             />}
             <LayerStack

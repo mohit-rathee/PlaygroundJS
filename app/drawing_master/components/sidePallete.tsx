@@ -209,7 +209,8 @@ function LineWidthBoard({ lineWidth, setLineWidth }: any) {
                     <input
                         type="range"
                         min="1"
-                        max="10"
+                        step="2"
+                        max="20"
                         value={lineWidth}
                         onChange={handleSliderChange}
                         className="w-full"

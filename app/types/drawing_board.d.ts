@@ -1,7 +1,3 @@
-// import React from "react";
-// import { CanvasClass } from "../components/drawing_master/lib/CanvasClass";
-// import { DrawingClass } from "../components/drawing_master/lib/DrawingClass";
-
 type Dimensions = { 'width': number, 'height': number }
 
 interface point {
@@ -75,12 +71,3 @@ interface canvasprop {
 }
 
 type canvas_ref = React.RefObject<HTMLCanvasElement[]>;
-
-// interface ToolRefs {
-//     mainCanvasClass: CanvasClass;
-//     drawingClass: React.MutableRefObject<DrawingClass>;
-//     lineColor: React.MutableRefObject<string>;
-//     fillColor: React.MutableRefObject<string>;
-//     lineWidth: React.MutableRefObject<number>;
-//     isFill: React.MutableRefObject<boolean>;
-// }

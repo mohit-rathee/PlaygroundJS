@@ -4,27 +4,28 @@ import { CanvasClass } from "../lib/CanvasClass";
 import { ToolRefs } from "../types";
 
 export class EventClass {
+    // public event: "select"|"drawPencil"|"drawPolygon"|"drawShapes"
     public canvasClass: CanvasClass;
     public drawing: React.RefObject<DrawingClass>;
-    public deConstructor: () => void;
-    public Constructor: () => void;
-    private lineColorRef: React.MutableRefObject<string>;
-    private fillColorRef: React.MutableRefObject<string>;
-    private isFillRef: React.MutableRefObject<boolean>;
-    private lineWidthRef: React.MutableRefObject<number>;
+    public lineColorRef: React.MutableRefObject<string>;
+    public fillColorRef: React.MutableRefObject<string>;
+    public isFillRef: React.MutableRefObject<boolean>;
+    public lineWidthRef: React.MutableRefObject<number>;
 
     constructor(
-        toolRefs: ToolRefs
+        toolRefs: ToolRefs,
+        // event: "select"|"drawPencil"|"drawPolygon"|"drawShapes"
     ) {
         this.canvasClass = toolRefs.mainCanvasClass
         this.drawing = toolRefs.drawingClass
+        // this.event = event
         this.lineColorRef = toolRefs.lineColor
         this.lineWidthRef = toolRefs.lineWidth
         this.fillColorRef = toolRefs.fillColor
         this.isFillRef = toolRefs.isFill
-        this.deConstructor = () => { }
-        this.Constructor = () => { }
     }
+    Constructor(){}
+    deConstructor(){}
     setOnTop(bool: boolean) {
         requestAnimationFrame(() => {
             if (bool) {
@@ -49,7 +50,7 @@ export class EventClass {
             cornerP: { x: 0, y: 0 },
             centerP: { x: 0, y: 0 },
         };
-        console.log('isFill',this.isFillRef.current)
+        console.log('isFill', this.isFillRef.current)
         switch (type) {
             case "FreeForm":
                 return {
@@ -79,13 +80,8 @@ export class EventClass {
                 return {
                     ...baseStroke,
                     type: type,
-                    points: [
-                        { x: 0, y: 0 },
-                        { x: 0, y: 0 },
-                        { x: 0, y: 0 },
-                        { x: 0, y: 0 },
-                        { x: 0, y: 0 },
-                    ]
+                    width: 0,
+                    height: 0
                 }
             default: {
                 throw new Error("Type not found")
