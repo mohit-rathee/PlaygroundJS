@@ -90,7 +90,6 @@ export class EditShapes {
             this.canvasClass.drawStroke(this.stroke)
             this.drawGizmo(this.stroke)
         }
-        console.log(this.stroke.centerP)
 
     }
 

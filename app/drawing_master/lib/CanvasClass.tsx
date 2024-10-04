@@ -23,8 +23,8 @@ export class CanvasClass {
         this.rCanvas = rCanvas;
         this.isDebugMode = isDebugMode
 
-        const pContext = pCanvas.getContext('2d')
-        const rContext = rCanvas.getContext('2d');
+        const pContext = pCanvas.getContext('2d',{willReadFrequently:true})
+        const rContext = rCanvas.getContext('2d',{willReadFrequently:true});
 
         if (!pContext || !rContext) {
             throw new Error('Cannot create context');
