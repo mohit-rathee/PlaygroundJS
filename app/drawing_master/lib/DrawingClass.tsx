@@ -238,7 +238,7 @@ export class DrawingClass {
         mergedCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height)
         canvasArray.forEach((canvasClass) => {
             if (canvasClass.pCanvas.style.display == 'block') {
-                mergedCtx.drawImage(canvasClass.rCanvas, 0, 0);
+                mergedCtx.drawImage(canvasClass.pCanvas, 0, 0);
             }
         });
 
