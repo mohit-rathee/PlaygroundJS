@@ -192,13 +192,13 @@ export class EditShapes {
         pCtx.fillStyle = '#d3d5d74f'
         pCtx.lineWidth = 2
         rCtx.lineWidth = 2
+        pCtx.scale(1/this.stroke.scaleX,1/this.stroke.scaleY)
+        rCtx.scale(1/this.stroke.scaleX,1/this.stroke.scaleY)
         pCtx.stroke()
         rCtx.stroke()
         pCtx.fill()
         rCtx.fill()
 
-        pCtx.scale(1, 1)
-        rCtx.scale(1, 1)
         this.drawImpPoints()
 
         pCtx.restore()
@@ -208,10 +208,12 @@ export class EditShapes {
         const impPoints = this.stroke.getImpPoints(10)
         for (let i = 0; i < impPoints.length; i++) {
             const p = impPoints[i];
-            const radius = Math.min(Math.max(this.stroke.lineWidth, 4), 6)
-            this.canvasClass.drawDotonR(p, radius + 1, intToRGBColor(i + 1))
-            this.canvasClass.drawDotonP(p, radius + 1, 'white')
-            this.canvasClass.drawDotonP(p, radius, 'green')
+            const scaledP = { x: p.x * this.stroke.scaleX, y: p.y * this.stroke.scaleY }
+            // const radius = Math.min(Math.max(this.stroke.lineWidth+1, 4), 6)
+            const radius = 8
+            this.canvasClass.drawDotonR(scaledP, radius + 1, intToRGBColor(i + 1))
+            this.canvasClass.drawDotonP(scaledP, radius + 1, 'white')
+            this.canvasClass.drawDotonP(scaledP, radius, 'green')
         }
     }
 

@@ -67,6 +67,8 @@ export class DrawPolygonEventClass extends EventClass {
         };
 
         this.canvasClass.clearCanvas()
+        console.log('drawing')
+        this.canvasClass.drawStroke(this.stroke)
 
         const lastP = this.stroke.points.slice(-1)[0]
         const distance = distanceBtwPoints(pos, lastP)
@@ -80,15 +82,12 @@ export class DrawPolygonEventClass extends EventClass {
             return
         }
 
-        this.canvasClass.drawStroke(this.stroke)
-
         this.canvasClass.prepareContext(this.stroke)
         this.canvasClass.pContext.moveTo(lastP.x, lastP.y);
         this.canvasClass.rContext.moveTo(lastP.x, lastP.y);
 
         this.canvasClass.pContext.lineTo(pos.x, pos.y);
-        // this.canvasClass.rContext.lineTo(pos.x, pos.y);
-
+        this.canvasClass.pContext.stroke()
 
         this.stroke.points.push(pos)
         this.updateMinMax(pos)

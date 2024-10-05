@@ -110,6 +110,7 @@ export class DrawPencilEventClass extends EventClass {
 
             this.canvasClass.pContext.moveTo(pos.x, pos.y);
             this.canvasClass.rContext.moveTo(pos.x, pos.y);
+
         } else {
             this.threshold += 1
         }

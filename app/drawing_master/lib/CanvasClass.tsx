@@ -49,27 +49,28 @@ export class CanvasClass {
 
             for (let i = 0; i < impPoints.length; i++) {
                 const p = impPoints[i];
-                this.drawDotonP(p, Math.max(stroke.lineWidth - 3, 3), color)
+                const scaledP = { x: p.x * stroke.scaleX, y: p.y * stroke.scaleY }
+                const radius = Math.min(Math.max(stroke.lineWidth, 4), 6)
+                this.drawDotonP(scaledP, radius, color)
             }
         }
     }
     drawDots(stroke: Stroke, color: string) {
         if (!IS_DRAW_DOTS) return
-        // if (!isNaN(stroke.uid)) {
         if (stroke instanceof Pencil) {
             const points = stroke.points
             for (let i = 0; i < points.length; i++) {
                 const p = points[i];
+                const scaledP = { x: p.x * stroke.scaleX, y: p.y * stroke.scaleY }
                 const radius = Math.min(Math.max(stroke.lineWidth, 4), 6)
-                this.drawDotonP(p, radius, color)
+                this.drawDotonP(scaledP, radius, color)
             }
         }
-        // }
     }
 
     drawDotonP(p: point, radius = 5, color = 'black') {
         this.pContext.beginPath();
-        this.pContext.arc(p.x, p.y, radius, 0, Math.PI * 2); // Draw a full circle
+        this.pContext.arc(p.x, p.y, radius - 1, 0, Math.PI * 2); // Draw a full circle
         this.pContext.fillStyle = color;
         this.pContext.fill();
     }
@@ -106,8 +107,9 @@ export class CanvasClass {
 
         this.pContext.translate(stroke.centerP.x, stroke.centerP.y)
         this.rContext.translate(stroke.centerP.x, stroke.centerP.y)
-        this.pContext.scale(stroke.scaleX,stroke.scaleY)
-        this.rContext.scale(stroke.scaleX,stroke.scaleY)
+
+        this.pContext.scale(stroke.scaleX, stroke.scaleY)
+        this.rContext.scale(stroke.scaleX, stroke.scaleY)
 
     }
     drawCircle(stroke: Shapes) {
@@ -123,7 +125,9 @@ export class CanvasClass {
                 this.pContext.fill()
                 this.rContext.fill()
             }
-            this.drawImpPoints(stroke, 'orange')
+            this.pContext.scale(1 / stroke.scaleX, 1 / stroke.scaleY)
+            this.rContext.scale(1 / stroke.scaleX, 1 / stroke.scaleY)
+            // this.drawImpPoints(stroke, 'orange')
             this.pContext.restore()
             this.rContext.restore()
 
@@ -144,7 +148,11 @@ export class CanvasClass {
                 this.pContext.fill()
                 this.rContext.fill()
             }
-            this.drawImpPoints(shape, 'orange')
+            this.pContext.scale(1 / shape.scaleX, 1 / shape.scaleY)
+            this.rContext.scale(1 / shape.scaleX, 1 / shape.scaleY)
+
+            // this.drawImpPoints(shape, 'orange')
+
             this.pContext.restore()
             this.rContext.restore()
         }
@@ -158,7 +166,7 @@ export class CanvasClass {
         this.pContext.moveTo(points[0].x, points[0].y);
         this.rContext.moveTo(points[0].x, points[0].y);
 
-        for (let i = 0; i < points.length; i++) {
+        for (let i = 1; i < points.length; i++) {
             const p = points[i];
             this.pContext.lineTo(p.x, p.y);
             this.rContext.lineTo(p.x, p.y);
@@ -171,6 +179,9 @@ export class CanvasClass {
             this.rContext.fill()
 
         }
+        this.pContext.scale(1 / stroke.scaleX, 1 / stroke.scaleY)
+        this.rContext.scale(1 / stroke.scaleX, 1 / stroke.scaleY)
+
         this.drawDots(stroke, 'blue')
         // this.drawImpPoints(stroke, 'orange')
 
@@ -210,9 +221,12 @@ export class CanvasClass {
                 this.rContext.lineTo(x, y);
             }
         }
+        this.pContext.scale(1 / stroke.scaleX, 1 / stroke.scaleY)
+        this.rContext.scale(1 / stroke.scaleX, 1 / stroke.scaleY)
 
         this.pContext.stroke()
         this.rContext.stroke()
+
 
         if (stroke.isFill) {
             this.pContext.fill()
