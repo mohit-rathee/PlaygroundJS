@@ -2,11 +2,12 @@ import { EventClass } from "./eventClass";
 import { DELTA_TIME, MIN_DISTANCE_BTW_PTS, RDP_CATMULLROM, RDP_NORMAL, REFINE_THRESHOLD } from "../utils/initials";
 import { distanceBtwPoints, ramerDouglasPeucker } from "../utils/magic_functions";
 import { ToolRefs } from "../types";
+import { Pencil } from "../lib/Strokes/Pencil";
 
 
 export class DrawPencilEventClass extends EventClass {
     public type: "FreeForm" | "CatmullRom";
-    public stroke: FreeForm | CatmullRom | null
+    public stroke: Pencil | null
 
     private timer: number;
     private threshold: number;
@@ -152,8 +153,10 @@ export class DrawPencilEventClass extends EventClass {
         switch (this.type) {
             case "FreeForm":
                 simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_NORMAL)
+                break
             case "CatmullRom":
                 simplifiedPoints = ramerDouglasPeucker(newPoints, RDP_CATMULLROM)
+                break
 
         }
 
@@ -163,7 +166,7 @@ export class DrawPencilEventClass extends EventClass {
         ]
     }
 
-    getStroke(): Stroke {
+    getStroke(): Pencil {
         if (!this.stroke) throw new Error('stroke is null')
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2

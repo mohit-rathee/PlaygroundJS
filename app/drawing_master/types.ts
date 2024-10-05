@@ -4,6 +4,10 @@ import { SelectEventClass } from "./events/selectEvents";
 import { DrawShapeEventClass } from "./events/shapeEvents";
 import { CanvasClass } from "./lib/CanvasClass";
 import { DrawingClass } from "./lib/DrawingClass";
+import { Pencil } from "../drawing_master/lib/Strokes/Pencil";
+import { Shapes } from "../drawing_master/lib/Strokes/Shapes";
+
+export type Stroke = Pencil|Shapes
 
 export interface ToolRefs {
     mainCanvasClass: CanvasClass;

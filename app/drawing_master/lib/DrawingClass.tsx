@@ -1,6 +1,9 @@
 import { LAYER_THRESHOLD } from "../utils/initials";
 import { CanvasClassGenerator, CanvasClass } from "./CanvasClass";
 import { initialDrawingState, initialStrokePointer } from "../utils/initials";
+import { Stroke } from "../types";
+import { Shapes } from "./Strokes/Shapes";
+import { Pencil } from "./Strokes/Pencil";
 export class DrawingClass {
     private pCanvasContainer: HTMLDivElement;
     private rCanvasContainer: HTMLDivElement;
@@ -36,13 +39,15 @@ export class DrawingClass {
 
 
     getStrokeLength(stroke: Stroke): number {
-        if (stroke.type == "Circle" || stroke.type == "Rectangle") {
+        if (stroke instanceof Shapes) {
             return 10;
-        } else {
+        } else if (stroke instanceof Pencil) {
             return stroke.points.length
         }
-
+        else throw new Error('method to calculate length of ' + stroke + ' is unknown')
     }
+
+
     addStroke(stroke: Stroke) {
         console.log('adding stroke')
         const strokePointer = this.strokePointer
@@ -269,7 +274,7 @@ export class DrawingClass {
         for (let i = canvasList.length - 1; i >= 0; i--) {
             if (canvasList[i].isVisible) {
                 const canvasClass = canvasList[i]
-                const uid = canvasClass.getUID(pos)
+                const uid = canvasClass.getINT(pos)
                 if (isNaN(uid)) {
                     continue;
                 }
@@ -278,10 +283,10 @@ export class DrawingClass {
                 canvasClass.clearCanvas()
                 canvasClass.drawStrokes(0, uid - 1, layerData)
                 // Patch work embed this info in stroke
-                if (this.strokePointer.layer-1 == i) {
+                if (this.strokePointer.layer - 1 == i) {
                     canvasClass.drawStrokes(uid, this.strokePointer.stroke_id, layerData)
                 }
-                else{
+                else {
                     canvasClass.drawStrokes(uid, layerData.strokes.length, layerData)
                 }
                 return [

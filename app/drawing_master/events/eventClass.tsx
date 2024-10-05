@@ -2,6 +2,8 @@ import { DrawingClass } from "../lib/DrawingClass";
 import React from "react";
 import { CanvasClass } from "../lib/CanvasClass";
 import { ToolRefs } from "../types";
+import { Pencil } from "../lib/Strokes/Pencil";
+import { Shapes } from "../lib/Strokes/Shapes";
 
 export class EventClass {
     // public event: "select"|"drawPencil"|"drawPolygon"|"drawShapes"
@@ -24,8 +26,8 @@ export class EventClass {
         this.fillColorRef = toolRefs.fillColor
         this.isFillRef = toolRefs.isFill
     }
-    Constructor(){}
-    deConstructor(){}
+    Constructor() { }
+    deConstructor() { }
     setOnTop(bool: boolean) {
         requestAnimationFrame(() => {
             if (bool) {
@@ -36,12 +38,11 @@ export class EventClass {
         })
     }
 
-    createNewStroke(type: 'FreeForm' | 'CatmullRom'): FreeForm | CatmullRom;
-    createNewStroke(type: 'Polygon'): Polygon;
-    createNewStroke(type: 'Rectangle' | 'Circle'): Rectangle | Circle;
+    createNewStroke(type: 'FreeForm' | 'CatmullRom' | 'Polygon'): Pencil
+    createNewStroke(type: 'Rectangle' | 'Circle'): Shapes
 
-    createNewStroke(type: Type): Stroke {
-        let baseStroke: BaseStroke = {
+    createNewStroke(type: Type) {
+        let baseStroke: BaseType = {
             uid: NaN,
             lineColor: this.lineColorRef.current,
             lineWidth: this.lineWidthRef.current,
@@ -51,42 +52,22 @@ export class EventClass {
             centerP: { x: 0, y: 0 },
         };
         console.log('isFill', this.isFillRef.current)
-        switch (type) {
-            case "FreeForm":
-                return {
-                    ...baseStroke,
-                    type: type,
-                    points: [],
-                }
-            case "CatmullRom":
-                return {
-                    ...baseStroke,
-                    type: type,
-                    points: [],
-                }
-            case "Polygon":
-                return {
-                    ...baseStroke,
-                    type: type,
-                    points: []
-                }
-            case "Circle":
-                return {
-                    ...baseStroke,
-                    type: type,
-                    radius: 0
-                }
-            case "Rectangle":
-                return {
-                    ...baseStroke,
-                    type: type,
-                    width: 0,
-                    height: 0
-                }
-            default: {
-                throw new Error("Type not found")
-            }
+        if (
+            type == "FreeForm" ||
+            type == "CatmullRom" ||
+            type == "Polygon"
+        ) {
+            return new Pencil(baseStroke, type, [])
+        }
+        else if (
+            type == "Circle" ||
+            type == "Rectangle"
+        ) {
+            return new Shapes(baseStroke, type)
+        }
+        else {
+            throw new Error("Type not found")
         }
     }
-
 }
+

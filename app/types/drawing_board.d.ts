@@ -7,9 +7,7 @@ interface point {
 
 type Type = "FreeForm" | "CatmullRom" | "Polygon" | "Rectangle" | "Circle";
 
-type Stroke = FreeForm | CatmullRom | Polygon | Rectangle | Circle
-
-interface BaseStroke {
+interface BaseType {
     uid: number;
     lineColor: string;
     lineWidth: number;
@@ -19,24 +17,24 @@ interface BaseStroke {
     centerP: point;
 }
 
-interface FreeForm extends BaseStroke {
+interface FreeForm extends BaseType {
     type: "FreeForm"
     points: point[];
 }
-interface CatmullRom extends BaseStroke {
+interface CatmullRom extends BaseType {
     type: "CatmullRom"
     points: point[];
 }
-interface Polygon extends BaseStroke {
+interface Polygon extends BaseType {
     type: "Polygon"
     points: point[];
 }
-interface Rectangle extends BaseStroke {
+interface Rectangle {
     type: "Rectangle"
     width: number;
     height: number;
 }
-interface Circle extends BaseStroke {
+interface Circle {
     type: "Circle"
     radius: number;
 }

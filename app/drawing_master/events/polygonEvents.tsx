@@ -2,9 +2,10 @@ import { EventClass } from "./eventClass";
 import { distanceBtwPoints } from "../utils/magic_functions";
 import { MIN_DISTANCE_BTW_PTS } from "../utils/initials";
 import { ToolRefs } from "../types";
+import { Pencil } from "../lib/Strokes/Pencil";
 
 export class DrawPolygonEventClass extends EventClass {
-    private stroke: Polygon | null;
+    private stroke: Pencil | null;
     private minX: number;
     private minY: number;
     private maxX: number;
@@ -43,7 +44,7 @@ export class DrawPolygonEventClass extends EventClass {
         };
 
         this.stroke = this.createNewStroke("Polygon")
-        this.stroke.type = "Polygon"
+        this.stroke.style = "Polygon"
         this.stroke.points = [pos]
         this.minX = pos.x
         this.minY = pos.y
@@ -123,7 +124,7 @@ export class DrawPolygonEventClass extends EventClass {
         else if (p.y > this.maxY) { this.maxY = p.y }
     }
 
-    getStroke(): Stroke {
+    getStroke(): Pencil {
         if (!this.stroke) throw new Error('stroke is null')
         const centerX = (this.minX + this.maxX) / 2
         const centerY = (this.minY + this.maxY) / 2

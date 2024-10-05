@@ -1,4 +1,4 @@
-import { ToolRefs } from "../types";
+import { Stroke, ToolRefs } from "../types";
 import { EditShapes } from "./editEvents/shapes";
 import { EventClass } from "./eventClass";
 
@@ -72,25 +72,26 @@ export class SelectEventClass extends EventClass {
         // this.canvasClass.pCanvas.removeEventListener('mousedown', this.selectEvent)
         //SelectEventClass is only a vessel for EditClass
         this.deConstructor()
-        switch (stroke.type) {
-            case "Rectangle":
-                this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
-                break
-            case "Circle":
-                this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
-                break
-            case "Polygon":
-                this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
-                break
-            case "FreeForm":
-                this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
-                break
-            case "CatmullRom":
-                this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
-                break
-            default:
-                throw new Error('edit class not defined yet')
-        }
+        this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
+        // switch (stroke.type) {
+        //     case "Rectangle":
+        //         this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
+        //         break
+        //     case "Circle":
+        //         this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
+        //         break
+        //     case "Polygon":
+        //         this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
+        //         break
+        //     case "FreeForm":
+        //         this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
+        //         break
+        //     case "CatmullRom":
+        //         this.editClass = new EditShapes(this.canvasClass, stroke, e, this.selectEvent)
+        //         break
+        //     default:
+        //         throw new Error('edit class not defined yet')
+        // }
     }
 
 }

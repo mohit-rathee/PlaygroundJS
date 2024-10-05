@@ -1,5 +1,8 @@
+import { Stroke } from "../types";
 import { CATMULL_ROM_PRECISION, IS_DRAW_DOTS } from "../utils/initials";
 import { createNewCanvas, catmullRom, rgbToINTColor, intToRGBColor, intToRGBValue } from "../utils/magic_functions";
+import { Pencil } from "./Strokes/Pencil";
+import { Shapes } from "./Strokes/Shapes";
 
 export function CanvasClassGenerator(dimensions: Dimensions, isDebugMode: boolean) {
     const pCanvas = createNewCanvas(dimensions, true, true);
@@ -23,8 +26,8 @@ export class CanvasClass {
         this.rCanvas = rCanvas;
         this.isDebugMode = isDebugMode
 
-        const pContext = pCanvas.getContext('2d',{willReadFrequently:true})
-        const rContext = rCanvas.getContext('2d',{willReadFrequently:true});
+        const pContext = pCanvas.getContext('2d', { willReadFrequently: true })
+        const rContext = rCanvas.getContext('2d', { willReadFrequently: true });
 
         if (!pContext || !rContext) {
             throw new Error('Cannot create context');
@@ -35,43 +38,46 @@ export class CanvasClass {
     }
 
 
-    drawImpPoints(stroke: Stroke) {
+    drawImpPoints(stroke: Stroke, color: string) {
         if (
             !isNaN(stroke.uid) ||
-            (stroke.type == "Circle" || stroke.type == "Rectangle")
+            (stroke instanceof Shapes)
         ) {
-            const center = { x: 0, y: 0 };
-            const corner = stroke.cornerP;
-            const oppCorner = { x: -corner.x, y: -corner.y }
-            const sideCorner = { x: corner.x, y: oppCorner.y }
-            const oppSideCorner = { x: -sideCorner.x, y: -sideCorner.y }
 
-            const impPoints = [center, corner, oppCorner, sideCorner, oppSideCorner]
+            const impPoints = stroke.getImpPoints()
+            console.log(impPoints)
 
             for (let i = 0; i < impPoints.length; i++) {
                 const p = impPoints[i];
-                this.drawDot(p, Math.max(stroke.lineWidth - 3, 3), 'orange')
+                this.drawDotonP(p, Math.max(stroke.lineWidth - 3, 3), color)
             }
         }
     }
-    drawDots(stroke: Stroke) {
+    drawDots(stroke: Stroke, color: string) {
         if (!IS_DRAW_DOTS) return
         // if (!isNaN(stroke.uid)) {
-        if (stroke.type != "Circle" && stroke.type != "Rectangle") {
+        if (stroke instanceof Pencil) {
             const points = stroke.points
             for (let i = 0; i < points.length; i++) {
                 const p = points[i];
-                this.drawDot(p, Math.max(stroke.lineWidth - 3, 3), 'blue')
+                const radius = Math.min(Math.max(stroke.lineWidth, 4), 6)
+                this.drawDotonP(p, radius, color)
             }
         }
         // }
     }
 
-    drawDot(p: point, radius = 5, color = 'black') {
+    drawDotonP(p: point, radius = 5, color = 'black') {
         this.pContext.beginPath();
         this.pContext.arc(p.x, p.y, radius, 0, Math.PI * 2); // Draw a full circle
         this.pContext.fillStyle = color;
         this.pContext.fill();
+    }
+    drawDotonR(p: point, radius = 5, color = 'black') {
+        this.rContext.beginPath();
+        this.rContext.arc(p.x, p.y, radius, 0, Math.PI * 2); // Draw a full circle
+        this.rContext.fillStyle = color;
+        this.rContext.fill();
     }
 
     prepareContext(stroke: Stroke) {
@@ -100,11 +106,13 @@ export class CanvasClass {
 
         this.pContext.translate(stroke.centerP.x, stroke.centerP.y)
         this.rContext.translate(stroke.centerP.x, stroke.centerP.y)
+        this.pContext.scale(stroke.scaleX,stroke.scaleY)
+        this.rContext.scale(stroke.scaleX,stroke.scaleY)
 
     }
-    drawCircle(stroke: Stroke) {
-        if (stroke.type == "Circle") {
-            const radius = stroke.radius
+    drawCircle(stroke: Shapes) {
+        if (stroke.data.type == "Circle") {
+            const radius = stroke.data.radius
             this.prepareContext(stroke)
             // already translated to centerP
             this.pContext.arc(0, 0, radius, 0, Math.PI * 2)
@@ -115,35 +123,34 @@ export class CanvasClass {
                 this.pContext.fill()
                 this.rContext.fill()
             }
-            this.drawImpPoints(stroke)
+            this.drawImpPoints(stroke, 'orange')
             this.pContext.restore()
             this.rContext.restore()
 
         }
     }
-    drawRectange(stroke: Stroke) {
-        if (stroke.type == "Rectangle") {
-            const corner = stroke.cornerP
-            const width = stroke.width
-            const height = stroke.height
-            this.prepareContext(stroke)
+    drawRectange(shape: Shapes) {
+        if (shape.data.type == "Rectangle") {
+            const corner = shape.cornerP
+            const width = shape.data.width
+            const height = shape.data.height
+            this.prepareContext(shape)
             // already translated to centerP
             this.pContext.rect(corner.x, corner.y, width, height)
             this.rContext.rect(corner.x, corner.y, width, height)
             this.pContext.stroke()
             this.rContext.stroke()
-            if (stroke.isFill) {
+            if (shape.isFill) {
                 this.pContext.fill()
                 this.rContext.fill()
             }
-            this.drawImpPoints(stroke)
+            this.drawImpPoints(shape, 'orange')
             this.pContext.restore()
             this.rContext.restore()
         }
     }
 
-    drawStraightLines(stroke: Stroke) {
-        if (stroke.type == "Circle" || stroke.type == "Rectangle") return
+    drawStraightLines(stroke: Pencil) {
         const points = stroke.points
         if (!points.length) return
         this.prepareContext(stroke)
@@ -164,15 +171,14 @@ export class CanvasClass {
             this.rContext.fill()
 
         }
-        this.drawDots(stroke)
-        this.drawImpPoints(stroke)
+        this.drawDots(stroke, 'blue')
+        // this.drawImpPoints(stroke, 'orange')
 
         this.pContext.restore()
         this.rContext.restore()
     }
 
-    drawCatmullRomSpline(stroke: Stroke) {
-        if (stroke.type == "Circle" || stroke.type == "Rectangle") return
+    drawCatmullRomSpline(stroke: Pencil) {
         const points = stroke.points
         if (points.length < 2) return
         const firstMirroredP = {
@@ -188,36 +194,36 @@ export class CanvasClass {
             ...points,
             lastMirroredP
         ];
-            this.prepareContext(stroke)
+        this.prepareContext(stroke)
 
-            this.pContext.moveTo(points[0].x, points[0].y);
-            this.rContext.moveTo(points[0].x, points[0].y);
+        this.pContext.moveTo(points[0].x, points[0].y);
+        this.rContext.moveTo(points[0].x, points[0].y);
 
-            for (let i = 0; i < extPoints.length - 3; i++) {
-                const p0 = extPoints[i];
-                const p1 = extPoints[i + 1];
-                const p2 = extPoints[i + 2];
-                const p3 = extPoints[i + 3];
-                for (let t = 0; t <= 1; t += CATMULL_ROM_PRECISION) {
-                    const { x, y } = catmullRom(p0, p1, p2, p3, t);
-                    this.pContext.lineTo(x, y);
-                    this.rContext.lineTo(x, y);
-                }
+        for (let i = 0; i < extPoints.length - 3; i++) {
+            const p0 = extPoints[i];
+            const p1 = extPoints[i + 1];
+            const p2 = extPoints[i + 2];
+            const p3 = extPoints[i + 3];
+            for (let t = 0; t <= 1; t += CATMULL_ROM_PRECISION) {
+                const { x, y } = catmullRom(p0, p1, p2, p3, t);
+                this.pContext.lineTo(x, y);
+                this.rContext.lineTo(x, y);
             }
+        }
 
-            this.pContext.stroke()
-            this.rContext.stroke()
+        this.pContext.stroke()
+        this.rContext.stroke()
 
-            if (stroke.isFill) {
-                this.pContext.fill()
-                this.rContext.fill()
-            }
+        if (stroke.isFill) {
+            this.pContext.fill()
+            this.rContext.fill()
+        }
 
-            this.drawDots(stroke)
-            this.drawImpPoints(stroke)
+        this.drawDots(stroke, 'blue')
+        // this.drawImpPoints(stroke, 'orange')
 
-            this.pContext.restore()
-            this.rContext.restore()
+        this.pContext.restore()
+        this.rContext.restore()
 
     }
 
@@ -290,34 +296,36 @@ export class CanvasClass {
 
     drawStroke(stroke: Stroke) {
         if (!stroke) return
-        switch (stroke.type) {
-            case 'FreeForm': {
-                this.drawStraightLines(stroke);
-                break;
+        if (stroke instanceof Pencil) {
+            switch (stroke.style) {
+                case 'FreeForm': {
+                    this.drawStraightLines(stroke);
+                    break;
+                }
+                case 'CatmullRom': {
+                    this.drawCatmullRomSpline(stroke)
+                    break;
+                }
+                case 'Polygon': {
+                    this.drawStraightLines(stroke)
+                    break;
+                }
             }
-            case 'CatmullRom': {
-                this.drawCatmullRomSpline(stroke)
-                break;
+        } else if (stroke instanceof Shapes) {
+            switch (stroke.data.type) {
+                case 'Rectangle': {
+                    this.drawRectange(stroke)
+                    break;
+                }
+                case 'Circle': {
+                    this.drawCircle(stroke)
+                    break;
+                }
             }
-            case 'Polygon': {
-                this.drawStraightLines(stroke)
-                break;
-            }
-            case 'Rectangle': {
-                this.drawRectange(stroke)
-                break;
-            }
-            case 'Circle': {
-                this.drawCircle(stroke)
-                break;
-            }
-            default: {
-                throw new Error('Type not found')
-            }
-        }
+        } else throw new Error('cant find drawing method for ' + stroke + ' class')
     }
 
-    getUID(p: point): number {
+    getINT(p: point): number {
         this.rContext.resetTransform()
         const img = this.rContext.getImageData(p.x, p.y, 1, 1)
         const pixel = img.data
