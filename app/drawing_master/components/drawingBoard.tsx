@@ -21,9 +21,9 @@ function DrawingBoard() {
 
     const drawingClassRef = useRef<DrawingClass | null>(null)
 
-    const [lineColor, setLineColor] = useState<string>('darkred')
-    const [fillColor, setFillColor] = useState<string>('darkred')
-    const [lineWidth, setLineWidth] = useState<number>(5);
+    const [lineColor, setLineColor] = useState<string>('blue')
+    const [fillColor, setFillColor] = useState<string>('green')
+    const [lineWidth, setLineWidth] = useState<number>(7);
     const [isFill, setIsFill] = useState<boolean>(false)
     const [mode, setMode] = useState<string>("")
 
@@ -210,7 +210,7 @@ function DrawingBoard() {
     }, []);
 
     return (
-        <div className="w-full p-2 h-full px-2 flex gap-5 bg-gray-500">
+        <div className="w-full p-2 h-full px-2 flex gap-5 bg-[#bbbbbb]">
             {drawingClassRef.current && <SidePallete
                 mode={mode}
                 setMode={setMode}

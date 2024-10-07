@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { COLOR_CHOISES } from "../utils/initials";
+import { HexColorPicker } from "react-colorful";
 
 export default function SidePallete({
     mode,
@@ -18,7 +18,7 @@ export default function SidePallete({
 }: any) {
 
     return (
-        <div className={`w-28 p-1 z-50 h-full justify-center items-center 
+        <div className={`w-28 p-1 z-50 h-full items-center 
                         flex flex-col bg-gray-700 rounded-sm`}>
             <ToolsBoard
                 setMode={setMode}
@@ -61,20 +61,6 @@ function Color({ color: thisColor, currColor, setColor, size }: any) {
         ></div>
     )
 }
-function ColorPallet({ currColor, setColor }: any) {
-    return (
-        <div className="absolute h-24 w-36 p-1 flex flex-wrap justify-between bg-gray-400" >
-            {COLOR_CHOISES.map((color) => (
-                <Color
-                    key={color}
-                    color={color}
-                    currColor={currColor}
-                    setColor={setColor}
-                />
-            ))}
-        </div>
-    )
-}
 function Button({ setMode, name, mode, thisMode }: any) {
     const isSelected = mode == thisMode
     return (
@@ -99,7 +85,7 @@ function ToolsBoard({ mode, setMode }: any) {
             <Button
                 mode={mode}
                 setMode={setMode}
-                name={'➤'}
+                name={'⊹'}
                 thisMode={'select'}
             />
             <div className="flex flex-wrap justify-center">
@@ -138,62 +124,93 @@ function ToolsBoard({ mode, setMode }: any) {
     )
 }
 function ColorBoard({ color, setColor, fillColor, setFillColor, isFill, setIsFill }: any) {
-    const [isLineColorPallet, setLineColorVisible] = useState(false)
-    const [isFillColorPallet, setFillColorVisible] = useState(false)
+    const [isLineColorPallet, setLineColorVisible] = useState(false);
+    const [isFillColorPallet, setFillColorVisible] = useState(false);
+
     useEffect(() => {
-        setLineColorVisible(false)
-    }, [color])
-    useEffect(() => {
-        setFillColorVisible(false)
-    }, [fillColor])
+        const handleClickOutside = (e: MouseEvent) => {
+            const lineColorPallet = document.getElementById('lineColorPallet');
+            const fillColorPallet = document.getElementById('fillColorPallet');
+
+            if (lineColorPallet && !lineColorPallet.contains(e.target as Node)) {
+                setLineColorVisible(false);
+            }
+
+            if (fillColorPallet && !fillColorPallet.contains(e.target as Node)) {
+                setFillColorVisible(false);
+            }
+        };
+
+        // Add event listener only when any palette is visible
+        if (isLineColorPallet || isFillColorPallet) {
+            window.addEventListener('mousedown', handleClickOutside);
+            console.log("adding event listenr")
+        }
+
+        // Clean up the event listener when both are false
+        return () => {
+            window.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isLineColorPallet, isFillColorPallet]);
 
     return (
-        <>
-            <div className="flex my-1">
-                <Heading
-                    title={'LineColor'}
-                    size={'text-sm'}
-                />
-                <Color
-                    color={color}
-                    setColor={() => setLineColorVisible(true)}
-                    size={'h-9 w-9'}
-                />
-                {isLineColorPallet && <ColorPallet
-                    currColor={color}
-                    setColor={setColor}
-                />}
+        <div className="">
+            <div className="flex items-center justify-between ">
+                <Heading title="Line Color" size="text-md font-semibold" />
+                <div className="relative">
+                    <Color
+                        color={color}
+                        setColor={() => setLineColorVisible(!isLineColorPallet)}
+                        size="h-10 w-10 border border-gray-300 rounded-full cursor-pointer"
+                    />
+                    {isLineColorPallet && (
+                        <div
+                            id="lineColorPallet"
+                            className="absolute top-0 left-12 z-10 m-2 rounded-lg"
+                        >
+                            <HexColorPicker color={color} onChange={setColor} />
+                        </div>
+                    )}
+                </div>
             </div>
-            <div className="flex items-center">
-                <Heading
-                    title={'isFill'}
-                    size={'text-s'}
-                />
-                <input
-                    className="w-5 h-5 rounded"
-                    type="checkbox"
-                    checked={isFill}
-                    onChange={(e)=>setIsFill(e.target.checked)}
-                />
+
+            <div className="flex items-center ">
+                <Heading title="Fill Shape" size=" font-semibold " />
+                <button
+                    className={`w-12 h-5 rounded-full transition-colors duration-300 focus:outline-none 
+        ${isFill ? 'bg-blue-500' : 'bg-gray-300'}`}
+                    onClick={() => setIsFill(!isFill)}
+                >
+                    <div
+                        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300
+            ${isFill ? 'translate-x-5' : 'translate-x-0.5'}`}
+                    />
+                </button>
             </div>
-            <div className="flex my-1">
-                <Heading
-                    title={'FillColor'}
-                    size={'text-sm'}
-                />
-                <Color
-                    color={fillColor}
-                    setColor={() => setFillColorVisible(true)}
-                    size={'h-9 w-9'}
-                />
-                {isFillColorPallet && <ColorPallet
-                    currColor={fillColor}
-                    setColor={setFillColor}
-                />}
+
+
+            <div className="flex items-center justify-between">
+                <Heading title="Fill Color" size="text-md font-semibold" />
+                <div className="relative">
+                    <Color
+                        color={fillColor}
+                        setColor={() => setFillColorVisible(!isFillColorPallet)}
+                        size="h-10 w-10 border border-gray-300 rounded-full cursor-pointer"
+                    />
+                    {isFillColorPallet && (
+                        <div
+                            id="fillColorPallet"
+                            className="absolute top-0 border-gray-300 left-12 z-10 m-2 rounded-lg"
+                        >
+                            <HexColorPicker color={fillColor} onChange={setFillColor} />
+                        </div>
+                    )}
+                </div>
             </div>
-        </>
-    )
+        </div>
+    );
 }
+
 function LineWidthBoard({ lineWidth, setLineWidth }: any) {
     const handleSliderChange = (event: any) => {
         const value = event.target.value;

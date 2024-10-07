@@ -72,13 +72,13 @@ export class EditShapes {
         this.drawGizmo(this.stroke)
     };
     setOnTop(bool: boolean) {
-        requestAnimationFrame(() => {
             if (bool) {
                 this.canvasClass.pCanvas.style.zIndex = '100'
+                this.canvasClass.pContext.globalAlpha = 0.8
             } else {
                 this.canvasClass.pCanvas.style.zIndex = '0'
+                this.canvasClass.pContext.globalAlpha = 1
             }
-        })
     }
 
 
@@ -151,6 +151,9 @@ export class EditShapes {
         // this.drawing.current?.placeStrokeAt(this.strokeInfo)
         //
         this.setOnTop(false)
+        this.canvasClass.clearCanvas()
+        this.canvasClass.drawStroke(this.stroke)
+        this.drawGizmo(this.stroke)
         this.selectedPoint = NaN
         this.canvasClass?.pCanvas.removeEventListener('mousemove', this.dragEvent)
         this.canvasClass?.pCanvas.removeEventListener('mouseup', this.placeEvent)

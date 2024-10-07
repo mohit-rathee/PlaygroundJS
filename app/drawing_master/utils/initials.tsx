@@ -28,16 +28,6 @@ export const REFINE_THRESHOLD = 20
 
 export const DELTA_TIME = 20
 
-
-
-export const COLOR_CHOISES = [
-    'darkred',
-    'darkblue',
-    'gray',
-    'darkgreen',
-    'purple',
-    'teal',
-];
 export const initialStrokePointer: StrokePointer = {
     layer: 1,
     stroke_id: 0
