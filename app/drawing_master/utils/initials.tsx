@@ -1,6 +1,6 @@
 export const LAYER_THRESHOLD = 100
 
-export const IS_DEBUG_MODE = false
+export const IS_DEBUG_MODE = true
 
 let color_map_gap = 1;
 

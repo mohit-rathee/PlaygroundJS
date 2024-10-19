@@ -1,5 +1,4 @@
 import { CanvasClass } from "../../lib/CanvasClass";
-import { Shapes } from "../../lib/Strokes/Shapes";
 import { Stroke } from "../../types";
 import { intToRGBColor } from "../../utils/magic_functions";
 

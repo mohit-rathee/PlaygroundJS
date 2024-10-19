@@ -130,13 +130,17 @@ function ColorBoard({ color, setColor, fillColor, setFillColor, isFill, setIsFil
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             const lineColorPallet = document.getElementById('lineColorPallet');
+            const lineColorBtn = document.getElementById('lineColorBtn');
+            const fillColorBtn = document.getElementById('fillColorBtn');
             const fillColorPallet = document.getElementById('fillColorPallet');
 
             if (lineColorPallet && !lineColorPallet.contains(e.target as Node)) {
+                if (lineColorBtn && lineColorBtn.contains(e.target as Node)) return
                 setLineColorVisible(false);
             }
 
             if (fillColorPallet && !fillColorPallet.contains(e.target as Node)) {
+                if (fillColorBtn && fillColorBtn.contains(e.target as Node)) return
                 setFillColorVisible(false);
             }
         };
@@ -157,7 +161,7 @@ function ColorBoard({ color, setColor, fillColor, setFillColor, isFill, setIsFil
         <div className="">
             <div className="flex items-center justify-between ">
                 <Heading title="Line Color" size="text-md font-semibold" />
-                <div className="relative">
+                <div id="lineColorBtn" className="relative">
                     <Color
                         color={color}
                         setColor={() => setLineColorVisible(!isLineColorPallet)}
@@ -191,7 +195,7 @@ function ColorBoard({ color, setColor, fillColor, setFillColor, isFill, setIsFil
 
             <div className="flex items-center justify-between">
                 <Heading title="Fill Color" size="text-md font-semibold" />
-                <div className="relative">
+                <div id="fillColorBtn" className="relative">
                     <Color
                         color={fillColor}
                         setColor={() => setFillColorVisible(!isFillColorPallet)}

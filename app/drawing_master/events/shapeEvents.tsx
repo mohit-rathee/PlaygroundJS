@@ -25,7 +25,7 @@ export class DrawShapeEventClass extends EventClass {
 
 
         //constructor
-        console.log('adding drawShapeEvent for',shape)
+        console.log('adding drawShapeEvent for', shape)
         this.canvasClass.pCanvas.addEventListener('mousedown', this.startShapeEvent)
     }
 
@@ -104,8 +104,10 @@ export class DrawShapeEventClass extends EventClass {
                 minP.y -= center.y
 
                 this.stroke.cornerP = minP
-                this.stroke.data.width = Math.abs(ptA.x - ptB.x)
-                this.stroke.data.height = Math.abs(ptA.y - ptB.y)
+                this.stroke.data.width = Math.max(Math.abs(ptA.x - ptB.x),
+                    MIN_DISTANCE_BTW_PTS)
+                this.stroke.data.height = Math.max(Math.abs(ptA.y - ptB.y),
+                    MIN_DISTANCE_BTW_PTS)
                 return this.stroke
             }
             case "Circle": {
