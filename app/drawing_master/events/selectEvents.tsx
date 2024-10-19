@@ -63,7 +63,6 @@ export class SelectEventClass extends EventClass {
             console.log('notfound');
             return;
         }
-        this.setOnTop(true)
         const [strokeInfo, stroke] = selectedStroke
         this.strokeInfo = strokeInfo
         this.stroke = stroke
