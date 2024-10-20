@@ -80,7 +80,6 @@ export function ramerDouglasPeucker(points: point[], epsilon: number): point[] {
 
 export function createNewCanvas(dimensions: Dimensions, isP: boolean, onLeft: boolean) {
     const newCanvas = document.createElement('canvas')
-    // newCanvas.style.setProperty('image-rendering', 'pixelated');
     var newCanvasClassName = 'fixed top-0 image h-screen';
     if (onLeft) {
         newCanvasClassName += ' left-0'

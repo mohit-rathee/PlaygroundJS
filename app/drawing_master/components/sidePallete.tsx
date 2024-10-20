@@ -1,45 +1,31 @@
 import { useEffect, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 
-export default function SidePallete({
-    mode,
-    setMode,
-    lineColor,
-    setLineColor,
-    fillColor,
-    setFillColor,
-    lineWidth,
-    setLineWidth,
-    isFill,
-    setIsFill,
-    undo,
-    redo,
-    save
-}: any) {
+export default function SidePallete({ props }: any) {
 
     return (
-        <div className={`w-28 p-1 z-50 h-full items-center 
-                        flex flex-col bg-gray-700 rounded-sm`}>
+        <div className={`w-32 p-1 z-50 min-h-full max-h-40 items-center
+        flex flex-col bg-gray-700 dark:bg-gray-800 rounded-sm overflow-y-auto text-black `}>
             <ToolsBoard
-                setMode={setMode}
-                mode={mode}
+                setMode={props.setMode}
+                mode={props.mode}
             />
             <ColorBoard
-                color={lineColor}
-                setColor={setLineColor}
-                fillColor={fillColor}
-                setFillColor={setFillColor}
-                isFill={isFill}
-                setIsFill={setIsFill}
+                color={props.lineColor}
+                setColor={props.setLineColor}
+                fillColor={props.fillColor}
+                setFillColor={props.setFillColor}
+                isFill={props.isFill}
+                setIsFill={props.setIsFill}
             />
             <LineWidthBoard
-                lineWidth={lineWidth}
-                setLineWidth={setLineWidth}
+                lineWidth={props.lineWidth}
+                setLineWidth={props.setLineWidth}
             />
             <ActionBoard
-                undo={undo}
-                redo={redo}
-                save={save}
+                undo={props.undo}
+                redo={props.redo}
+                save={props.save}
             />
         </div>
     );
@@ -170,7 +156,9 @@ function ColorBoard({ color, setColor, fillColor, setFillColor, isFill, setIsFil
                     {isLineColorPallet && (
                         <div
                             id="lineColorPallet"
-                            className="absolute top-0 left-12 z-10 m-2 rounded-lg"
+                            className="fixed left-36 z-50 m-2 rounded-lg"
+                            style={{ transform: 'translateY(-20%)' }}
+
                         >
                             <HexColorPicker color={color} onChange={setColor} />
                         </div>
@@ -204,7 +192,8 @@ function ColorBoard({ color, setColor, fillColor, setFillColor, isFill, setIsFil
                     {isFillColorPallet && (
                         <div
                             id="fillColorPallet"
-                            className="absolute top-0 border-gray-300 left-12 z-10 m-2 rounded-lg"
+                            className="fixed left-36 z-50 m-2 rounded-lg"
+                            style={{ transform: 'translateY(-20%)' }}
                         >
                             <HexColorPicker color={fillColor} onChange={setFillColor} />
                         </div>

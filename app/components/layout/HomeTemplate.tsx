@@ -1,4 +1,6 @@
 import React from "react";
+import Navbar from "./Navbar";
+import { ThemeProvider } from "next-themes";
 
 interface HomeTemplateProps {
     title: string;
@@ -7,14 +9,15 @@ interface HomeTemplateProps {
 
 const HomeTemplate: React.FC<HomeTemplateProps> = ({ title, childComponent }) => {
     return (
-        <div className="w-screen h-screen flex flex-col items-center justify-center">
-            <h1 className="w-full z-50 text-center font-bold bg-gray-300 py-2 text-4xl text-gray-50">
-                {title}
-            </h1>
-            <div className='w-full flex-grow bg-gray-200 '>
+        <ThemeProvider defaultTheme="system" attribute="class">
+        <div className="w-screen h-screen flex flex-col items-center justify-center
+                        bg-gray-300 text-gray-700
+                        dark:bg-gray-700 dark:text-gray-100
+                        ">
+            <Navbar title={title} />
                 {childComponent}
-            </div>
         </div>
+        </ThemeProvider>
     );
 };
 

@@ -209,35 +209,37 @@ function DrawingBoard() {
 
     }, []);
 
+    const sideProps = {
+        mode:mode,
+        setMode:setMode,
+        lineColor:lineColor,
+        setLineColor:setLineColor,
+        fillColor:fillColor,
+        setFillColor:setFillColor,
+        lineWidth:lineWidth,
+        setLineWidth:setLineWidth,
+        isFill:isFill,
+        setIsFill:setIsFill,
+        undo: () => {
+            eventClassRef.current?.eventClass.deConstructor()
+            drawingClassRef.current?.undo()
+            setMode("")
+        },
+        redo: () => {
+            eventClassRef.current?.eventClass.deConstructor()
+            drawingClassRef.current?.redo()
+            setMode("")
+        },
+        save: () => {
+            eventClassRef.current?.eventClass.deConstructor()
+            drawingClassRef.current?.save()
+            setMode("")
+        },
+
+    }
     return (
-        <div className="w-full p-2 h-full px-2 flex gap-5 bg-[#bbbbbb]">
-            {drawingClassRef.current && <SidePallete
-                mode={mode}
-                setMode={setMode}
-                lineColor={lineColor}
-                setLineColor={setLineColor}
-                fillColor={fillColor}
-                setFillColor={setFillColor}
-                lineWidth={lineWidth}
-                setLineWidth={setLineWidth}
-                isFill={isFill}
-                setIsFill={setIsFill}
-                undo={() => {
-                    eventClassRef.current?.eventClass.deConstructor()
-                    drawingClassRef.current?.undo()
-                    setMode("")
-                }}
-                redo={() => {
-                    eventClassRef.current?.eventClass.deConstructor()
-                    drawingClassRef.current?.redo()
-                    setMode("")
-                }}
-                save={() => {
-                    eventClassRef.current?.eventClass.deConstructor()
-                    drawingClassRef.current?.save()
-                    setMode("")
-                }}
-            />}
+        <div className="w-full p-2 h-full px-2 flex gap-5 bg-[#bbbbbb] dark:bg-gray-600">
+            {drawingClassRef.current && <SidePallete props={sideProps} />}
             <LayerStack
                 canvasContainerRef={canvasContainerRef}
                 refCanvasContainerRef={refCanvasContainerRef}
