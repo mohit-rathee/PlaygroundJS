@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: false
+    reactStrictMode: false,
+    images: {
+        domains: ['avatars.githubusercontent.com'],
+    },
 };
-export default nextConfig 
+export default nextConfig

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 
+
 interface ButtonProps {
     url: string;
     text: string;
@@ -15,13 +16,13 @@ const Card: React.FC<ButtonProps> = ({ url, text, imgSrc }) => {
                         transition-shadow duration-300 transform hover:scale-105`}
         >
             <div className="w-full h-full flex items-center justify-center">
-                <Image
-                    src={imgSrc}
-                    alt={text}
-                    width={125}
-                    height={125}
-                    className="object-contain"
-                />
+                    <Image
+                        src={imgSrc}
+                        alt={text}
+                        width={125}
+                        height={125}
+                        className="object-contain"
+                    />
             </div>
             <p className="mt-4 dark:text-gray-50 text-gray-700 text-lg font-semibold">{text}</p>
         </a >
