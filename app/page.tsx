@@ -3,72 +3,102 @@ import HomeTemplate from './components/layout/HomeTemplate'
 import Card from './components/common/card';
 import Image from 'next/image';
 import { Chip } from '@nextui-org/react';
-
-
+import Link from 'next/link';
 
 export default function Home() {
     return (
-        <HomeTemplate
-            title="Welcome in playgroundJS"
-            childComponent={<Page />}
-        />
+        <HomeTemplate title="Welcome to playgroundJS">
+            <Page />
+        </HomeTemplate>
     )
 }
 
 const Page: React.FC = () => {
     return (
-        <div className='w-full h-full flex p-5'>
+        <div className='w-full h-full flex flex-col md:flex-row p-5 gap-5
+                bg-gradient-to-r from-gray-200 to-gray-300 
+                dark:from-gray-600 dark:to-gray-500'>
             <Projects />
             <OwnerCard />
-
         </div>
     )
-
 }
-const OwnerCard: React.FC = () => {
-    const roles = ["Arch Linux", "Django","NextJS",]
+
+const ContactPlate: React.FC = () => {
     return (
-        <div className='w-48 h-full flex flex-col justify-start bg-gray-400 dark:bg-gray-500 rounded text-white'>
-            <div className='text-center text-2lg font-mono font-bold'>
-                Owner
-            </div>
-            <div className='w-full h-100 p-2  flex justify-center'>
+        <div className='border-2 w-auto rounded-lg m-1 p-1 mx-2 flex flex-wrap gap-3 justify-center shadow-2xl'>
+            <Link href='https://www.instagram.com/mohit__2505/' target='_blank'>
+                <Image width={40} height={40} alt='instagram' src={'./instagram.svg'} />
+            </Link>
+            <Link href='https://github.com/mohit-rathee' target='_blank'>
+                <Image width={40} height={40} alt='github' src={'./github.svg'} />
+            </Link>
+            <Link href='https://www.linkedin.com/in/mohit-rathee/' target='_blank'>
+                <Image width={40} height={40} alt='linkedin' src={'./linkedin.svg'} />
+            </Link>
+            <Link href='https://www.discord.com/users/896276229664174170' target='_blank'>
+                <Image width={40} height={40} alt='discord' src={'./discord.svg'} />
+            </Link>
+            <Link href='mailto:mohit.rathee2505@gmail.com' target='_blank'>
+                <Image width={40} height={40} alt='email' src={'./email.svg'} />
+            </Link>
+        </div>
+    )
+}
+
+const RolePlate: React.FC = () => {
+    const roles = ["Arch Linux", "Django", "NextJS",]
+    return (
+        <div className='border-2 bg-gray-100 rounded-lg m-1 p-1 mx-2 flex flex-wrap gap-2 justify-center'>
+            {roles.map((role, index) => (
+                <Chip key={index}
+                    className='bg-red-200 text-sm text-gray-500 hover:scale-110'>
+                    {role}
+                </Chip>
+            ))}
+        </div>
+    )
+}
+
+const OwnerCard: React.FC = () => {
+    return (
+        <div className='w-full md:w-1/3 h-full p-5 flex flex-col justify-start gap-4
+                bg-gradient-to-r from-gray-400 to-gray-300 
+                dark:from-gray-500 dark:to-gray-600 
+                rounded-xl text-white shadow-2xl'>
+
+            <div className='w-full h-100 p-2 flex justify-center'>
                 <Image
                     width={150}
                     height={150}
-                    alt='......Owner'
-                    className="border-4 shadow-gray-50 rounded-full "
+                    alt='Owner'
+                    className="border-[6px] border-transparent 
+                    bg-gradient-to-r from-purple-500 to-blue-500 
+                    shadow-2xl rounded-full "
                     src="https://avatars.githubusercontent.com/u/89066152"
                 />
-
             </div>
-            <div className='text-center text-2lg font-sans font-semibold'>
-                Mohit Rathee
+            <div className='text-center text-gray-800 dark:text-gray-50 text-2xl font-sans font-semibold'>
+                @mohit-rathee
             </div>
-            <div className='border-2 bg-gray-100 rounded-lg m-1 p-1 mx-2 flex flex-wrap gap-2 flex-between justify-center'>
-                {roles.map((role, index) => (
-                    <Chip key={index}
-                        className='bg-red-200 text-sm text-gray-500 hover:scale-110'
-                    >
-                        {role}
-                    </Chip>
-                ))}
+            <ContactPlate />
+            <div className='flex flex-col justify-start pt-8 h-full'>
+                <div className='text-center h-auto text-2xl p-0 font-light
+                        text-gray-800 dark:text-gray-50'>
+                    Feel free to contribute or contact me!!! <br /> I&apos;m eager to meet teammates like you.
+                </div>
             </div>
-            <div className='text-center text-2md'>
-                About myself ...
-            </div>
-
-        </div >
+        </div>
     )
-
 }
+
 const Projects: React.FC = () => {
     return (
-        <div className="p-10 h-full text-center text-xl w-full shadow-lg rounded-lg
-            bg-gray-300 dark:bg-gray-700">
+        <div className="p-10 h-auto text-center text-xl w-full rounded-lg shadow-2xl
+                bg-gradient-to-r from-gray-400 to-gray-300 
+                dark:from-gray-500 dark:to-gray-600">
             <p className="mb-6 text-2xl font-semibold
-            text-black dark:text-white
-            ">
+                text-gray-800 dark:text-gray-50">
                 This project is a playground to practice your learnings from React and Next.
             </p>
             <div className="flex flex-wrap gap-8 justify-start">

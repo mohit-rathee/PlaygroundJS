@@ -4,10 +4,9 @@ import HomeTemplate from '../components/layout/HomeTemplate';
 import DrawingBoard from './components/drawingBoard';
 export default function Home() {
     return (
-        <HomeTemplate
-            title="Drawing Master"
-            childComponent={<DrawingBoard />}
-        />
+        <HomeTemplate title="Drawing Master" >
+            <DrawingBoard />
+        </HomeTemplate>
     );
 }
 

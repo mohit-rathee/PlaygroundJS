@@ -4,19 +4,18 @@ import { ThemeProvider } from "next-themes";
 
 interface HomeTemplateProps {
     title: string;
-    childComponent: React.ReactNode;
+    children: React.ReactNode;
 }
 
-const HomeTemplate: React.FC<HomeTemplateProps> = ({ title, childComponent }) => {
+const HomeTemplate: React.FC<HomeTemplateProps> = ({ title, children }) => {
     return (
         <ThemeProvider defaultTheme="system" attribute="class">
-        <div className="w-screen h-screen flex flex-col items-center justify-center
-                        bg-gray-300 text-gray-700
-                        dark:bg-gray-700 dark:text-gray-100
-                        ">
-            <Navbar title={title} />
-                {childComponent}
-        </div>
+            <div className="w-screen h-screen flex flex-col items-center justify-center
+                            bg-gray-300 text-gray-800
+                            dark:bg-gray-700 dark:text-gray-50 overflow-auto ">
+                <Navbar title={title} />
+                {children}
+            </div>
         </ThemeProvider>
     );
 };
