@@ -23,7 +23,7 @@ export default function Navbar({ title }: { title: string }) {
         }
     };
     return (
-        <div className="w-full bg-gray-400 dark:bg-gray-600 px-5 p-2 z-50 flex justify-between items-center shadow-md">
+        <div className="w-full h-14 bg-gray-400 dark:bg-gray-600 px-5 p-2 z-50 flex justify-between items-center shadow-md">
             <Image
                 onClick={handleClick}
                 className="mx-4 mt-2 text-red-100 bg-transparent cursor-pointer scale-[2.5]"

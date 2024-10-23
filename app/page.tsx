@@ -15,7 +15,7 @@ export default function Home() {
 
 const Page: React.FC = () => {
     return (
-        <div className='w-full h-full flex flex-col md:flex-row p-5 gap-5
+        <div className='min-h-[calc(100vh-3.5rem)] w-full flex flex-col md:flex-row p-5 gap-5
                 bg-gradient-to-r from-gray-200 to-gray-300 
                 dark:from-gray-600 dark:to-gray-500'>
             <Projects />
@@ -28,19 +28,19 @@ const ContactPlate: React.FC = () => {
     return (
         <div className='border-2 w-auto rounded-lg m-1 p-1 mx-2 flex flex-wrap gap-3 justify-center shadow-2xl'>
             <Link href='https://www.instagram.com/mohit__2505/' target='_blank'>
-                <Image width={40} height={40} alt='instagram' src={'./instagram.svg'} />
+                <Image width={32} height={32} alt='instagram' src={'./instagram.svg'} />
             </Link>
             <Link href='https://github.com/mohit-rathee' target='_blank'>
-                <Image width={40} height={40} alt='github' src={'./github.svg'} />
+                <Image width={32} height={32} alt='github' src={'./github.svg'} />
             </Link>
             <Link href='https://www.linkedin.com/in/mohit-rathee/' target='_blank'>
-                <Image width={40} height={40} alt='linkedin' src={'./linkedin.svg'} />
+                <Image width={32} height={32} alt='linkedin' src={'./linkedin.svg'} />
             </Link>
             <Link href='https://www.discord.com/users/896276229664174170' target='_blank'>
-                <Image width={40} height={40} alt='discord' src={'./discord.svg'} />
+                <Image width={32} height={32} alt='discord' src={'./discord.svg'} />
             </Link>
             <Link href='mailto:mohit.rathee2505@gmail.com' target='_blank'>
-                <Image width={40} height={40} alt='email' src={'./email.svg'} />
+                <Image width={32} height={32} alt='email' src={'./email.svg'} />
             </Link>
         </div>
     )
@@ -62,7 +62,7 @@ const RolePlate: React.FC = () => {
 
 const OwnerCard: React.FC = () => {
     return (
-        <div className='w-full md:w-1/3 h-full p-5 flex flex-col justify-start gap-4
+        <div className='md:w-1/3 p-5 flex flex-col justify-start gap-4
                 bg-gradient-to-r from-gray-400 to-gray-300 
                 dark:from-gray-500 dark:to-gray-600 
                 rounded-xl text-white shadow-2xl'>
@@ -82,8 +82,8 @@ const OwnerCard: React.FC = () => {
                 @mohit-rathee
             </div>
             <ContactPlate />
-            <div className='flex flex-col justify-start pt-8 h-full'>
-                <div className='text-center h-auto text-2xl p-0 font-light
+            <div className='flex flex-col justify-start h-full'>
+                <div className='text-center h-auto text-xl p-0 font-light
                         text-gray-800 dark:text-gray-50'>
                     Feel free to contribute or contact me!!! <br /> I&apos;m eager to meet teammates like you.
                 </div>

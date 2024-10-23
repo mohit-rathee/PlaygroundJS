@@ -10,7 +10,7 @@ interface HomeTemplateProps {
 const HomeTemplate: React.FC<HomeTemplateProps> = ({ title, children }) => {
     return (
         <ThemeProvider defaultTheme="system" attribute="class">
-            <div className="w-screen h-screen flex flex-col items-center justify-center
+            <div className="flex flex-col items-center justify-center
                             bg-gray-300 text-gray-800
                             dark:bg-gray-700 dark:text-gray-50 overflow-auto ">
                 <Navbar title={title} />
