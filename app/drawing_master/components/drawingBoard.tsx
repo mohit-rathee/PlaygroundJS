@@ -238,7 +238,7 @@ function DrawingBoard() {
 
     }
     return (
-        <div className="w-full p-2 h-full px-2 flex gap-5 bg-[#bbbbbb] dark:bg-gray-600">
+        <div className="w-full p-2 h-[calc(100vh-3.5rem)] px-2 flex gap-5 bg-[#bbbbbb] dark:bg-gray-600">
             {drawingClassRef.current && <SidePallete props={sideProps} />}
             <LayerStack
                 canvasContainerRef={canvasContainerRef}

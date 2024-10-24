@@ -23,7 +23,7 @@ export default function Navbar({ title }: { title: string }) {
         }
     };
     return (
-        <div className="w-full h-14 bg-gray-400 dark:bg-gray-600 px-5 p-2 z-50 flex justify-between items-center shadow-md">
+        <div className="w-full h-14 bg-gray-400 dark:bg-gray-600 pl-5 p-2 z-50 flex justify-between items-center shadow-md">
             <Image
                 onClick={handleClick}
                 className="mx-4 mt-2 text-red-100 bg-transparent cursor-pointer scale-[2.5]"
@@ -35,7 +35,7 @@ export default function Navbar({ title }: { title: string }) {
                     'light_home.svg'
                 }
             />
-            <h1 className="text-4xl ">{title}</h1>
+            <h1 className="lg:text-4xl sm:text-3xl text-center">{title}</h1>
             {isMounted ?
                 <ThemeToggle
                     buttonClass={`  rounded-full p-2 shadow-lg bg-gray-600  

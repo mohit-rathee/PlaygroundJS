@@ -4,13 +4,15 @@ import Image from 'next/image';
 interface ButtonProps {
     url: string;
     text: string;
+    target: '_top'|'_self'|'_blank'|'_target';
     imgSrc: string;
 }
 
-const Card: React.FC<ButtonProps> = ({ url, text, imgSrc }) => {
+const Card: React.FC<ButtonProps> = ({ url,target, text, imgSrc }) => {
     return (
         <a
             href={url}
+            target={target}
             className={`flex flex-col items-center justify-between w-48 h-60 
                         bg-gray-300 dark:bg-gray-400 p-4 rounded-xl shadow-xl hover:shadow-2xl 
                         transition-shadow duration-300 transform hover:scale-105`}

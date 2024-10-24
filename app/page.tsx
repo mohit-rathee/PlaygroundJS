@@ -15,18 +15,19 @@ export default function Home() {
 
 const Page: React.FC = () => {
     return (
-        <div className='min-h-[calc(100vh-3.5rem)] w-full flex flex-col md:flex-row p-5 gap-5
+        <div className='min-h-[calc(100vh-3.5rem)] w-full flex flex-col 
+                lg:flex-row-reverse p-5 gap-5
                 bg-gradient-to-r from-gray-200 to-gray-300 
                 dark:from-gray-600 dark:to-gray-500'>
-            <Projects />
             <OwnerCard />
+            <Projects />
         </div>
     )
 }
 
 const ContactPlate: React.FC = () => {
     return (
-        <div className='border-2 w-auto rounded-lg m-1 p-1 mx-2 flex flex-wrap gap-3 justify-center shadow-2xl'>
+        <div className='border-2 rounded-lg m-1 p-1 mx-2 flex flex-wrap gap-3 justify-stretch shadow-2xl'>
             <Link href='https://www.instagram.com/mohit__2505/' target='_blank'>
                 <Image width={32} height={32} alt='instagram' src={'./instagram.svg'} />
             </Link>
@@ -62,7 +63,7 @@ const RolePlate: React.FC = () => {
 
 const OwnerCard: React.FC = () => {
     return (
-        <div className='md:w-1/3 p-5 flex flex-col justify-start gap-4
+        <div className='lg:w-1/3 p-5 flex flex-col items-center justify-start gap-4
                 bg-gradient-to-r from-gray-400 to-gray-300 
                 dark:from-gray-500 dark:to-gray-600 
                 rounded-xl text-white shadow-2xl'>
@@ -97,13 +98,16 @@ const Projects: React.FC = () => {
         <div className="p-10 h-auto text-center text-xl w-full rounded-lg shadow-2xl
                 bg-gradient-to-r from-gray-400 to-gray-300 
                 dark:from-gray-500 dark:to-gray-600">
+
             <p className="mb-6 text-2xl font-semibold
                 text-gray-800 dark:text-gray-50">
                 This project is a playground to practice your learnings from React and Next.
             </p>
-            <div className="flex flex-wrap gap-8 justify-start">
+
+            <div className="flex flex-wrap gap-8 justify-center items-center ">
                 {/* Route Buttons */}
-                <Card url="/drawing_master" text="Drawing Master" imgSrc="/drawing_master.png" />
+                <Card url="/drawing_master" target='_self' text="Drawing Master" imgSrc="/drawing_master.png" />
+                <Card url="https://github.com/mohit-rathee/PlaygroundJS/issues/1" target='_blank' text="Suggest New Ideas" imgSrc="/plus.svg" />
             </div>
         </div>
     );
