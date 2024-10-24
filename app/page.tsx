@@ -107,6 +107,7 @@ const Projects: React.FC = () => {
             <div className="flex flex-wrap gap-8 justify-center items-center ">
                 {/* Route Buttons */}
                 <Card url="/drawing_master" target='_self' text="Drawing Master" imgSrc="/drawing_master.png" />
+                <Card url="/typing_master" target='_self' text="Typing Master" imgSrc="/typing_master.png" />
                 <Card url="https://github.com/mohit-rathee/PlaygroundJS/issues/1" target='_blank' text="Suggest New Ideas" imgSrc="/plus.svg" />
             </div>
         </div>

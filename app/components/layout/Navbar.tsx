@@ -27,8 +27,8 @@ export default function Navbar({ title }: { title: string }) {
             <Image
                 onClick={handleClick}
                 className="mx-4 mt-2 text-red-100 bg-transparent cursor-pointer scale-[2.5]"
-                height={45}
-                width={45}
+                height={40}
+                width={40}
                 alt="PlaygroundJS"
                 src={isMounted ?
                     resolvedTheme === 'light' ? '/light_home.svg' : '/dark_home.svg' :
