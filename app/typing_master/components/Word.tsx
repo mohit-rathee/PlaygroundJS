@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
     {
@@ -12,6 +12,7 @@ export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
     const realWord = word.split('')
     console.log(userWordString)
     const [userWord, setUserWord] = useState<string[]>(userWordString.split(''))
+    const activeWordDiv = useRef<HTMLDivElement>(null)
 
     const handleClick = useCallback((e: KeyboardEvent) => {
         if (/^[a-zA-Z0-9,.]$/i.test(e.key)) {
@@ -58,27 +59,29 @@ export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
     }, [handleClick, userWord]);
 
     useEffect(() => {
-
+        if (activeWordDiv) {
+            activeWordDiv.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            })
+        }
     })
     return (
-        < div className={'inline-flex'} key={key} >
+        < div ref={activeWordDiv} className={'inline-flex'} key={key} >
             {
                 realWord.map((letter, idx) => {
-                    // If index is beyond the userWord length, display the realWord letter
-                    if (idx > userWord.length - 1) {
+                    if (idx > userWord.length - 1)
                         return (<Letter type={'active'} letter={letter} key={idx} />);
-                    } else {
-                        // Compare letters in userWord and realWord
-                        if (userWord[idx] === realWord[idx]) {
-                            return (<Letter type={'correct'} letter={letter} key={idx} />);
-                        } else {
-                            return (<Letter type={'incorrect'} letter={letter} key={idx} />);
-                        }
-                    }
-                })
+                    return (<Letter
+                        key={idx}
+                        letter={letter}
+                        type={userWord[idx] === realWord[idx] ? 'correct' : 'incorrect'}
+                    />);
+                }
+                )
             }
             {userWord.length > realWord.length &&
-                Array.from(userWord.slice(realWord.length)).map((letter, idx) => {
+                Array.from(userWord.slice(realWord.length,)).map((letter, idx) => {
                     return (<Letter type={'incorrect'} letter={letter} key={idx} />);
                 })
             }
@@ -139,6 +142,8 @@ export function Letter({ letter, key, type }: { letter: string, key: number, typ
         }
     }
     return (
-        <div className={className} key={key}>{letter}</div>
+        <>
+            <div className={className} key={key}>{letter}</div>
+        </>
     )
 }
