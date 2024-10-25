@@ -22,7 +22,7 @@ export default function TypingArena({ para }: { para: string }) {
 
 
     return (
-        <div className='h-60 rounded-xl border-2 w-[80%] overflow-y-scroll '>
+        <div className='scrollable-container h-60 rounded-xl border-2 w-[80%] overflow-y-scroll '>
             <div className='w-full h-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold'>
 
                 {wordList.map((word, idx) => {

@@ -59,13 +59,15 @@ export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
     }, [handleClick, userWord]);
 
     useEffect(() => {
-        if (activeWordDiv) {
-            activeWordDiv.current?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            })
-        }
-    })
+        requestAnimationFrame(() => {
+            if (activeWordDiv) {
+                activeWordDiv.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                })
+            }
+        })
+    }, [userWord])
     return (
         < div ref={activeWordDiv} className={'inline-flex'} key={key} >
             {
