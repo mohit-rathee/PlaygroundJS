@@ -3,15 +3,20 @@ import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 export default function TypingArena({ para }: { para: string }) {
     const wordList = para.split(' ')
     const [userList, setUserList] = useState<string[]>([])
-    // const [activeWord,setActiveWord] = useState<string>('')
+    console.log(userList)
+    const [activeWord, setActiveWord] = useState<string>('')
     const addWord = (word: string) => {
-        // setActiveWord('')
+        setActiveWord('')
         setUserList([...userList, word])
     }
-    const removeWord = () => {
-        // const lastWord = userList[Math.max(userList.length - 1, 0)]
+    const jumpBack = (removeWord = false) => {
+        const lastIdx = userList.length - 1
+        const lastWord = lastIdx >= 0 ? userList[lastIdx] : ''
         // const truncatedWord = lastWord.slice(0, Math.max(lastWord.length - 1, 0))
-        // setActiveWord(truncatedWord)
+        if (removeWord)
+            setActiveWord('')
+        else
+            setActiveWord(lastWord)
         setUserList([...userList.slice(0, Math.max(userList.length - 1, 0))]);
     }
 
@@ -27,10 +32,9 @@ export default function TypingArena({ para }: { para: string }) {
                         return <ActiveWord
                             key={idx}
                             word={word}
-                            // userWordString={activeWord}
-                            userWordString={''}
+                            userWordString={activeWord}
                             addWord={addWord}
-                            removeWord={removeWord} />
+                            removeWord={jumpBack} />
                     } else
                         return (<TypedWord key={idx} userWord={userList[idx]} realWord={word} />)
                 })}

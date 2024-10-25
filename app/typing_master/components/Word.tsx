@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 
-export function ActiveWord({ word, userWordString, key, addWord/* , removeWord */ }:
+export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
     {
         word: string,
         userWordString: string,
         key: number,
         addWord: (word: string) => void,
-        removeWord: () => void,
+        removeWord: (removeWord: boolean) => void,
     }
 ) {
     const realWord = word.split('')
+    console.log(userWordString)
     const [userWord, setUserWord] = useState<string[]>(userWordString.split(''))
 
     const handleClick = useCallback((e: KeyboardEvent) => {
@@ -36,13 +37,18 @@ export function ActiveWord({ word, userWordString, key, addWord/* , removeWord *
                             setUserWord([...userWord.slice(0, Math.max(userWord.length - 1, 0))])
                             console.log([...userWord.slice(0, Math.max(userWord.length - 1, 0))])
                         }
-                    } /* else */
-                    // removeWord()
+                    } else
+                        if (e.ctrlKey == true) {
+                            removeWord(true)
+                            console.log('control')
+                        }
+                        else
+                            removeWord(false)
                     break;
                 }
             }
         }
-    }, [addWord, /* removeWord, */ userWord])
+    }, [addWord, removeWord, userWord])
 
     useEffect(() => {
         console.log('adding addEventListener')
