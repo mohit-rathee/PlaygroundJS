@@ -1,9 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 export default function TypingArena({ para }: { para: string }) {
     const wordList = para.split(' ')
     const [userList, setUserList] = useState<string[]>([])
-    console.log(userList)
     const [activeWord, setActiveWord] = useState<string>('')
     const addWord = (word: string) => {
         setActiveWord('')
@@ -20,14 +19,14 @@ export default function TypingArena({ para }: { para: string }) {
         setUserList([...userList.slice(0, Math.max(userList.length - 1, 0))]);
     }
 
-
     return (
-        <div className='scrollable-container h-60 rounded-xl border-2 w-[80%] overflow-y-scroll '>
-            <div className='w-full h-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold'>
+        <div className={'scrollable-container h-60 rounded-xl border-2 w-[80%] overflow-y-scroll '}>
+            <div className={`w-full h-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold`}>
+
 
                 {wordList.map((word, idx) => {
-                    if (idx > userList.length) {
-                        return <InactiveWord key={idx} word={word} />
+                    if (idx < userList.length) {
+                        return <TypedWord key={idx} userWord={userList[idx]} realWord={word} />
                     } else if (idx == userList.length) {
                         return <ActiveWord
                             key={idx}
@@ -36,7 +35,7 @@ export default function TypingArena({ para }: { para: string }) {
                             addWord={addWord}
                             removeWord={jumpBack} />
                     } else
-                        return (<TypedWord key={idx} userWord={userList[idx]} realWord={word} />)
+                        return <InactiveWord key={idx} word={word} />
                 })}
             </div>
         </div>

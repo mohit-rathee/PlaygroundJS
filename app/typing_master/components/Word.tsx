@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
+export function ActiveWord({ word, userWordString, addWord, removeWord }:
     {
         word: string,
         userWordString: string,
@@ -9,9 +9,10 @@ export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
         removeWord: (removeWord: boolean) => void,
     }
 ) {
+    const userTypedWord = userWordString.split('')
     const realWord = word.split('')
-    console.log(userWordString)
-    const [userWord, setUserWord] = useState<string[]>(userWordString.split(''))
+    const [userWord, setUserWord] = useState<string[]>(userTypedWord)
+    console.log(userWord)
     const activeWordDiv = useRef<HTMLDivElement>(null)
 
     const handleClick = useCallback((e: KeyboardEvent) => {
@@ -25,24 +26,16 @@ export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
                         addWord(userWord.join(''))
                     break;
                 }
-                case 'AltRight': {
-                    console.log(userWord.join(''))
-                    addWord('')
-                    break;
-                }
                 case 'Backspace': {
                     if (userWord.length) {
                         if (e.ctrlKey == true) {
                             setUserWord([])
                         } else {
-                            setUserWord([...userWord.slice(0, Math.max(userWord.length - 1, 0))])
-                            console.log([...userWord.slice(0, Math.max(userWord.length - 1, 0))])
+                            setUserWord(userWord.slice(0, Math.max(userWord.length - 1, 0)))
                         }
                     } else
-                        if (e.ctrlKey == true) {
+                        if (e.ctrlKey == true)
                             removeWord(true)
-                            console.log('control')
-                        }
                         else
                             removeWord(false)
                     break;
@@ -52,8 +45,6 @@ export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
     }, [addWord, removeWord, userWord])
 
     useEffect(() => {
-        console.log('adding addEventListener')
-        console.log(userWord)
         document.addEventListener('keydown', handleClick)
         return () => document.removeEventListener('keydown', handleClick)
     }, [handleClick, userWord]);
@@ -69,22 +60,32 @@ export function ActiveWord({ word, userWordString, key, addWord, removeWord }:
         })
     }, [userWord])
     return (
-        < div ref={activeWordDiv} className={'inline-flex'} key={key} >
+        < div ref={activeWordDiv} className={'inline-flex items-baseline h-8'}>
+            <div className="inline-flex relative h-full items-baseline ">
+                {
+                    userWord.map((letter, idx) => {
+                        if (idx < realWord.length)
+                            return (<Letter
+                                key={idx}
+                                letter={realWord[idx]}
+                                type={realWord[idx] === userWord[idx] ? 'correct' : 'incorrect'}
+                            />);
+                        else
+                            return <Letter type={'incorrect'} letter={letter} key={idx} />
+                    }
+                    )
+                } {/* animate-blink */}
+                <div key={'cursor'} className={` animate-blink absolute z-100 
+                    text-[2.6rem] text-yellow-200 left-full text-center
+                    pointer-events-none`} >
+                |
+                </div>
+
+            </div>
             {
-                realWord.map((letter, idx) => {
-                    if (idx > userWord.length - 1)
-                        return (<Letter type={'active'} letter={letter} key={idx} />);
-                    return (<Letter
-                        key={idx}
-                        letter={letter}
-                        type={userWord[idx] === realWord[idx] ? 'correct' : 'incorrect'}
-                    />);
-                }
-                )
-            }
-            {userWord.length > realWord.length &&
-                Array.from(userWord.slice(realWord.length,)).map((letter, idx) => {
-                    return (<Letter type={'incorrect'} letter={letter} key={idx} />);
+                userWord.length < realWord.length &&
+                Array.from(realWord.slice(userWord.length,)).map((letter, idx) => {
+                    return <Letter type={'active'} letter={letter} key={idx} />
                 })
             }
         </div >
@@ -123,7 +124,7 @@ export function TypedWord({ userWord, realWord, key }: { userWord: string, realW
     )
 }
 
-export function Letter({ letter, key, type }: { letter: string, key: number, type: 'correct' | 'incorrect' | 'inactive' | 'active' }) {
+export function Letter({ letter, type }: { letter: string, type: 'correct' | 'incorrect' | 'inactive' | 'active' }) {
     let className = ''
     switch (type) {
         case 'correct': {
@@ -143,9 +144,5 @@ export function Letter({ letter, key, type }: { letter: string, key: number, typ
             break
         }
     }
-    return (
-        <>
-            <div className={className} key={key}>{letter}</div>
-        </>
-    )
+    return <div className={className}>{letter}</div>;
 }

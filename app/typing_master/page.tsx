@@ -18,7 +18,7 @@ export default function Home() {
 function Page() {
     const [para, _setPara] = useState(Paragraph)
     return (
-        <div className='w-full flex flex-col items-center justify-evenly h-screen bg-gray-300 dark:bg-gray-600'>
+        <div className='w-full h-[calc(100vh-3.5rem)] flex flex-col items-center justify-evenly bg-gray-300 dark:bg-gray-600'>
             <TopPallet />
             <TypingArena para={para} />
             <BottomPallet />

@@ -3,27 +3,27 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+    :root {
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+    }
 }
 
-body {
-}
+body {}
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+    .text-balance {
+        text-wrap: balance;
+    }
 }
+
 ::-webkit-scrollbar {
     display: none;
 }
@@ -32,10 +32,33 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
 .scrollable-container::before,
 .scrollable-container::after {
     content: '';
     display: block;
     height: 5rem;
+}
+
+@keyframes blink {
+    0% { 
+        transform: translateX(-50%) translateY(-6%) scaleY(1); 
+    }
+    25% { 
+        transform: translateX(-50%) translateY(-6%) scaleY(1.1); 
+    }
+    50% { 
+        transform: translateX(-50%) translateY(-6%) scaleY(1); 
+    }
+    75% { 
+        transform: translateX(-50%) translateY(-6%) scaleY(0.9); 
+    }
+    100% { 
+        transform: translateX(-50%) translateY(-6%) scaleY(1); 
+    }
+}
+
+.animate-blink {
+    animation: blink 1.2s ease-in-out infinite; 
 }
 
