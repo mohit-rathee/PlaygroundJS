@@ -13,7 +13,7 @@ const Card: React.FC<ButtonProps> = ({ url,target, text, imgSrc }) => {
         <a
             href={url}
             target={target}
-            className={`flex flex-col items-center justify-between w-48 h-60 
+            className={`flex flex-col items-center justify-between w-44 h-56 
                         bg-gray-300 dark:bg-gray-400 p-4 rounded-xl shadow-xl hover:shadow-2xl 
                         transition-shadow duration-300 transform hover:scale-105`}
         >

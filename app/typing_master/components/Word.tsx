@@ -1,53 +1,59 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { PageContext } from "../context/PageContext";
 
-export function ActiveWord({ word, userWordString, addWord, removeWord }:
+export function ActiveWord({ realWord, typedWord, completeWord: addWord, jumpPrevWord: removeWord }:
     {
-        word: string,
-        userWordString: string,
+        realWord: string,
+        typedWord: string,
         key: number,
-        addWord: (word: string) => void,
-        removeWord: (removeWord: boolean) => void,
+        completeWord: (word: string) => void,
+        jumpPrevWord: (removeWord: boolean) => void,
     }
 ) {
-    const userTypedWord = userWordString.split('')
-    const realWord = word.split('')
-    const [userWord, setUserWord] = useState<string[]>(userTypedWord)
-    console.log(userWord)
+    const { isFocused, isRunning, setIsRunning } = useContext(PageContext)
+    const realLetters = realWord.split('')
+    const [userLetters, setUserWord] = useState<string[]>(typedWord.split(''))
+
     const activeWordDiv = useRef<HTMLDivElement>(null)
 
     const handleClick = useCallback((e: KeyboardEvent) => {
+        if (!isRunning) setIsRunning(true)
         if (/^[a-zA-Z0-9,.]$/i.test(e.key)) {
-            setUserWord([...userWord, e.key])
+            setUserWord(prevUserWord => [...prevUserWord, e.key]);
         }
         else {
             switch (e.code) {
                 case 'Space': {
-                    if (userWord.length)
-                        addWord(userWord.join(''))
+                    setUserWord(prevUserWord => {
+                        if (prevUserWord.length)
+                            addWord(prevUserWord.join(''));
+                        return [];
+                    });
                     break;
                 }
                 case 'Backspace': {
-                    if (userWord.length) {
-                        if (e.ctrlKey == true) {
-                            setUserWord([])
-                        } else {
-                            setUserWord(userWord.slice(0, Math.max(userWord.length - 1, 0)))
-                        }
-                    } else
-                        if (e.ctrlKey == true)
-                            removeWord(true)
-                        else
-                            removeWord(false)
-                    break;
+                    setUserWord(prevUserWord => {
+                        if (prevUserWord.length) {
+                            if (e.ctrlKey)
+                                return [];
+                            else
+                                return prevUserWord.slice(0, -1);
+                        } else
+                            removeWord(e.ctrlKey);
+                        return prevUserWord;
+                    });
                 }
             }
         }
-    }, [addWord, removeWord, userWord])
+    }, [addWord, removeWord, isRunning, setIsRunning])
 
     useEffect(() => {
-        document.addEventListener('keydown', handleClick)
-        return () => document.removeEventListener('keydown', handleClick)
-    }, [handleClick, userWord]);
+        if (isFocused) {
+            document.addEventListener('keydown', handleClick)
+        }
+        return () =>
+            document.removeEventListener('keydown', handleClick)
+    }, [handleClick, isFocused]);
 
     useEffect(() => {
         requestAnimationFrame(() => {
@@ -58,33 +64,33 @@ export function ActiveWord({ word, userWordString, addWord, removeWord }:
                 })
             }
         })
-    }, [userWord])
+    })
     return (
         < div ref={activeWordDiv} className={'inline-flex items-baseline h-8'}>
             <div className="inline-flex relative h-full items-baseline ">
                 {
-                    userWord.map((letter, idx) => {
-                        if (idx < realWord.length)
+                    userLetters.map((letter, idx) => {
+                        if (idx < realLetters.length)
                             return (<Letter
                                 key={idx}
-                                letter={realWord[idx]}
-                                type={realWord[idx] === userWord[idx] ? 'correct' : 'incorrect'}
+                                letter={realLetters[idx]}
+                                type={realLetters[idx] === userLetters[idx] ? 'correct' : 'incorrect'}
                             />);
                         else
                             return <Letter type={'incorrect'} letter={letter} key={idx} />
                     }
                     )
                 } {/* animate-blink */}
-                <div key={'cursor'} className={` animate-blink absolute z-100 
+                <div key={'cursor'} className={`animate-blink absolute z-100 
                     text-[2.6rem] text-yellow-200 left-full text-center
                     pointer-events-none`} >
-                |
+                    |
                 </div>
 
             </div>
             {
-                userWord.length < realWord.length &&
-                Array.from(realWord.slice(userWord.length,)).map((letter, idx) => {
+                userLetters.length < realLetters.length &&
+                Array.from(realLetters.slice(userLetters.length,)).map((letter, idx) => {
                     return <Letter type={'active'} letter={letter} key={idx} />
                 })
             }
@@ -92,10 +98,10 @@ export function ActiveWord({ word, userWordString, addWord, removeWord }:
     )
 }
 
-export function InactiveWord({ word, key }: { word: string, key: number }) {
+export function InactiveWord({ word }: { word: string }) {
     const wordList = Array.from(word)
     return (
-        <div className={'inline-flex'} key={key}>
+        <div className={'inline-flex'}>
             {
                 wordList.map((letter, idx) =>
                     <Letter key={idx} letter={letter} type="inactive" />)}
@@ -140,7 +146,7 @@ export function Letter({ letter, type }: { letter: string, type: 'correct' | 'in
             break
         }
         case 'active': {
-            className = 'text-gray-50'
+            className = 'text-gray-100'
             break
         }
     }

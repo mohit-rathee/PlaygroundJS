@@ -27,7 +27,7 @@ const Page: React.FC = () => {
 
 const ContactPlate: React.FC = () => {
     return (
-        <div className='border-2 rounded-lg m-1 p-1 mx-2 flex flex-wrap gap-3 justify-stretch shadow-2xl'>
+        <div className='border-2 rounded-lg m-1 p-2 flex flex-wrap gap-3 justify-stretch shadow-2xl'>
             <Link href='https://www.instagram.com/mohit__2505/' target='_blank'>
                 <Image width={32} height={32} alt='instagram' src={'./instagram.svg'} />
             </Link>

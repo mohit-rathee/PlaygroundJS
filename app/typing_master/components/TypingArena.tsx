@@ -1,41 +1,78 @@
-import { useEffect, useState } from "react"
+""
 import { ActiveWord, InactiveWord, TypedWord } from "./Word"
-export default function TypingArena({ para }: { para: string }) {
-    const wordList = para.split(' ')
+import { PageContext } from "../context/PageContext";
+import { useContext, useEffect, useRef, useState } from "react";
+
+const getRandomWords = (words: string[], count: number): string[] => {
+    const shuffled = [...words].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+export default function TypingArena() {
+    const { typingContent, isFocused, setIsFocused, setIsRunning } = useContext(PageContext);
+    const wordList: string[] = typingContent
     const [userList, setUserList] = useState<string[]>([])
-    const [activeWord, setActiveWord] = useState<string>('')
+    const [typedWord, setActiveWord] = useState<string>('')
+
+    const typingArenaDiv = useRef<HTMLDivElement>(null)
     const addWord = (word: string) => {
         setActiveWord('')
-        setUserList([...userList, word])
+        const newUserList = [...userList, word]
+        setUserList(newUserList)
+        if (newUserList.length == wordList.length) {
+            setIsRunning(false)
+            setUserList([])
+        }
     }
     const jumpBack = (removeWord = false) => {
         const lastIdx = userList.length - 1
         const lastWord = lastIdx >= 0 ? userList[lastIdx] : ''
-        // const truncatedWord = lastWord.slice(0, Math.max(lastWord.length - 1, 0))
         if (removeWord)
             setActiveWord('')
         else
             setActiveWord(lastWord)
         setUserList([...userList.slice(0, Math.max(userList.length - 1, 0))]);
     }
-
+    useEffect(() => {
+        function handleClick(e: MouseEvent) {
+            if (
+                typingArenaDiv.current &&
+                typingArenaDiv.current.contains(e.target as Node)
+            ) {
+                setIsFocused(true)
+                window.removeEventListener('click', handleClick)
+            }
+        }
+        function handlePress() {
+            setIsFocused(true)
+            window.removeEventListener('keypress', handlePress)
+        }
+        window.addEventListener('click', handleClick)
+        window.addEventListener('keypress', handlePress)
+        return () => window.removeEventListener('click', handleClick)
+    }, [setIsFocused])
     return (
-        <div className={'scrollable-container h-60 rounded-xl border-2 w-[80%] overflow-y-scroll '}>
-            <div className={`w-full h-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold`}>
-
+        <div ref={typingArenaDiv} className={`scrollable-container h-60 rounded-xl border-2 w-[80%] overflow-y-scroll`}>
+            <div className={`w-full h-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold  ${isFocused ? '' : 'blur'}`}>
 
                 {wordList.map((word, idx) => {
                     if (idx < userList.length) {
-                        return <TypedWord key={idx} userWord={userList[idx]} realWord={word} />
+                        return <TypedWord
+                            key={idx}
+                            userWord={userList[idx]}
+                            realWord={word}
+                        />
                     } else if (idx == userList.length) {
                         return <ActiveWord
                             key={idx}
-                            word={word}
-                            userWordString={activeWord}
-                            addWord={addWord}
-                            removeWord={jumpBack} />
+                            realWord={word}
+                            typedWord={typedWord}
+                            completeWord={addWord}
+                            jumpPrevWord={jumpBack} />
                     } else
-                        return <InactiveWord key={idx} word={word} />
+                        return <InactiveWord
+                            key={idx}
+                            word={word}
+                        />
                 })}
             </div>
         </div>

@@ -59,6 +59,7 @@ body {}
 }
 
 .animate-blink {
-    animation: blink 1.2s ease-in-out infinite; 
+    /* animation: blink 1.1s ease-in-out infinite;  */
+    transform: translateX(-50%) translateY(-6%);
 }
 
