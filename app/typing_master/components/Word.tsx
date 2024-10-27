@@ -20,7 +20,7 @@ export function ActiveWord({ realWord, typedWord, completeWord, jumpPrevWord, re
 
     const handleClick = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
-        if (/^[a-zA-Z0-9,.]$/i.test(e.key)) {
+        if (/^[a-zA-Z0-9,.!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
             if (!isRunning) setIsRunning(true)
             setUserLetters(prevUserWord => [...prevUserWord, e.key]);
         }

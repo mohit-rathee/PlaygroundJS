@@ -1,37 +1,9 @@
-import React, { createContext, Dispatch, useReducer, ReactNode, useEffect, useState, SetStateAction } from "react";
-import { words } from "./word";
+import React, { createContext, useReducer, ReactNode, useEffect, useState } from "react";
+import { randomWordsGenerator } from "../utils/randomWordsGenerator";
+import { GameInfoType, Action, PageContextType } from "../typex";
 
-const getRandomWords = (words: string[], count: number): string[] => {
-    const shuffled = [...words].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-}
-type Action =
-    | { type: 'reload' }
-    | { type: 'toggleNumber' }
-    | { type: 'togglePunctuation' }
-    | { type: 'setLength'; length:number }
-    | { type: 'setWords' }
-    | { type: 'setCustom'; payload: string }
-    | { type: 'setZen' }
-    | { type: 'setQuotes' };
 
-type GameInfoType =
-    | { type: 'words'; punctuation: boolean; number: boolean; length: number }
-    | { type: 'zen' }
-    | { type: 'quotes' }
-    | { type: 'custom'; payload: string };
-
-interface PageContextType {
-    gameInfo: GameInfoType;
-    typingContent: string[];
-    gameDispatch: Dispatch<Action>;
-    isFocused: boolean;
-    isRunning: boolean;
-    setIsRunning: React.Dispatch<SetStateAction<boolean>>;
-    setIsFocused: React.Dispatch<SetStateAction<boolean>>;
-}
-
-const initialGameInfo: GameInfoType = { type: 'words',length:25, punctuation: false, number: false };
+const initialGameInfo: GameInfoType = { type: 'words', length: 25, punctuation: false, number: false };
 
 function reducer(state: GameInfoType, action: Action): GameInfoType {
     switch (action.type) {
@@ -56,7 +28,7 @@ function reducer(state: GameInfoType, action: Action): GameInfoType {
             return state;
         case 'setWords':
             if (state.type !== "words")
-                return { type: 'words', length:25, number: false, punctuation: false };
+                return { type: 'words', length: 25, number: false, punctuation: false };
             else
                 return state
 
@@ -102,7 +74,8 @@ const PageProvider = ({ children }: { children: ReactNode }) => {
                 setTypingContent(['I', 'am', 'drowned.'])
                 break;
             case "words":
-                const randomWords = getRandomWords(words, gameInfo.length)
+                // const randomWords = getRandomWords([...words], gameInfo.length)
+                const randomWords = randomWordsGenerator(gameInfo)
                 setTypingContent(randomWords)
                 break;
         }
