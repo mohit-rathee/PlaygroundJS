@@ -1,16 +1,22 @@
 import React, { createContext, Dispatch, useReducer, ReactNode, useEffect, useState, SetStateAction } from "react";
+import { words } from "./word";
 
+const getRandomWords = (words: string[], count: number): string[] => {
+    const shuffled = [...words].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
 type Action =
+    | { type: 'reload' }
     | { type: 'toggleNumber' }
     | { type: 'togglePunctuation' }
+    | { type: 'setLength'; length:number }
     | { type: 'setWords' }
-    | { type: 'setCustom'; payload: string }
     | { type: 'setCustom'; payload: string }
     | { type: 'setZen' }
     | { type: 'setQuotes' };
 
 type GameInfoType =
-    | { type: 'words'; punctuation: boolean; number: boolean }
+    | { type: 'words'; punctuation: boolean; number: boolean; length: number }
     | { type: 'zen' }
     | { type: 'quotes' }
     | { type: 'custom'; payload: string };
@@ -25,10 +31,12 @@ interface PageContextType {
     setIsFocused: React.Dispatch<SetStateAction<boolean>>;
 }
 
-const initialGameInfo: GameInfoType = { type: 'words', punctuation: false, number: false };
+const initialGameInfo: GameInfoType = { type: 'words',length:25, punctuation: false, number: false };
 
 function reducer(state: GameInfoType, action: Action): GameInfoType {
     switch (action.type) {
+        case 'reload':
+            return { ...state }
         case 'toggleNumber':
             if (state.type === 'words') {
                 return { ...state, number: !state.number };
@@ -41,9 +49,14 @@ function reducer(state: GameInfoType, action: Action): GameInfoType {
             }
             return state;
 
+        case 'setLength':
+            if (state.type === 'words') {
+                return { ...state, length: action.length };
+            }
+            return state;
         case 'setWords':
             if (state.type !== "words")
-                return { type: 'words', number: false, punctuation: false };
+                return { type: 'words', length:25, number: false, punctuation: false };
             else
                 return state
 
@@ -89,7 +102,8 @@ const PageProvider = ({ children }: { children: ReactNode }) => {
                 setTypingContent(['I', 'am', 'drowned.'])
                 break;
             case "words":
-                setTypingContent(['Now', 'I', 'am', 'calm.'])
+                const randomWords = getRandomWords(words, gameInfo.length)
+                setTypingContent(randomWords)
                 break;
         }
     }, [gameInfo])

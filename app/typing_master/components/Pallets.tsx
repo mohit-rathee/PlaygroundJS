@@ -1,5 +1,6 @@
 import { useContext } from "react"
 import { PageContext } from "../context/PageContext"
+import { type } from "os"
 
 export function TopPallet() {
     const { gameInfo, gameDispatch, isRunning } = useContext(PageContext)
@@ -26,7 +27,7 @@ export function TopPallet() {
             }
             <Container width='[60%]'>
 
-                <Badge emoji={"⏱"} title={"time"} />
+                {/* <Badge emoji={"⏱"} title={"time"} /> */}
 
                 <Badge emoji={"𝐀"} title={"words"}
                     onclick={() => { gameDispatch({ type: "setWords" }) }}
@@ -54,10 +55,22 @@ export function TopPallet() {
                 <>
                     <Divider />
                     <Container width='[5%]'>
-                        <Badge emoji={""} title={"10"} />
-                        <Badge emoji={""} title={"15"} />
-                        <Badge emoji={""} title={"25"} />
-                        <Badge emoji={""} title={"35"} />
+                        <Badge emoji={""} title={"10"}
+                            isSelected={gameInfo.length == 10}
+                            onclick={()=>gameDispatch({ type: 'setLength', length: 10 })}
+                        />
+                        <Badge emoji={""} title={"25"}
+                            isSelected={gameInfo.length == 25}
+                            onclick={()=>gameDispatch({ type: 'setLength', length: 25 })}
+                        />
+                        <Badge emoji={""} title={"50"}
+                            isSelected={gameInfo.length == 50}
+                            onclick={()=>gameDispatch({ type: 'setLength', length: 50 })}
+                        />
+                        <Badge emoji={""} title={"100"}
+                            isSelected={gameInfo.length == 100}
+                            onclick={()=>gameDispatch({ type: 'setLength', length: 100 })}
+                        />
                     </Container>
                 </>
             }
@@ -86,13 +99,15 @@ function Badge({ emoji, title, onclick = () => { }, isSelected = false }: any) {
     )
 }
 export function BottomPallet() {
-    const { isRunning } = useContext(PageContext)
+    const { isRunning, gameDispatch } = useContext(PageContext)
     return (
         <div
             className={`w-[70%] text-4xl bg-gray-700 flex justify-around
                         items-center text-center rounded-xl
                         ${isRunning ? 'hidden' : ''}`}>
-            <Badge emoji={">"} title={""} />
+            <Badge emoji={">"} title={""} 
+                onclick={()=>gameDispatch({type:'reload'})}
+            />
             <Badge emoji={"↻"} title={""} />
             <Badge emoji={"⚠"} title={""} />
             <Badge emoji={"⏭"} title={""} />

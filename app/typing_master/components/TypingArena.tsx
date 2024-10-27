@@ -3,15 +3,11 @@ import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 import { PageContext } from "../context/PageContext";
 import { useContext, useEffect, useRef, useState } from "react";
 
-const getRandomWords = (words: string[], count: number): string[] => {
-    const shuffled = [...words].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-}
 export default function TypingArena() {
-    const { typingContent, isFocused, setIsFocused, setIsRunning } = useContext(PageContext);
+    const { gameDispatch, typingContent, isFocused, setIsFocused, setIsRunning } = useContext(PageContext);
     const wordList: string[] = typingContent
     const [userList, setUserList] = useState<string[]>([])
-    const [typedWord, setActiveWord] = useState<string>('')
+    const [activeWord, setActiveWord] = useState<string>('')
 
     const typingArenaDiv = useRef<HTMLDivElement>(null)
     const addWord = (word: string) => {
@@ -21,6 +17,7 @@ export default function TypingArena() {
         if (newUserList.length == wordList.length) {
             setIsRunning(false)
             setUserList([])
+            gameDispatch({ type: 'reload' })
         }
     }
     const jumpBack = (removeWord = false) => {
@@ -52,7 +49,7 @@ export default function TypingArena() {
     }, [setIsFocused])
     return (
         <div ref={typingArenaDiv} className={`scrollable-container h-60 rounded-xl border-2 w-[80%] overflow-y-scroll`}>
-            <div className={`w-full h-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold  ${isFocused ? '' : 'blur'}`}>
+            <div className={`w-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold  ${isFocused ? '' : 'blur'}`}>
 
                 {wordList.map((word, idx) => {
                     if (idx < userList.length) {
@@ -65,9 +62,22 @@ export default function TypingArena() {
                         return <ActiveWord
                             key={idx}
                             realWord={word}
-                            typedWord={typedWord}
+                            typedWord={activeWord}
                             completeWord={addWord}
-                            jumpPrevWord={jumpBack} />
+                            jumpPrevWord={jumpBack}
+                            reloadGame={() => {
+                                setUserList([])
+                                setActiveWord('')
+                                gameDispatch({ type: 'reload' })
+                            }}
+                            completeGame={() => {
+                                setIsRunning(false)
+                                if(!userList.length) return
+                                setUserList([])
+                                setActiveWord('')
+                                gameDispatch({ type: 'reload' })
+                            }}
+                        />
                     } else
                         return <InactiveWord
                             key={idx}

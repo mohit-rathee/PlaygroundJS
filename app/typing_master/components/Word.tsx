@@ -1,51 +1,65 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { PageContext } from "../context/PageContext";
 
-export function ActiveWord({ realWord, typedWord, completeWord: addWord, jumpPrevWord: removeWord }:
+export function ActiveWord({ realWord, typedWord, completeWord, jumpPrevWord, reloadGame, completeGame }:
     {
         realWord: string,
         typedWord: string,
         key: number,
         completeWord: (word: string) => void,
         jumpPrevWord: (removeWord: boolean) => void,
+        reloadGame: () => void
+        completeGame: () => void
     }
 ) {
     const { isFocused, isRunning, setIsRunning } = useContext(PageContext)
     const realLetters = realWord.split('')
-    const [userLetters, setUserWord] = useState<string[]>(typedWord.split(''))
+    const [userLetters, setUserLetters] = useState<string[]>(typedWord.split(''))
 
     const activeWordDiv = useRef<HTMLDivElement>(null)
 
     const handleClick = useCallback((e: KeyboardEvent) => {
-        if (!isRunning) setIsRunning(true)
+        e.stopPropagation()
         if (/^[a-zA-Z0-9,.]$/i.test(e.key)) {
-            setUserWord(prevUserWord => [...prevUserWord, e.key]);
+            if (!isRunning) setIsRunning(true)
+            setUserLetters(prevUserWord => [...prevUserWord, e.key]);
         }
         else {
             switch (e.code) {
                 case 'Space': {
-                    setUserWord(prevUserWord => {
+                    if (e.shiftKey) {
+                        reloadGame()
+                        setUserLetters([])
+                        return
+                    }
+                    setUserLetters(prevUserWord => {
                         if (prevUserWord.length)
-                            addWord(prevUserWord.join(''));
+                            completeWord(prevUserWord.join(''));
                         return [];
                     });
                     break;
                 }
                 case 'Backspace': {
-                    setUserWord(prevUserWord => {
+                    setUserLetters(prevUserWord => {
                         if (prevUserWord.length) {
                             if (e.ctrlKey)
                                 return [];
                             else
                                 return prevUserWord.slice(0, -1);
                         } else
-                            removeWord(e.ctrlKey);
+                            jumpPrevWord(e.ctrlKey);
                         return prevUserWord;
                     });
                 }
+                case 'Enter': {
+                    if (!e.shiftKey) return
+                    completeGame()
+                    setUserLetters([])
+                    break;
+                }
             }
         }
-    }, [addWord, removeWord, isRunning, setIsRunning])
+    }, [completeWord, jumpPrevWord, isRunning, setIsRunning, reloadGame, completeGame])
 
     useEffect(() => {
         if (isFocused) {
