@@ -33,7 +33,15 @@ export default function TypingArena() {
                     }
                     setActiveWord(prevWord => {
                         if (prevWord.length)
-                            setUserList(prevList => [...prevList, prevWord.join('')])
+                            setUserList(prevList => {
+                                if (prevList.length == wordList.length - 1) {
+                                    setIsRunning(false)
+                                    setUserList([])
+                                    setActiveWord([])
+                                    gameDispatch({ type: 'reload' })
+                                }
+                                return [...prevList, prevWord.join('')]
+                            })
                         return []
                     })
                     break;
@@ -72,7 +80,7 @@ export default function TypingArena() {
                 }
             }
         }
-    }, [isRunning, setIsRunning, gameDispatch])
+    }, [isRunning, setIsRunning, gameDispatch, wordList])
 
     useEffect(() => {
         if (isFocused) {
