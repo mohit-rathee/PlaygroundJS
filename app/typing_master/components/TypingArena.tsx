@@ -82,23 +82,19 @@ export default function TypingArena() {
             document.removeEventListener('keydown', handleClick)
     }, [handleClick, isFocused]);
 
-    const typingArenaDiv = useRef<HTMLDivElement>(null)
+    const BlurOverlapDiv = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         function handleClick(e: MouseEvent) {
             if (
-                typingArenaDiv.current &&
-                typingArenaDiv.current.contains(e.target as Node)
+                BlurOverlapDiv.current &&
+                BlurOverlapDiv.current.contains(e.target as Node)
             ) {
                 setIsFocused(true)
-                window.removeEventListener('click', handleClick)
-                window.removeEventListener('keypress', handlePress)
             }
         }
         function handlePress() {
             setIsFocused(true)
-            window.removeEventListener('keypress', handlePress)
-            window.removeEventListener('click', handleClick)
         }
         window.addEventListener('click', handleClick)
         window.addEventListener('keypress', handlePress)
@@ -109,28 +105,40 @@ export default function TypingArena() {
     }, [setIsFocused])
 
     return (
-        <div ref={typingArenaDiv} className={`scrollable-container h-60 rounded-xl border-2 w-[80%] overflow-y-scroll`}>
-            <div className={`w-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold  ${isFocused ? '' : 'blur'}`}>
+        <div ref={BlurOverlapDiv} className={`relative h-64 w-[80%] rounded-xl border-2`}>
+            {!isFocused && <>
+                <div className={`absolute inset-0 flex justify-center items-center
+                                z-10 text-3xl font-bold text-gray-50
+                                bg-gray-950 rounded-xl
+                                hover:text-yellow-200
+                                bg-opacity-50 backdrop-blur-sm`}>
+                    Click here or press any key to focus.
+                </div>
+            </>
+            }
+            <div className={`absolute inset-0 w-full overflow-y-scroll`}>
+                <div className={`w-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold `}>
 
-                {wordList.map((word, idx) => {
-                    if (idx < userList.length) {
-                        return <TypedWord
-                            key={idx}
-                            userWord={userList[idx]}
-                            realWord={word}
-                        />
-                    } else if (idx == userList.length) {
-                        return <ActiveWord
-                            key={idx}
-                            realLetters={word.split('')}
-                            userLetters={activeWord}
-                        />
-                    } else
-                        return <InactiveWord
-                            key={idx}
-                            word={word}
-                        />
-                })}
+                    {wordList.map((word, idx) => {
+                        if (idx < userList.length) {
+                            return <TypedWord
+                                key={idx}
+                                userWord={userList[idx]}
+                                realWord={word}
+                            />
+                        } else if (idx == userList.length) {
+                            return <ActiveWord
+                                key={idx}
+                                realLetters={word.split('')}
+                                userLetters={activeWord}
+                            />
+                        } else
+                            return <InactiveWord
+                                key={idx}
+                                word={word}
+                            />
+                    })}
+                </div>
             </div>
         </div>
     )
