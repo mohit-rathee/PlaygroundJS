@@ -1,73 +1,14 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { PageContext } from "../context/PageContext";
+import { useEffect, useRef } from "react";
 
-export function ActiveWord({ realWord, typedWord, completeWord, jumpPrevWord, reloadGame, completeGame }:
+export function ActiveWord({ realLetters, userLetters }:
     {
-        realWord: string,
-        typedWord: string,
-        key: number,
-        completeWord: (word: string) => void,
-        jumpPrevWord: (removeWord: boolean) => void,
-        reloadGame: () => void
-        completeGame: () => void
+        realLetters: string[],
+        userLetters: string[],
     }
 ) {
-    const { isFocused, isRunning, setIsRunning } = useContext(PageContext)
-    const realLetters = realWord.split('')
-    const [userLetters, setUserLetters] = useState<string[]>(typedWord.split(''))
-
     const activeWordDiv = useRef<HTMLDivElement>(null)
-
-    const handleClick = useCallback((e: KeyboardEvent) => {
-        e.stopPropagation()
-        if (/^[a-zA-Z0-9,.!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
-            if (!isRunning) setIsRunning(true)
-            setUserLetters(prevUserWord => [...prevUserWord, e.key]);
-        }
-        else {
-            switch (e.code) {
-                case 'Space': {
-                    if (e.shiftKey) {
-                        reloadGame()
-                        setUserLetters([])
-                        return
-                    }
-                    setUserLetters(prevUserWord => {
-                        if (prevUserWord.length)
-                            completeWord(prevUserWord.join(''));
-                        return [];
-                    });
-                    break;
-                }
-                case 'Backspace': {
-                    setUserLetters(prevUserWord => {
-                        if (prevUserWord.length) {
-                            if (e.ctrlKey)
-                                return [];
-                            else
-                                return prevUserWord.slice(0, -1);
-                        } else
-                            jumpPrevWord(e.ctrlKey);
-                        return prevUserWord;
-                    });
-                }
-                case 'Enter': {
-                    if (!e.shiftKey) return
-                    completeGame()
-                    setUserLetters([])
-                    break;
-                }
-            }
-        }
-    }, [completeWord, jumpPrevWord, isRunning, setIsRunning, reloadGame, completeGame])
-
-    useEffect(() => {
-        if (isFocused) {
-            document.addEventListener('keydown', handleClick)
-        }
-        return () =>
-            document.removeEventListener('keydown', handleClick)
-    }, [handleClick, isFocused]);
+    console.log('realLetters',realLetters)
+    console.log('userLetters',userLetters)
 
     useEffect(() => {
         requestAnimationFrame(() => {
