@@ -1,7 +1,9 @@
-""
 import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 import { PageContext } from "../context/PageContext";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { Inter } from '@next/font/google';
+const inter = Inter({ subsets: ['latin'] });
+
 
 export default function TypingArena() {
     const {
@@ -18,7 +20,7 @@ export default function TypingArena() {
 
     const handleClick = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
-        if (/^[a-zA-Z0-9,.!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
+        if (/^[a-zA-Z0-9,.!@#$%^&*()_+\\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
             if (!isRunning) setIsRunning(true)
             setActiveWord(prevWord => [...prevWord, e.key])
         }
@@ -90,13 +92,15 @@ export default function TypingArena() {
             document.removeEventListener('keydown', handleClick)
     }, [handleClick, isFocused]);
 
-    const BlurOverlapDiv = useRef<HTMLDivElement>(null)
+    const scrollableRef = useRef<HTMLDivElement>(null)
+    const activeWordRef = useRef<HTMLDivElement>(null)
+    const BlurryDivRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         function handleClick(e: MouseEvent) {
             if (
-                BlurOverlapDiv.current &&
-                BlurOverlapDiv.current.contains(e.target as Node)
+                BlurryDivRef.current &&
+                BlurryDivRef.current.contains(e.target as Node)
             ) {
                 setIsFocused(true)
             }
@@ -112,11 +116,33 @@ export default function TypingArena() {
         }
     }, [setIsFocused])
 
+    useEffect(() => {
+        if (!scrollableRef.current) return
+        if (!activeWordRef.current) return
+        const div = scrollableRef.current
+        const activeWord = activeWordRef.current
+        const div_height = div.clientHeight
+        const active_word_height = activeWord.clientHeight
+        const word_height = activeWord.offsetTop
+        const scrollTo =
+            word_height
+            - div_height / 2
+            + active_word_height / 2
+            + 10
+        div.scrollTo({
+            top: scrollTo,
+            behavior: 'smooth'
+        })
+    }, [userList])
+
     return (
-        <div ref={BlurOverlapDiv} className={`relative h-64 w-[80%] rounded-xl border-2`}>
+        <div className={`${inter.className} text-5xl relative h-[12rem] w-[75%] 
+                        rounded-xl `}>
             {!isFocused && <>
-                <div className={`absolute inset-0 flex justify-center items-center
-                                z-10 text-3xl font-bold text-gray-50
+                <div ref={BlurryDivRef}
+                    className={`absolute inset-1 flex justify-center items-center
+                                scale-110
+                                z-10 text-3xl text-gray-50
                                 bg-gray-950 rounded-xl
                                 hover:text-yellow-200
                                 bg-opacity-50 backdrop-blur-sm`}>
@@ -124,8 +150,9 @@ export default function TypingArena() {
                 </div>
             </>
             }
-            <div className={`absolute inset-0 w-full overflow-y-scroll`}>
-                <div className={`w-full inline-flex items-baseline flex-wrap gap-3 p-8 border-sky-50 text-4xl font-semibold `}>
+            <div ref={scrollableRef}
+                className={`absolute inset-0 h-full w-full overflow-y-scroll`}>
+                <div className={`w-full gap-4 pt-[1vh] pb-[20vh] inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
 
                     {wordList.map((word, idx) => {
                         if (idx < userList.length) {
@@ -136,6 +163,7 @@ export default function TypingArena() {
                             />
                         } else if (idx == userList.length) {
                             return <ActiveWord
+                                activeWordRef={activeWordRef}
                                 key={idx}
                                 realLetters={word.split('')}
                                 userLetters={activeWord}

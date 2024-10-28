@@ -1,27 +1,14 @@
-import { useEffect, useRef } from "react";
+import { Ref } from "react";
 
-export function ActiveWord({ realLetters, userLetters }:
+export function ActiveWord({ realLetters, userLetters, activeWordRef }:
     {
         realLetters: string[],
         userLetters: string[],
+        activeWordRef: Ref<HTMLDivElement>
     }
 ) {
-    const activeWordDiv = useRef<HTMLDivElement>(null)
-    console.log('realLetters',realLetters)
-    console.log('userLetters',userLetters)
-
-    useEffect(() => {
-        requestAnimationFrame(() => {
-            if (activeWordDiv) {
-                activeWordDiv.current?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                })
-            }
-        })
-    })
     return (
-        < div ref={activeWordDiv} className={'inline-flex items-baseline h-8'}>
+        < div ref={activeWordRef} className={'inline-flex items-baseline h-8'}>
             <div className="inline-flex relative h-full items-baseline ">
                 {
                     userLetters.map((letter, idx) => {
@@ -37,7 +24,7 @@ export function ActiveWord({ realLetters, userLetters }:
                     )
                 } {/* animate-blink */}
                 <div key={'cursor'} className={`animate-blink absolute z-100 
-                    text-[2.6rem] text-yellow-200 left-full text-center
+                    text-yellow-200 left-full text-center
                     pointer-events-none`} >
                     |
                 </div>
@@ -64,18 +51,20 @@ export function InactiveWord({ word }: { word: string }) {
     )
 }
 
-export function TypedWord({ userWord, realWord, key }: { userWord: string, realWord: string, key: number }) {
+export function TypedWord({ userWord, realWord }: { userWord: string, realWord: string }) {
     const realList = Array.from(realWord)
     const extendedList = [
         ...Array.from(userWord),
         ...Array(Math.max(realList.length - userWord.length, 0)).fill('')
     ];
     return (
-        <div className={'inline-flex'} key={key}>
+        <div className={'inline-flex'}>
             {extendedList.map((letter: string, idx: number) => {
                 if (idx >= realWord.length)
                     return <Letter key={idx} letter={letter} type="incorrect" />
-                if (letter == realWord[idx])
+                if (letter == '')
+                    return <Letter key={idx} letter={realWord[idx]} type="inactive" />
+                else if (letter == realWord[idx])
                     return <Letter key={idx} letter={letter} type="correct" />
                 else
                     return <Letter key={idx} letter={realWord[idx]} type="incorrect" />
