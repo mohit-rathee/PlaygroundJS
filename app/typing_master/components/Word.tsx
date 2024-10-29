@@ -8,7 +8,7 @@ export function ActiveWord({ realLetters, userLetters, activeWordRef }:
     }
 ) {
     return (
-        < div ref={activeWordRef} className={'inline-flex items-baseline h-8'}>
+        < div ref={activeWordRef} className={'inline-flex items-baseline h-10'}>
             <div className="inline-flex relative h-full items-baseline ">
                 {
                     userLetters.map((letter, idx) => {

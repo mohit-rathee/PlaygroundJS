@@ -1,8 +1,6 @@
 import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 import { PageContext } from "../context/PageContext";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Inter } from '@next/font/google';
-const inter = Inter({ subsets: ['latin'] });
 
 
 export default function TypingArena() {
@@ -27,6 +25,7 @@ export default function TypingArena() {
         else {
             switch (e.code) {
                 case 'Space': {
+                    e.preventDefault()
                     if (e.shiftKey) {
                         setActiveWord([])
                         setUserList([])
@@ -125,7 +124,7 @@ export default function TypingArena() {
         const active_word_height = activeWord.clientHeight
         const word_height = activeWord.offsetTop
         const scrollTo =
-            word_height
+            + word_height
             - div_height / 2
             + active_word_height / 2
             + 10
@@ -134,10 +133,18 @@ export default function TypingArena() {
             behavior: 'smooth'
         })
     }, [userList])
+    useEffect(()=>{
+        if(isRunning&&scrollableRef.current){
+            scrollableRef.current.scrollIntoView({
+                behavior:"smooth",
+                block:"center"
+            })
+        }
+
+    },[isRunning])
 
     return (
-        <div className={`${inter.className} text-5xl relative h-[12rem] w-[75%] 
-                        rounded-xl `}>
+        <div className={`text-5xl relative h-[12.5rem] w-[80%] rounded-xl `}>
             {!isFocused && <>
                 <div ref={BlurryDivRef}
                     className={`absolute inset-1 flex justify-center items-center
@@ -152,7 +159,7 @@ export default function TypingArena() {
             }
             <div ref={scrollableRef}
                 className={`absolute inset-0 h-full w-full overflow-y-scroll`}>
-                <div className={`w-full gap-4 pt-[1vh] pb-[20vh] inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
+                <div className={`w-full gap-6 pt-[1vh] pb-[20vh] inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
 
                     {wordList.map((word, idx) => {
                         if (idx < userList.length) {

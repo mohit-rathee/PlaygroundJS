@@ -37,7 +37,7 @@ export function TopPallet() {
                     onclick={() => { gameDispatch({ type: "setQuotes" }) }}
                     isSelected={gameInfo.type === 'quotes'} />
 
-                <Badge emoji={"☯"} title={"zen"}
+                <Badge emoji={"☯"} title={"coding"}
                     onclick={() => { gameDispatch({ type: "setZen" }) }}
                     isSelected={gameInfo.type === 'zen'} />
 
