@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, ReactNode, useEffect, useState } from "react";
-import { randomWordsGenerator } from "../utils/randomWordsGenerator";
+import { quotesGenerator, randomWordsGenerator } from "../utils/testContentGenerator";
 import { GameInfoType, Action, PageContextType } from "../typex";
 
 
@@ -26,6 +26,11 @@ function reducer(state: GameInfoType, action: Action): GameInfoType {
                 return { ...state, length: action.length };
             }
             return state;
+        case 'setQuotesLength':
+            if (state.type === 'quotes') {
+                return { ...state, length: action.length };
+            }
+            return state;
         case 'setWords':
             if (state.type !== "words")
                 return { type: 'words', length: 25, number: false, punctuation: false };
@@ -36,7 +41,7 @@ function reducer(state: GameInfoType, action: Action): GameInfoType {
             return { type: 'custom', payload: action.payload };
 
         case 'setQuotes':
-            return { type: 'quotes' };
+            return { type: 'quotes', length: 'short' };
 
         case 'setZen':
             return { type: 'zen' };
@@ -68,13 +73,13 @@ const PageProvider = ({ children }: { children: ReactNode }) => {
                 setTypingContent(['I', 'am', 'lost.'])
                 break;
             case "quotes":
-                setTypingContent(['I', 'am', 'fucked.'])
+                const quotes = quotesGenerator(gameInfo)
+                setTypingContent(quotes)
                 break;
             case "custom":
                 setTypingContent(['I', 'am', 'drowned.'])
                 break;
             case "words":
-                // const randomWords = getRandomWords([...words], gameInfo.length)
                 const randomWords = randomWordsGenerator(gameInfo)
                 setTypingContent(randomWords)
                 break;

@@ -1,6 +1,8 @@
 import { useContext } from "react"
 import { PageContext } from "../context/PageContext"
-import { type } from "os"
+
+const wordLength = [10, 25, 50, 100]
+const quotesLength: Array<"short" | "medium" | "long" | "thick"> = ["short", "medium", "long", "thick"];
 
 export function TopPallet() {
     const { gameInfo, gameDispatch, isRunning } = useContext(PageContext)
@@ -55,26 +57,49 @@ export function TopPallet() {
                 <>
                     <Divider />
                     <Container width='[5%]'>
-                        <Badge emoji={""} title={"10"}
-                            isSelected={gameInfo.length == 10}
-                            onclick={()=>gameDispatch({ type: 'setLength', length: 10 })}
-                        />
-                        <Badge emoji={""} title={"25"}
-                            isSelected={gameInfo.length == 25}
-                            onclick={()=>gameDispatch({ type: 'setLength', length: 25 })}
-                        />
-                        <Badge emoji={""} title={"50"}
-                            isSelected={gameInfo.length == 50}
-                            onclick={()=>gameDispatch({ type: 'setLength', length: 50 })}
-                        />
-                        <Badge emoji={""} title={"100"}
-                            isSelected={gameInfo.length == 100}
-                            onclick={()=>gameDispatch({ type: 'setLength', length: 100 })}
-                        />
+                        {wordLength.map((length, idx) => (
+                            <Badge emoji={""} title={length}
+                                key={idx}
+                                isSelected={gameInfo.length == length}
+                                onclick={() => gameDispatch({
+                                    type: 'setLength',
+                                    length: length
+                                }
+                                )}
+                            />
+                        ))}
                     </Container>
                 </>
             }
-        </div>
+            {gameInfo.type === 'quotes' &&
+                <>
+                    <Divider />
+                    <Container width='[5%]'>
+                        <Badge emoji={""} title={'all'}
+                            onclick={() => gameDispatch({
+                                type: 'setQuotesLength',
+                                length: 'all'
+                            }
+                            )}
+                        />
+                        {quotesLength.map((length, idx) => (
+                            <Badge emoji={""} title={length}
+                                key={idx}
+                                isSelected={
+                                    gameInfo.length == length ||
+                                    gameInfo.length == 'all'
+                                }
+                                onclick={() => gameDispatch({
+                                    type: 'setQuotesLength',
+                                    length: length
+                                }
+                                )}
+                            />
+                        ))}
+                    </Container>
+                </>
+            }
+        </div >
     )
 }
 function Divider() {
@@ -105,8 +130,8 @@ export function BottomPallet() {
             className={`w-[70%] text-4xl bg-gray-700 flex justify-around
                         items-center text-center rounded-xl
                         ${isRunning ? 'hidden' : ''}`}>
-            <Badge emoji={">"} title={""} 
-                onclick={()=>gameDispatch({type:'reload'})}
+            <Badge emoji={">"} title={""}
+                onclick={() => gameDispatch({ type: 'reload' })}
             />
             <Badge emoji={"↻"} title={""} />
             <Badge emoji={"⚠"} title={""} />
