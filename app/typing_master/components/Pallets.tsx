@@ -1,105 +1,160 @@
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { PageContext } from "../context/PageContext"
 
 const wordLength = [10, 25, 50, 100]
 const quotesLength: Array<"short" | "medium" | "long" | "thick"> = ["short", "medium", "long", "thick"];
 
+function CustomInput({ cancel }: any) {
+    const { gameDispatch, typingContent, setIsFocused, isFocused } = useContext(PageContext)
+    const [text, setText] = useState(typingContent.join(" "))
+    return (
+        <div
+            id="CustomDiv"
+            className={`absolute bg-gray-700 z-20 h-[50vh] w-[90%] 
+                        flex flex-col justify-around items-center
+                        rounded-xl p-4 text-xl `}
+        >
+            <textarea
+                required
+                onFocus={() => isFocused ? setIsFocused(false) : ''}
+                onChange={(e) => setText(e.target.value)}
+                spellCheck={false}
+                style={{ minHeight: '10rem' }}
+                defaultValue={text}
+                placeholder="Enter Custom Text"
+                className={`w-full rounded-xl focus p-4 resize-y bg-gray-700 text-4xl
+                            focus:ring-0 focus:outline-none max-h-80 overflow-auto`}
+            />
+            <div className="flex justify-around gap-10 w-[90%] mt-2">
+                <button className="w-1/2 p-1 bg-gray-500 rounded-xl hover:scale-110"
+                    onClick={() => cancel()}
+                >
+                    Cancel
+                </button>
+                <button className="w-1/2 p-1 bg-gray-500 rounded-xl hover:scale-110"
+                    onClick={() => {
+                        gameDispatch({ type: "setCustom", payload: text })
+                        cancel()
+                    }}
+                >
+                    Save
+                </button>
+            </div>
+        </div>
+    );
+}
+
 export function TopPallet() {
     const { gameInfo, gameDispatch, isRunning } = useContext(PageContext)
+    const [isCustomInputVisible, setCustomVisible] = useState(false)
     return (
-
-        <div className={`flex max-w-[90%] w-auto bg-gray-700 xl:text-2xl 
+        <>
+            {isCustomInputVisible &&
+                <CustomInput
+                    cancel={() => setCustomVisible(false)}
+                />}
+            <div className={`flex max-w-[90%] w-auto bg-gray-700 xl:text-2xl 
                         lg:text-xl md:text-md sm:text-sm justify-evenly 
                         items-center text-center rounded-xl
                         ${isRunning ? 'hidden' : ''}`}>
-            {gameInfo.type === 'words' &&
-                <>
-                    <Container width='[25%]'>
-                        <Badge emoji={"#"} title={"numbers"}
-                            isSelected={gameInfo.number}
-                            onclick={() => { gameDispatch({ type: "toggleNumber" }) }}
-                        />
-                        <Badge emoji={"@"} title={"punctutaion"}
-                            isSelected={gameInfo.punctuation}
-                            onclick={() => { gameDispatch({ type: "togglePunctuation" }) }}
-                        />
-                    </Container>
-                    <Divider />
-                </>
-            }
-            <Container width='[60%]'>
-
-                {/* <Badge emoji={"⏱"} title={"time"} /> */}
-
-                <Badge emoji={"𝐀"} title={"words"}
-                    onclick={() => { gameDispatch({ type: "setWords" }) }}
-                    isSelected={gameInfo.type === 'words'} />
-
-                <Badge emoji={"❝"} title={"quotes"}
-                    onclick={() => { gameDispatch({ type: "setQuotes" }) }}
-                    isSelected={gameInfo.type === 'quotes'} />
-
-                <Badge emoji={"☯"} title={"coding"}
-                    onclick={() => { gameDispatch({ type: "setZen" }) }}
-                    isSelected={gameInfo.type === 'zen'} />
-
-                <Badge emoji={"🛠"} title={"custom"}
-                    onclick={() => {
-                        gameDispatch({
-                            type: "setCustom",
-                            payload: "I Am Custom."
-                        })
-                    }}
-                    isSelected={gameInfo.type === 'custom'} />
-
-            </Container>
-            {gameInfo.type === 'words' &&
-                <>
-                    <Divider />
-                    <Container width='[5%]'>
-                        {wordLength.map((length, idx) => (
-                            <Badge emoji={""} title={length}
-                                key={idx}
-                                isSelected={gameInfo.length == length}
-                                onclick={() => gameDispatch({
-                                    type: 'setLength',
-                                    length: length
-                                }
-                                )}
+                {(gameInfo.type === 'words' || gameInfo.type === "custom") &&
+                    <>
+                        <Container width='[25%]'>
+                            <Badge emoji={"#"} title={"numbers"}
+                                isSelected={gameInfo.number}
+                                onclick={() => { gameDispatch({ type: "toggleNumber" }) }}
                             />
-                        ))}
-                    </Container>
-                </>
-            }
-            {gameInfo.type === 'quotes' &&
-                <>
-                    <Divider />
-                    <Container width='[5%]'>
-                        <Badge emoji={""} title={'all'}
-                            onclick={() => gameDispatch({
-                                type: 'setQuotesLength',
-                                length: 'all'
-                            }
-                            )}
-                        />
-                        {quotesLength.map((length, idx) => (
-                            <Badge emoji={""} title={length}
-                                key={idx}
-                                isSelected={
-                                    gameInfo.length == length ||
-                                    gameInfo.length == 'all'
-                                }
+                            <Badge emoji={"@"} title={"punctutaion"}
+                                isSelected={gameInfo.punctuation}
+                                onclick={() => { gameDispatch({ type: "togglePunctuation" }) }}
+                            />
+                        </Container>
+                        <Divider />
+                    </>
+                }
+                <Container width='[60%]'>
+
+                    {/* <Badge emoji={"⏱"} title={"time"} /> */}
+
+                    <Badge emoji={"𝐀"} title={"words"}
+                        onclick={() => { gameDispatch({ type: "setWords" }) }}
+                        isSelected={gameInfo.type === 'words'} />
+
+                    <Badge emoji={"❝"} title={"quotes"}
+                        onclick={() => { gameDispatch({ type: "setQuotes" }) }}
+                        isSelected={gameInfo.type === 'quotes'} />
+
+                    <Badge emoji={"☯"} title={"coding"}
+                        onclick={() => { gameDispatch({ type: "setZen" }) }}
+                        isSelected={gameInfo.type === 'zen'} />
+
+                    <Badge emoji={"🛠"} title={"custom"}
+                        onclick={() => {
+                            gameDispatch({ type: "setCustom", payload: "" })
+                        }}
+                        isSelected={gameInfo.type === 'custom'} />
+
+                </Container>
+                {gameInfo.type === 'words' &&
+                    <>
+                        <Divider />
+                        <Container width='[5%]'>
+                            {wordLength.map((length, idx) => (
+                                <Badge emoji={""} title={length}
+                                    key={idx}
+                                    isSelected={gameInfo.length == length}
+                                    onclick={() => gameDispatch({
+                                        type: 'setLength',
+                                        length: length
+                                    }
+                                    )}
+                                />
+                            ))}
+                        </Container>
+                    </>
+                }
+                {gameInfo.type === 'quotes' &&
+                    <>
+                        <Divider />
+                        <Container width='[5%]'>
+                            <Badge emoji={""} title={'all'}
                                 onclick={() => gameDispatch({
                                     type: 'setQuotesLength',
-                                    length: length
+                                    length: 'all'
                                 }
                                 )}
                             />
-                        ))}
-                    </Container>
-                </>
-            }
-        </div >
+                            {quotesLength.map((length, idx) => (
+                                <Badge emoji={""} title={length}
+                                    key={idx}
+                                    isSelected={
+                                        gameInfo.length == length ||
+                                        gameInfo.length == 'all'
+                                    }
+                                    onclick={() => gameDispatch({
+                                        type: 'setQuotesLength',
+                                        length: length
+                                    }
+                                    )}
+                                />
+                            ))}
+                        </Container>
+                    </>
+                }
+                {gameInfo.type === 'custom' &&
+                    <>
+                        <Divider />
+                        <Container width='[5%]'>
+                            <div
+                                onClick={() => setCustomVisible(!isCustomInputVisible)}
+                                className='rounded-lg border-2 p-0.5 cursor-pointer'>
+                                change
+                            </div>
+                        </Container>
+                    </>
+                }
+            </div >
+        </>
     )
 }
 function Divider() {

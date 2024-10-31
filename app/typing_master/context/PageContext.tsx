@@ -1,6 +1,7 @@
 import React, { createContext, useReducer, ReactNode, useEffect, useState } from "react";
-import { quotesGenerator, randomWordsGenerator } from "../utils/testContentGenerator";
+import { applyPunctuation, generateCustom, generateNumbers, quotesGenerator, randomWordsGenerator } from "../utils/testContentGenerator";
 import { GameInfoType, Action, PageContextType } from "../typex";
+import { stat } from "fs";
 
 
 const initialGameInfo: GameInfoType = { type: 'words', length: 25, punctuation: false, number: false };
@@ -10,13 +11,13 @@ function reducer(state: GameInfoType, action: Action): GameInfoType {
         case 'reload':
             return { ...state }
         case 'toggleNumber':
-            if (state.type === 'words') {
+            if (state.type === 'words' || state.type === 'custom') {
                 return { ...state, number: !state.number };
             }
             return state;
 
         case 'togglePunctuation':
-            if (state.type === 'words') {
+            if (state.type === 'words' || state.type === 'custom') {
                 return { ...state, punctuation: !state.punctuation };
             }
             return state;
@@ -38,7 +39,7 @@ function reducer(state: GameInfoType, action: Action): GameInfoType {
                 return state
 
         case 'setCustom':
-            return { type: 'custom', payload: action.payload };
+            return { type: 'custom', payload: action.payload, punctuation: false, number: false };
 
         case 'setQuotes':
             return { type: 'quotes', length: 'short' };
@@ -77,7 +78,8 @@ const PageProvider = ({ children }: { children: ReactNode }) => {
                 setTypingContent(quotes)
                 break;
             case "custom":
-                setTypingContent(['I', 'am', 'drowned.'])
+                const customContent = generateCustom(gameInfo)
+                setTypingContent(customContent)
                 break;
             case "words":
                 const randomWords = randomWordsGenerator(gameInfo)

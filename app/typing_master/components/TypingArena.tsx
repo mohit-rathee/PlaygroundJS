@@ -16,7 +16,7 @@ export default function TypingArena() {
     const [userList, setUserList] = useState<string[]>([])
     const [activeWord, setActiveWord] = useState<string[]>([])
 
-    const handleClick = useCallback((e: KeyboardEvent) => {
+    const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
         if (/^[a-zA-Z0-9,.!@#$%^&*()_+\\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
             if (!isRunning) setIsRunning(true)
@@ -85,18 +85,18 @@ export default function TypingArena() {
 
     useEffect(() => {
         if (isFocused) {
-            document.addEventListener('keydown', handleClick)
+            document.addEventListener('keydown', gamePressListner)
         }
         return () =>
-            document.removeEventListener('keydown', handleClick)
-    }, [handleClick, isFocused]);
+            document.removeEventListener('keydown', gamePressListner)
+    }, [gamePressListner, isFocused]);
 
     const scrollableRef = useRef<HTMLDivElement>(null)
     const activeWordRef = useRef<HTMLDivElement>(null)
     const BlurryDivRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        function handleClick(e: MouseEvent) {
+        function focusClick(e: MouseEvent) {
             if (
                 BlurryDivRef.current &&
                 BlurryDivRef.current.contains(e.target as Node)
@@ -104,16 +104,17 @@ export default function TypingArena() {
                 setIsFocused(true)
             }
         }
-        function handlePress() {
-            setIsFocused(true)
+        function focusPress() {
+            if (!document.getElementById('CustomDiv'))
+                setIsFocused(true)
         }
-        window.addEventListener('click', handleClick)
-        window.addEventListener('keypress', handlePress)
+        window.addEventListener('click', focusClick)
+        window.addEventListener('keypress', focusPress)
         return () => {
-            window.removeEventListener('click', handleClick)
-            window.removeEventListener('keypress', handlePress)
+            window.removeEventListener('click', focusClick)
+            window.removeEventListener('keypress', focusPress)
         }
-    }, [setIsFocused])
+    }, [setIsFocused, isFocused])
 
     useEffect(() => {
         if (!scrollableRef.current) return
@@ -133,22 +134,23 @@ export default function TypingArena() {
             behavior: 'smooth'
         })
     }, [userList])
-    useEffect(()=>{
-        if(isRunning&&scrollableRef.current){
+    useEffect(() => {
+        if (isRunning && scrollableRef.current) {
             scrollableRef.current.scrollIntoView({
-                behavior:"smooth",
-                block:"center"
+                behavior: "smooth",
+                block: "center"
             })
         }
 
-    },[isRunning])
+    }, [isRunning])
 
     return (
         <div className={`text-5xl relative h-[12.5rem] w-[80%] rounded-xl `}>
             {!isFocused && <>
                 <div ref={BlurryDivRef}
-                    className={`absolute inset-1 flex justify-center items-center
-                                scale-110
+                    className={`absolute inset-0  h-[16rem] flex justify-center items-center
+                                transform -translate-y-[1.55rem]
+                                scale-x-110
                                 z-10 text-3xl text-gray-50
                                 bg-gray-950 rounded-xl
                                 hover:text-yellow-200
