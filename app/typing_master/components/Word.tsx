@@ -9,8 +9,8 @@ export function ActiveWord({ realLetters, userLetters, activeWordRef, cursorRef 
     }
 ) {
     return (
-        < div ref={activeWordRef} className={'inline-flex px-1 items-baseline h-10'}>
-            <div className="inline-flex relative h-full">
+        < div ref={activeWordRef} className={'relative inline-flex px-1 items-baseline h-full'}>
+            <div className="inline-flex ">
                 {
                     userLetters.map((letter, idx) => {
                         if (idx < realLetters.length)
@@ -24,13 +24,15 @@ export function ActiveWord({ realLetters, userLetters, activeWordRef, cursorRef 
                     }
                     )
                 }
-                <div ref={cursorRef} className={`absolute h-full left-full`} />
             </div>
-            { userLetters.length < realLetters.length &&
-                Array.from(realLetters.slice(userLetters.length,)).map((letter, idx) => {
-                    return <Letter type={'active'} letter={letter} key={idx} />
-                })
-            }
+            <div ref={cursorRef} className="" />
+            <div className="inline-flex relative h-full">
+                {userLetters.length < realLetters.length &&
+                    Array.from(realLetters.slice(userLetters.length,)).map((letter, idx) => {
+                        return <Letter type={'active'} letter={letter} key={idx} />
+                    })
+                }
+            </div>
         </div >
     )
 }
@@ -70,22 +72,22 @@ export function TypedWord({ userWord, realWord }: { userWord: string, realWord: 
 }
 
 export function Letter({ letter, type }: { letter: string, type: 'correct' | 'incorrect' | 'inactive' | 'active' }) {
-    let className = ''
+    let className = 'pl-0.5 '
     switch (type) {
         case 'correct': {
-            className = 'text-green-300'
+            className += 'text-green-300'
             break
         }
         case 'incorrect': {
-            className = 'text-red-300'
+            className += 'text-red-300'
             break
         }
         case 'inactive': {
-            className = 'text-gray-300'
+            className += 'text-gray-300'
             break
         }
         case 'active': {
-            className = 'text-gray-100'
+            className += 'text-gray-100'
             break
         }
     }

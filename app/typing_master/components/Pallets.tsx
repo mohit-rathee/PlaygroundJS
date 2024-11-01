@@ -10,7 +10,7 @@ function CustomInput({ cancel }: any) {
     return (
         <div
             id="CustomDiv"
-            className={`absolute bg-gray-700 z-20 h-[50vh] w-[90%] 
+            className={`absolute bg-gray-700 z-30 h-[50vh] w-[90%] 
                         flex flex-col justify-around items-center
                         rounded-xl p-4 text-xl `}
         >
