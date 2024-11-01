@@ -2,7 +2,6 @@ import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 import { PageContext } from "../context/PageContext";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
-
 export default function TypingArena() {
     const {
         gameDispatch,
@@ -12,9 +11,16 @@ export default function TypingArena() {
         setIsFocused,
         setIsRunning,
     } = useContext(PageContext);
+
     const wordList: string[] = typingContent
     const [userList, setUserList] = useState<string[]>([])
     const [activeWord, setActiveWord] = useState<string[]>([])
+    const scrollableRef = useRef<HTMLDivElement>(null)
+    const activeWordRef = useRef<HTMLDivElement>(null)
+    const cursorRef = useRef<HTMLDivElement>(null)
+    const realCursorRef = useRef<HTMLDivElement>(null)
+    const BlurryDivRef = useRef<HTMLDivElement>(null)
+
 
     const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
@@ -82,7 +88,6 @@ export default function TypingArena() {
             }
         }
     }, [isRunning, setIsRunning, gameDispatch, wordList])
-
     useEffect(() => {
         if (isFocused) {
             document.addEventListener('keydown', gamePressListner)
@@ -90,11 +95,6 @@ export default function TypingArena() {
         return () =>
             document.removeEventListener('keydown', gamePressListner)
     }, [gamePressListner, isFocused]);
-
-    const scrollableRef = useRef<HTMLDivElement>(null)
-    const activeWordRef = useRef<HTMLDivElement>(null)
-    const BlurryDivRef = useRef<HTMLDivElement>(null)
-
     useEffect(() => {
         function focusClick(e: MouseEvent) {
             if (
@@ -115,7 +115,6 @@ export default function TypingArena() {
             window.removeEventListener('keypress', focusPress)
         }
     }, [setIsFocused, isFocused])
-
     useEffect(() => {
         if (!scrollableRef.current) return
         if (!activeWordRef.current) return
@@ -143,26 +142,29 @@ export default function TypingArena() {
         }
 
     }, [isRunning])
-
+    useEffect(() => {
+        if (cursorRef.current && realCursorRef.current && scrollableRef.current) {
+            const cursor = cursorRef.current.getBoundingClientRect()
+            const scrollDiv = scrollableRef.current
+            const scrollRect = scrollDiv.getBoundingClientRect()
+            const left = cursor.left - scrollRect.left
+            const top = cursor.top - scrollRect.top + scrollDiv.scrollTop
+            realCursorRef.current.style.top = `${top}px`;
+            realCursorRef.current.style.left = `${left}px`;
+        }
+    })
     return (
         <div className={`text-5xl relative h-[12.5rem] w-[80%] rounded-xl `}>
-            {!isFocused && <>
-                <div ref={BlurryDivRef}
-                    className={`absolute inset-0  h-[16rem] flex justify-center items-center
-                                transform -translate-y-[1.55rem]
-                                scale-x-110
-                                z-10 text-3xl text-gray-50
-                                bg-gray-950 rounded-xl
-                                hover:text-yellow-200
-                                bg-opacity-50 backdrop-blur-sm`}>
-                    Click here or press any key to focus.
-                </div>
-            </>
-            }
+            {!isFocused && <BlurryScreen ref={BlurryDivRef} />}
             <div ref={scrollableRef}
                 className={`absolute inset-0 h-full w-full overflow-y-scroll`}>
+                {/* animate-blink */}
+                <div ref={realCursorRef} className={`relative z-50 w-[0.3rem] rounded-sm 
+                                         -translate-x-[0.140rem] -translate-y-[0.3rem]
+                                         h-16 bg-yellow-300`}
+                    style={{ transition: 'top 0.2s ease, left 0.2s ease' }}
+                />
                 <div className={`w-full gap-6 pt-[1vh] pb-[20vh] inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
-
                     {wordList.map((word, idx) => {
                         if (idx < userList.length) {
                             return <TypedWord
@@ -172,10 +174,11 @@ export default function TypingArena() {
                             />
                         } else if (idx == userList.length) {
                             return <ActiveWord
-                                activeWordRef={activeWordRef}
                                 key={idx}
+                                activeWordRef={activeWordRef}
                                 realLetters={word.split('')}
                                 userLetters={activeWord}
+                                cursorRef={cursorRef}
                             />
                         } else
                             return <InactiveWord
@@ -186,5 +189,21 @@ export default function TypingArena() {
                 </div>
             </div>
         </div>
+    )
+}
+
+function BlurryScreen({ ref }: any) {
+    return (
+        <div ref={ref}
+            className={`absolute inset-0  h-[16rem] flex justify-center items-center
+                                transform -translate-y-[1.55rem]
+                                scale-x-110
+                                z-10 text-3xl text-gray-50
+                                bg-gray-950 rounded-xl
+                                hover:text-yellow-200
+                                bg-opacity-50 backdrop-blur-sm`}>
+            Click here or press any key to focus.
+        </div>
+
     )
 }

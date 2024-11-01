@@ -1,15 +1,16 @@
 import { Ref } from "react";
 
-export function ActiveWord({ realLetters, userLetters, activeWordRef }:
+export function ActiveWord({ realLetters, userLetters, activeWordRef, cursorRef }:
     {
         realLetters: string[],
         userLetters: string[],
         activeWordRef: Ref<HTMLDivElement>
+        cursorRef: Ref<HTMLDivElement>
     }
 ) {
     return (
-        < div ref={activeWordRef} className={'inline-flex items-baseline h-10'}>
-            <div className="inline-flex relative h-full items-baseline ">
+        < div ref={activeWordRef} className={'inline-flex px-1 items-baseline h-10'}>
+            <div className="inline-flex relative h-full">
                 {
                     userLetters.map((letter, idx) => {
                         if (idx < realLetters.length)
@@ -22,16 +23,10 @@ export function ActiveWord({ realLetters, userLetters, activeWordRef }:
                             return <Letter type={'incorrect'} letter={letter} key={idx} />
                     }
                     )
-                } {/* animate-blink */}
-                <div key={'cursor'} className={`animate-blink absolute z-100 
-                    text-yellow-200 left-full text-center
-                    pointer-events-none`} >
-                    |
-                </div>
-
+                }
+                <div ref={cursorRef} className={`absolute h-full left-full`} />
             </div>
-            {
-                userLetters.length < realLetters.length &&
+            { userLetters.length < realLetters.length &&
                 Array.from(realLetters.slice(userLetters.length,)).map((letter, idx) => {
                     return <Letter type={'active'} letter={letter} key={idx} />
                 })
@@ -43,7 +38,7 @@ export function ActiveWord({ realLetters, userLetters, activeWordRef }:
 export function InactiveWord({ word }: { word: string }) {
     const wordList = Array.from(word)
     return (
-        <div className={'inline-flex'}>
+        <div className={'inline-flex px-1'}>
             {
                 wordList.map((letter, idx) =>
                     <Letter key={idx} letter={letter} type="inactive" />)}
@@ -58,7 +53,7 @@ export function TypedWord({ userWord, realWord }: { userWord: string, realWord: 
         ...Array(Math.max(realList.length - userWord.length, 0)).fill('')
     ];
     return (
-        <div className={'inline-flex'}>
+        <div className={'inline-flex px-1'}>
             {extendedList.map((letter: string, idx: number) => {
                 if (idx >= realWord.length)
                     return <Letter key={idx} letter={letter} type="incorrect" />
