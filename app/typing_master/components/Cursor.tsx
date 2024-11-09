@@ -12,8 +12,6 @@ export default function Cursor() {
             const top = cursor.top - scrollRect.top + scrollDiv.scrollTop
             cursorRef.current.style.top = `${top}px`;
             cursorRef.current.style.left = `${left}px`;
-        }else{
-            console.log('cursorPositonRef not found')
         }
     })
     {/* animate-blink */ }

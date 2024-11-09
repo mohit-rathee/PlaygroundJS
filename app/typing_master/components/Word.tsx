@@ -8,7 +8,6 @@ export function ActiveWord({ realLetters, userLetters, activeWordRef, cursorRef 
         cursorRef: Ref<HTMLDivElement>
     }
 ) {
-    console.log('activeWord is rendered')
     return (
         < div ref={activeWordRef} className={'relative inline-flex px-1 items-baseline h-full'}>
             <div className="inline-flex ">

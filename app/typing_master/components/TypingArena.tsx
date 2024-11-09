@@ -22,6 +22,10 @@ export default function TypingArena() {
 
     const wordList: string[] = typingContent
 
+    useEffect(()=>{
+        setUserList([]) // just to do re-rendering of cursor
+    },[setUserList])
+
     const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
         if (/^[a-zA-Z0-9,.!@#$%^&*()_+\\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
@@ -95,7 +99,6 @@ export default function TypingArena() {
         return () =>
             document.removeEventListener('keydown', gamePressListner)
     }, [gamePressListner, isFocused]);
-
     return (
         <div className={`w-full text-6xl gap-6 pt-[1vh] pb-[20vh] inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
             {wordList.map((word: string, idx: number) => {
