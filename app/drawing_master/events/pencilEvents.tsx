@@ -162,7 +162,7 @@ export class DrawPencilEventClass extends EventClass {
         }
 
         this.stroke.points = [
-            ...points.slice(0, -20),
+            ...points.slice(0, -REFINE_THRESHOLD),
             ...simplifiedPoints
         ]
     }

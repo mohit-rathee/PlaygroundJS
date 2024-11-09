@@ -15,18 +15,18 @@ export const COLOR_MAP_GAP = color_map_gap
 
 export const IS_DRAW_DOTS = is_draw_dots
 
-export const RDP_NORMAL = 3;
+export const RDP_NORMAL = 2;
 
-export const RDP_CATMULLROM = 6;
+export const RDP_CATMULLROM = 2;
 
 export const MIN_DISTANCE_BTW_PTS= 10;
 
 
 export const CATMULL_ROM_PRECISION = 0.01
 
-export const REFINE_THRESHOLD = 20
+export const REFINE_THRESHOLD = 5
 
-export const DELTA_TIME = 20
+export const DELTA_TIME = 10
 
 export const initialStrokePointer: StrokePointer = {
     layer: 1,
