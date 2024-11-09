@@ -13,7 +13,7 @@ export default function TypingMaster() {
                             justify-evenly bg-gray-300 dark:bg-gray-600`} >
                 <TopPallet />
                 <MainScreen />
-                <BottomPallet />
+                {/* <BottomPallet /> */}
             </div>
         </PageProvider>
 

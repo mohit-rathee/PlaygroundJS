@@ -20,7 +20,7 @@ export default function Scrollable({ children }: any) {
 
         scrollDiv.scrollTo({
             top: scrollTo,
-            behavior: 'smooth'
+            behavior: 'instant'
         })
     }, [userList, activeWordRef, scrollableRef])
 

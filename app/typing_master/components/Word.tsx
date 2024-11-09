@@ -8,6 +8,7 @@ export function ActiveWord({ realLetters, userLetters, activeWordRef, cursorRef 
         cursorRef: Ref<HTMLDivElement>
     }
 ) {
+    console.log('activeWord is rendered')
     return (
         < div ref={activeWordRef} className={'relative inline-flex px-1 items-baseline h-full'}>
             <div className="inline-flex ">
@@ -17,20 +18,22 @@ export function ActiveWord({ realLetters, userLetters, activeWordRef, cursorRef 
                             return (<Letter
                                 key={idx}
                                 letter={realLetters[idx]}
-                                type={realLetters[idx] === userLetters[idx] ? 'correct' : 'incorrect'}
+                                type={realLetters[idx] === userLetters[idx] ?
+                                    'correct' :
+                                    'incorrect'
+                                }
                             />);
                         else
                             return <Letter type={'incorrect'} letter={letter} key={idx} />
-                    }
-                    )
-                }
+                    })}
             </div>
             <div ref={cursorRef} className="" />
             <div className="inline-flex relative h-full">
                 {userLetters.length < realLetters.length &&
-                    Array.from(realLetters.slice(userLetters.length,)).map((letter, idx) => {
-                        return <Letter type={'active'} letter={letter} key={idx} />
-                    })
+                    Array.from(realLetters.slice(userLetters.length,))
+                        .map((letter, idx) => {
+                            return <Letter type={'active'} letter={letter} key={idx} />
+                        })
                 }
             </div>
         </div >

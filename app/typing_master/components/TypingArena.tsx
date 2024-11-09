@@ -3,7 +3,7 @@ import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 import { PageContext } from "../context/PageContext";
 import { ArenaContext } from "../context/ArenaContext";
 
-export default function TypingArena({ wordList }: any) {
+export default function TypingArena() {
     const {
         activeWord,
         setActiveWord,
@@ -17,8 +17,10 @@ export default function TypingArena({ wordList }: any) {
         isRunning,
         isFocused,
         setIsRunning,
+        typingContent,
     } = useContext(PageContext);
 
+    const wordList: string[] = typingContent
 
     const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
@@ -61,7 +63,7 @@ export default function TypingArena({ wordList }: any) {
                                 return prevWord.slice(0, -1)         //           |
                         }                                            //           |
                         //If activeWord was empty, then              //           |       
-                        setUserList((prevUserList: string[]) => {     //--(2)--|   |       
+                        setUserList((prevUserList: string[]) => {    //--(2)--|   |       
                             if (!prevUserList.length) return [];     //       |   |
                             const lastWord = prevUserList.pop()      //       |   |
                             if (!lastWord)                           //       |   |
