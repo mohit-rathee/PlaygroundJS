@@ -16,7 +16,7 @@ export default function Cursor() {
     })
     {/* animate-blink */ }
     return (
-        <div ref={cursorRef} className={`relative z-10 w-[0.3rem] rounded-sm 
+        <div ref={cursorRef} className={`absolute z-10 w-[0.3rem] rounded-sm 
                                  -translate-x-[0.125rem] -translate-y-[3.25rem]
                                  h-16 bg-yellow-300`}
             style={{ transition: 'top 0.125s ease, left 0.125s ease' }}
