@@ -3,7 +3,7 @@ import { ArenaContext } from "../context/ArenaContext";
 import { PageContext } from "../context/PageContext";
 
 export default function Scrollable({ children }: any) {
-    const { isRunning } = useContext(PageContext)
+    const { isRunning, typingContent } = useContext(PageContext)
     const { activeWordRef, scrollableRef, userList, } = useContext(ArenaContext)
 
     //Automatic Scroll
@@ -25,18 +25,25 @@ export default function Scrollable({ children }: any) {
     }, [userList, activeWordRef, scrollableRef])
 
     // scroll up when starting test
-    useEffect(() => {
-        if (isRunning && scrollableRef.current)
-            scrollableRef.current.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            })
-    }, [isRunning, scrollableRef])
+    // useEffect(() => {
+    //     if (isRunning && scrollableRef.current)
+    //         scrollableRef.current.scrollIntoView({
+    //             behavior: "smooth",
+    //             block: "center"
+    //         })
+    // }, [isRunning, scrollableRef])
 
     return (
-        <div ref={scrollableRef}
-            className={`absolute inset-0 h-full w-full overflow-hidden`}>
-            {children}
-        </div>
+        < >
+            {isRunning &&
+                <div className="w-full h-auto ml-10  text-5xl -translate-y-16  text-yellow-300" >
+                    {userList.length} / {typingContent.length}
+                </div>
+            }
+            <div ref={scrollableRef}
+                className={`absolute inset-0 h-full w-full overflow-hidden`}>
+                {children}
+            </div>
+        </>
     )
 }

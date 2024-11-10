@@ -40,6 +40,7 @@ export default function TypingArena() {
                         setActiveWord([])
                         setUserList([])
                         gameDispatch({ type: 'reload' })
+                        setIsRunning(false)
                         return
                     }
                     setActiveWord((prevWord: string[]) => {
@@ -100,7 +101,7 @@ export default function TypingArena() {
             document.removeEventListener('keydown', gamePressListner)
     }, [gamePressListner, isFocused]);
     return (
-        <div className={`w-full text-6xl gap-6 pt-[1vh] pb-[20vh] inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
+        <div className={`w-full text-5xl gap-5 pt-[1vh] pb-[20vh] inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
             {wordList.map((word: string, idx: number) => {
                 if (idx < userList.length) {
                     return <TypedWord

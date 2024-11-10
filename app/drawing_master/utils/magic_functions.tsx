@@ -98,3 +98,13 @@ export function createNewCanvas(dimensions: Dimensions, isP: boolean, onLeft: bo
     newCanvas.style.background = 'transparent'
     return newCanvas
 }
+export const throttle = <T extends (...args: any[]) => void>(func: T, delay: number): T => {
+    let lastCall = 0;
+    return ((...args: any[]) => {
+        const now = new Date().getTime();
+        if (now - lastCall >= delay) {
+            lastCall = now;
+            func(...args);
+        }
+    }) as T;
+};

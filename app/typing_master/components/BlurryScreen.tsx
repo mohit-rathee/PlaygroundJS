@@ -22,11 +22,10 @@ export default function BlurryScreen({ children }: any) {
         }
     }, [setIsFocused, BlurryRef])
     return (
-        <div className={`relative h-60 w-[80%] rounded-xl `}>
+        <div className={`relative h-52 my-20 w-[80%] rounded-xl `}>
             {!isFocused && <div ref={BlurryRef}
                 className={`absolute inset-0  h-[16rem] flex justify-center items-center
-                                transform -translate-y-[1.55rem]
-                                scale-x-110
+                                scale-x-110 scale-y-110
                                 z-20 text-3xl text-gray-50
                                 bg-gray-950 rounded-xl
                                 hover:text-yellow-200
