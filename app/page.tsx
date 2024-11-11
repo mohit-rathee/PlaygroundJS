@@ -28,7 +28,10 @@ const Page: React.FC = () => {
 const ContactPlate: React.FC = () => {
     return (
         <div className='border-2 rounded-lg m-1 p-2 flex flex-wrap gap-3 justify-stretch shadow-2xl'>
-            <Link href='https://www.instagram.com/mohit__2505/' target='_blank'>
+            <Link href='https://www.x.com/mohit_rathee_/' target='_blank'>
+                <Image width={32} height={32} alt='instagram' src={'./x.svg'} />
+            </Link>
+            <Link href='https://www.instagram.com/_mohit_rathee_/' target='_blank'>
                 <Image width={32} height={32} alt='instagram' src={'./instagram.svg'} />
             </Link>
             <Link href='https://github.com/mohit-rathee' target='_blank'>
@@ -37,9 +40,9 @@ const ContactPlate: React.FC = () => {
             <Link href='https://www.linkedin.com/in/mohit-rathee/' target='_blank'>
                 <Image width={32} height={32} alt='linkedin' src={'./linkedin.svg'} />
             </Link>
-            <Link href='https://www.discord.com/users/896276229664174170' target='_blank'>
-                <Image width={32} height={32} alt='discord' src={'./discord.svg'} />
-            </Link>
+            {/* <Link href='https://www.discord.com/users/896276229664174170' target='_blank'> */}
+            {/*     <Image width={32} height={32} alt='discord' src={'./discord.svg'} /> */}
+            {/* </Link> */}
             <Link href='mailto:mohit.rathee2505@gmail.com' target='_blank'>
                 <Image width={32} height={32} alt='email' src={'./email.svg'} />
             </Link>
