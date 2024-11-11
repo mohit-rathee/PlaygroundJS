@@ -81,7 +81,7 @@ export function Letter({ letter, type }: { letter: string, type: 'correct' | 'in
             break
         }
         case 'correct': {
-            className += 'dark:text-green-300 text-gray-800  '
+            className += 'dark:text-green-300 text-gray-700  '
             break
         }
         case 'incorrect': {
@@ -89,11 +89,11 @@ export function Letter({ letter, type }: { letter: string, type: 'correct' | 'in
             break
         }
         case 'inactive': {
-            className += 'dark:text-gray-300  text-gray-700 '
+            className += 'dark:text-gray-300  text-gray-200 '
             break
         }
         case 'active': {
-            className += 'dark:text-gray-300  text-gray-700 '
+            className += 'dark:text-gray-300  text-gray-200 '
             break
         }
     }
