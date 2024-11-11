@@ -1,8 +1,7 @@
-import Scrollable from "./Scrollable";
-import BlurryScreen from "./BlurryScreen";
-import TypingArena from "./TypingArena";
+import { BlurryScreen, Scrollable } from "./Screens";
+import TypingArena from "./typingComponents/TypingArena";
 import ArenaProvider from "../context/ArenaContext";
-import Cursor from "./Cursor";
+import Cursor from "./typingComponents/Cursor";
 
 export default function MainPallet() {
     return (

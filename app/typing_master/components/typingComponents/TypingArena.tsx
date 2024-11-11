@@ -1,7 +1,7 @@
 import { useContext, useEffect, useCallback } from "react";
 import { ActiveWord, InactiveWord, TypedWord } from "./Word"
-import { PageContext } from "../context/PageContext";
-import { ArenaContext } from "../context/ArenaContext";
+import { PageContext } from "../../context/PageContext";
+import { ArenaContext } from "../../context/ArenaContext";
 
 export default function TypingArena() {
     const {
@@ -25,6 +25,9 @@ export default function TypingArena() {
     useEffect(()=>{
         setUserList([]) // just to do re-rendering of cursor
     },[setUserList])
+    useEffect(()=>{
+        setUserList([]) // reset test if typingContent changes
+    },[typingContent,setUserList])
 
     const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
@@ -101,7 +104,11 @@ export default function TypingArena() {
             document.removeEventListener('keydown', gamePressListner)
     }, [gamePressListner, isFocused]);
     return (
-        <div className={`w-full text-5xl gap-5 pt-[1vh] pb-[20vh] inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
+        <div className={`
+                    xl:text-5xl lg:text-5xl md:text-4xl sm:text-2xl 
+                    xl:gap-5 lg:gap-4 md:gap-3  sm:gap-2
+                    w-full  pt-[1vh] pb-[20vh] 
+                    inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
             {wordList.map((word: string, idx: number) => {
                 if (idx < userList.length) {
                     return <TypedWord

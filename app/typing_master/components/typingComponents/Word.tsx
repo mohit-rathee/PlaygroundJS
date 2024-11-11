@@ -62,7 +62,7 @@ export function TypedWord({ userWord, realWord }: { userWord: string, realWord: 
                 if (idx >= realWord.length)
                     return <Letter key={idx} letter={letter} type="incorrect" />
                 if (letter == '')
-                    return <Letter key={idx} letter={realWord[idx]} type="inactive" />
+                    return <Letter key={idx} letter={realWord[idx]} type="incomplete" />
                 else if (letter == realWord[idx])
                     return <Letter key={idx} letter={letter} type="correct" />
                 else
@@ -73,23 +73,27 @@ export function TypedWord({ userWord, realWord }: { userWord: string, realWord: 
     )
 }
 
-export function Letter({ letter, type }: { letter: string, type: 'correct' | 'incorrect' | 'inactive' | 'active' }) {
+export function Letter({ letter, type }: { letter: string, type: 'correct' | 'incorrect' | 'inactive' | 'active' | 'incomplete' }) {
     let className = 'pl-0.5 '
     switch (type) {
+        case 'incomplete': {
+            className += 'dark:text-gray-200 text-gray-500 underline decoration-3 dark:decoration-red-400 decoration-red-600'
+            break
+        }
         case 'correct': {
-            className += 'text-green-300'
+            className += 'dark:text-green-300 text-gray-800  '
             break
         }
         case 'incorrect': {
-            className += 'text-red-300'
+            className += 'dark:text-red-400   text-red-600'
             break
         }
         case 'inactive': {
-            className += 'text-gray-300'
+            className += 'dark:text-gray-300  text-gray-700 '
             break
         }
         case 'active': {
-            className += 'text-gray-100'
+            className += 'dark:text-gray-300  text-gray-700 '
             break
         }
     }

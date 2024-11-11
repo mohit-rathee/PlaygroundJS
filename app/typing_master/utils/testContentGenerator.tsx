@@ -45,7 +45,9 @@ export const generateCustom = (args: GameInfoType): string[] => {
 
 export const randomWordsGenerator = (args: GameInfoType): string[] => {
     if (args.type !== "words") throw new Error('only for words type')
-    const numberCount = Math.floor(args.length * (Math.random() * 0.1 + 0.1));
+    const numberCount = args.number ?
+        Math.floor(args.length * (Math.random() * 0.1 + 0.1)) :
+        0
     const wordCount = args.length - numberCount
     const shuffled = [...words].sort(() => 0.5 - Math.random()).slice(0, wordCount);
 

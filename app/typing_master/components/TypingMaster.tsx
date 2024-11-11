@@ -10,7 +10,7 @@ export default function TypingMaster() {
         <PageProvider>
             <div className={`${inter.className} w-full h-[115vh]
                             flex flex-col items-center 
-                            justify-center bg-gray-300 dark:bg-gray-600`} >
+                            justify-center bg-gray-400 dark:bg-gray-600`} >
                 <TopPallet />
                 <MainScreen />
                 <BottomPallet />

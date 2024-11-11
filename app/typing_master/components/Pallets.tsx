@@ -53,8 +53,8 @@ export function TopPallet() {
                 <CustomInput
                     cancel={() => setCustomVisible(false)}
                 />}
-            <div className={`flex max-w-[90%] w-auto py-2 bg-gray-700 
-                    2xl:text-3xl md:text-xl md:text sm:text-sm 
+            <div className={`flex p-2 dark:bg-gray-700 bg-gray-500 max-w-[100%]
+                    xl:text-xl lg:text-lg md:text-sm sm:text-xs 
                     justify-evenly items-center text-center rounded-xl
                         ${isRunning ? 'opacity-0' : ''}`}>
                 {(gameInfo.type === 'words' || gameInfo.type === "custom") &&
@@ -155,8 +155,8 @@ function Divider() {
 function Badge({ emoji, title, onclick = () => { }, isSelected = false }: any) {
     return (
         <span
-            className={`p-2 text-gray-300 cursor-pointer 
-                        ${isSelected ? 'text-yellow-200' : ''}`}
+            className={`p-1.5 dark:text-gray-300 cursor-pointer 
+                    ${isSelected ? 'text-gray-50 dark:text-yellow-200' : 'text-gray-800'}`}
             onClick={onclick}
         >
             {emoji} {title}
@@ -169,7 +169,7 @@ export function BottomPallet() {
         <div
             className={`w-auto text-4xl bg-gray-700 flex justify-around
                         items-center text-center rounded-xl
-                        ${isRunning ? 'opacity-0' : ''}`}>
+                        ${isRunning ? 'opacity-0' : 'opacity-0'}`}>
             <div className="px-10 flex gap-24 ">
                 <Badge emoji={">"} title={""}
                     onclick={() => gameDispatch({ type: 'reload' })}
