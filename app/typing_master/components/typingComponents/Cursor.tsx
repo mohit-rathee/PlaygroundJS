@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useCallback, useContext, useEffect, useState } from "react"
 import { ArenaContext } from "../../context/ArenaContext"
 import { PageContext } from "../../context/PageContext"
 
@@ -41,7 +41,7 @@ export default function Cursor() {
     useEffect(() => {
         setIsFocused(true)
     })
-    useEffect(() => {
+    const replaceCursor = useCallback(() => {
         if (cursorPositonRef.current && cursorRef.current && scrollableRef.current) {
             const cursor = cursorPositonRef.current.getBoundingClientRect()
             const scrollDiv = scrollableRef.current
@@ -51,7 +51,16 @@ export default function Cursor() {
             cursorRef.current.style.top = `${top}px`;
             cursorRef.current.style.left = `${left}px`;
         }
+    }, [cursorPositonRef, cursorRef, scrollableRef])
+    useEffect(() => {
+        replaceCursor()
     })
+    useEffect(() => {
+        window.addEventListener('resize', replaceCursor)
+        return (() => {
+            window.removeEventListener('resize', replaceCursor)
+        })
+    }, [replaceCursor])
     {/* animate-blink */ }
     return (
         <>

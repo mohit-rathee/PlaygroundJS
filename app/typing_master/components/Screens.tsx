@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import { PageContext } from "../context/PageContext";
 import { ArenaContext } from "../context/ArenaContext";
 
@@ -47,8 +47,7 @@ export function Scrollable({ children }: any) {
     const { isRunning, typingContent } = useContext(PageContext)
     const { activeWordRef, scrollableRef, userList, } = useContext(ArenaContext)
 
-    //Automatic Scroll
-    useEffect(() => {
+    const scrollToCenter = useCallback(() => {
         if (!scrollableRef.current) return
         if (!activeWordRef.current) return
         const scrollDiv = scrollableRef.current
@@ -63,9 +62,19 @@ export function Scrollable({ children }: any) {
             top: scrollTo,
             behavior: 'instant'
         })
-    }, [userList, activeWordRef, scrollableRef])
+        //Automatic Scroll
+    }, [activeWordRef, scrollableRef])
 
-    // scroll up when starting test
+    useEffect(() => {
+        scrollToCenter()
+    })
+    useEffect(() => {
+        window.addEventListener('resize', scrollToCenter)
+        return (() => {
+            window.removeEventListener('resize', scrollToCenter)
+        })
+    }, [scrollToCenter])
+
     // useEffect(() => {
     //     if (isRunning && scrollableRef.current)
     //         scrollableRef.current.scrollIntoView({
