@@ -139,17 +139,38 @@ export class CanvasClass {
             const width = shape.data.width
             const height = shape.data.height
             this.prepareContext(shape)
-            // already translated to centerP
-            this.pContext.rect(corner.x, corner.y, width, height)
-            this.rContext.rect(corner.x, corner.y, width, height)
-            this.pContext.stroke()
-            this.rContext.stroke()
+            // Define corner radius
+            const cornerRadius = 10;  // Adjust this value for different roundness
+
+            // Use arcTo to create rounded corners
+            this.pContext.beginPath();
+            this.pContext.moveTo(corner.x + cornerRadius, corner.y); // Start from the top-left corner with a small offset for rounding
+            this.pContext.arcTo(corner.x + width, corner.y, corner.x + width, corner.y + height, cornerRadius);
+            this.pContext.arcTo(corner.x + width, corner.y + height, corner.x, corner.y + height, cornerRadius);
+            this.pContext.arcTo(corner.x, corner.y + height, corner.x, corner.y, cornerRadius);
+            this.pContext.arcTo(corner.x, corner.y, corner.x + width, corner.y, cornerRadius);
+            this.pContext.closePath();
+            this.pContext.stroke();
             if (shape.isFill) {
-                this.pContext.fill()
-                this.rContext.fill()
+                this.pContext.fill();
             }
-            this.pContext.scale(1 / shape.scaleX, 1 / shape.scaleY)
-            this.rContext.scale(1 / shape.scaleX, 1 / shape.scaleY)
+
+            this.rContext.beginPath();
+            this.rContext.moveTo(corner.x + cornerRadius, corner.y);
+            this.rContext.arcTo(corner.x + width, corner.y, corner.x + width, corner.y + height, cornerRadius);
+            this.rContext.arcTo(corner.x + width, corner.y + height, corner.x, corner.y + height, cornerRadius);
+            this.rContext.arcTo(corner.x, corner.y + height, corner.x, corner.y, cornerRadius);
+            this.rContext.arcTo(corner.x, corner.y, corner.x + width, corner.y, cornerRadius);
+            this.rContext.closePath();
+            this.rContext.stroke();
+            if (shape.isFill) {
+                this.rContext.fill();
+            }
+
+            // Undo the scaling after drawing
+            this.pContext.scale(1 / shape.scaleX, 1 / shape.scaleY);
+            this.rContext.scale(1 / shape.scaleX, 1 / shape.scaleY);
+
 
             // this.drawImpPoints(shape, 'orange')
 
