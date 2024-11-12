@@ -132,6 +132,7 @@ function DrawingBoard() {
                         "FreeForm"
                     )
                 }
+                document.body.style.cursor = 'cell'
                 break
             }
             case "drawCatmullRom": {
@@ -142,6 +143,7 @@ function DrawingBoard() {
                         "CatmullRom"
                     )
                 }
+                document.body.style.cursor = 'cell'
                 break
             }
             case "drawPolygon": {
@@ -151,6 +153,7 @@ function DrawingBoard() {
                         toolRefs,
                     )
                 }
+                document.body.style.cursor = 'cell'
                 break
             }
             case "drawRectangle": {
@@ -161,6 +164,7 @@ function DrawingBoard() {
                         "Rectangle"
                     )
                 }
+                document.body.style.cursor = 'cell'
                 break
             }
             case "drawCircle": {
@@ -171,6 +175,7 @@ function DrawingBoard() {
                         "Circle"
                     )
                 }
+                document.body.style.cursor = 'cell'
                 break
             }
             case "select": {
@@ -180,6 +185,7 @@ function DrawingBoard() {
                         toolRefs,
                     )
                 }
+                document.body.style.cursor = 'move'
                 break
             }
             default: throw new Error(mode + ' is not available')
@@ -210,16 +216,16 @@ function DrawingBoard() {
     }, []);
 
     const sideProps = {
-        mode:mode,
-        setMode:setMode,
-        lineColor:lineColor,
-        setLineColor:setLineColor,
-        fillColor:fillColor,
-        setFillColor:setFillColor,
-        lineWidth:lineWidth,
-        setLineWidth:setLineWidth,
-        isFill:isFill,
-        setIsFill:setIsFill,
+        mode: mode,
+        setMode: setMode,
+        lineColor: lineColor,
+        setLineColor: setLineColor,
+        fillColor: fillColor,
+        setFillColor: setFillColor,
+        lineWidth: lineWidth,
+        setLineWidth: setLineWidth,
+        isFill: isFill,
+        setIsFill: setIsFill,
         undo: () => {
             eventClassRef.current?.eventClass.deConstructor()
             drawingClassRef.current?.undo()
