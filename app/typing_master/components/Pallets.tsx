@@ -33,7 +33,7 @@ function CustomInput({ cancel }: any) {
                 </button>
                 <button className="w-1/2 p-1 bg-gray-500 rounded-xl hover:scale-110"
                     onClick={() => {
-                        gameDispatch({ type: "setCustom", payload: text })
+                        gameDispatch({ type: "setCustom", payload: text.trim() })
                         cancel()
                     }}
                 >
