@@ -1,4 +1,4 @@
-import { useContext, useEffect, useCallback } from "react";
+import { useContext, useEffect, useCallback, useState } from "react";
 import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 import { PageContext } from "../../context/PageContext";
 import { ArenaContext } from "../../context/ArenaContext";
@@ -9,6 +9,7 @@ export default function TypingArena() {
         setActiveWord,
         userList,
         setUserList,
+        statistics,
         activeWordRef,
         cursorPositonRef,
     } = useContext(ArenaContext)
@@ -22,12 +23,12 @@ export default function TypingArena() {
 
     const wordList: string[] = typingContent
 
-    useEffect(()=>{
+    useEffect(() => {
         setUserList([]) // just to do re-rendering of cursor
-    },[setUserList])
-    useEffect(()=>{
+    }, [setUserList])
+    useEffect(() => {
         setUserList([]) // reset test if typingContent changes
-    },[typingContent,setUserList])
+    }, [typingContent, setUserList])
 
     const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
@@ -43,6 +44,7 @@ export default function TypingArena() {
                         setActiveWord([])
                         setUserList([])
                         gameDispatch({ type: 'reload' })
+                        setTimestamps([])
                         setIsRunning(false)
                         return
                     }
@@ -54,6 +56,7 @@ export default function TypingArena() {
                                     setUserList([])
                                     setActiveWord([])
                                     gameDispatch({ type: 'reload' })
+                                    setTimestamps([])
                                 }
                                 return [...prevList, prevWord.join('')]
                             })
@@ -63,7 +66,7 @@ export default function TypingArena() {
                 }
                 case 'Backspace': {
                     // Complex Async Behaviour,  QUEUE = [...(1),(2),(3)...]
-                    setActiveWord((prevWord: string[]) => {           //----(1)----|
+                    setActiveWord((prevWord: string[]) => {          //----(1)----|
                         if (prevWord.length) {                       //           |
                             if (e.ctrlKey)                           //           |
                                 return []                            //           |
@@ -91,6 +94,7 @@ export default function TypingArena() {
                     setUserList([])
                     setActiveWord([])
                     gameDispatch({ type: 'reload' })
+                    setTimestamps([])
                     break;
                 }
             }
@@ -103,12 +107,33 @@ export default function TypingArena() {
         return () =>
             document.removeEventListener('keydown', gamePressListner)
     }, [gamePressListner, isFocused]);
+    const [timestamps, setTimestamps] = useState<number[]>([])
+    useEffect(() => {
+        // Define the function that will run the repeated logic
+        const updateTimestamp = () => {
+            if (!statistics.current) throw Error("IDK")
+            const total_length = statistics.current['correct']
+            console.log(statistics.current)
+            setTimestamps((prevTime) => [...prevTime, Number(total_length)]);
+        };
+
+        const interval = setInterval(updateTimestamp, 1000);
+
+        return () => {
+            clearInterval(interval)
+        };
+    }, [statistics]);
+
     return (
         <div className={`
                     xl:text-5xl lg:text-5xl md:text-4xl sm:text-2xl 
                     xl:gap-5 lg:gap-4 md:gap-3  sm:gap-2
                     w-full  pt-[1vh] pb-[20vh] 
                     inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
+            <div className="fixed top-16 w-[80%] flex flex-wrap rounded gap-3 text-sm">{timestamps.map((time, index) => {
+                return <div key={index}>{time}</div>
+            })
+            }</div>
             {wordList.map((word: string, idx: number) => {
                 if (idx < userList.length) {
                     return <TypedWord
