@@ -53,9 +53,11 @@ export function TopPallet() {
                 <CustomInput
                     cancel={() => setCustomVisible(false)}
                 />}
-            <div className={`flex p-2 dark:bg-gray-700 bg-gray-500 max-w-[100%]
-                    xl:text-xl lg:text-lg md:text-sm sm:text-xs 
+            <div className={`flex absolute top-[20vh] p-2 overflow-auto
+                    dark:bg-gray-800 bg-gray-500 max-w-[90%]
+                    xl:text-2xl lg:text-xl md:text-sm sm:text-xs 
                     justify-evenly items-center text-center rounded-xl
+                        ${gameInfo.type=="result" ? 'opacity-0' : ''}
                         ${isRunning ? 'opacity-0' : ''}`}>
                 {(gameInfo.type === 'words' || gameInfo.type === "custom") &&
                     <>
@@ -152,31 +154,52 @@ function Divider() {
         <div className='w-1 m-2 h-[80%] rounded-lg dark:bg-gray-200' />
     )
 }
-function Badge({ emoji, title, onclick = () => { }, isSelected = false }: any) {
+function Badge({ emoji, title, onclick = () => { }, isSelected = false, tabIndex = -1 }: any) {
     return (
-        <span
-            className={`p-1.5 dark:text-gray-300 cursor-pointer 
-                    ${isSelected ? 'text-gray-50 dark:text-yellow-200' : 'text-gray-800'}`}
-            onClick={onclick}
+        <button
+            tabIndex={tabIndex}
+            // onKeyDown={(e) => {
+            //     if (e.key === 'Enter' || e.key === ' ') {
+            //         console.log(typeof(onclick))
+            //         if(!onclick) return
+            //         onclick()
+            //         (e.target as HTMLButtonElement).blur()
+            //         document.getElementById('typingContent')?.focus()
+            //     }
+            // }}
+            className={`p-1.5 px-2 dark:text-word cursor-pointer 
+                    ${isSelected ? 'text-word dark:text-yellow-200' : 'text-word'}
+                    focus:text-yellow-500 focus:outline-white hover:text-yellow-200
+                    `}
+            onClick={(e) => {
+                onclick()
+                if (e.target)
+                    (e.target as HTMLButtonElement).blur()
+            }}
         >
             {emoji} {title}
-        </span>
+        </button>
     )
 }
 export function BottomPallet() {
     const { isRunning, gameDispatch } = useContext(PageContext)
     return (
         <div
-            className={`w-auto text-4xl bg-gray-700 flex justify-around
+            className={`absolute bottom-[3vh] w-auto text-4xl flex justify-around
                         items-center text-center rounded-xl
-                        ${isRunning ? 'opacity-0' : 'opacity-0'}`}>
+                        ${isRunning ? 'opacity-50' : 'opacity-50'}`}>
             <div className="px-10 flex gap-24 ">
                 <Badge emoji={">"} title={""}
-                    onclick={() => gameDispatch({ type: 'reload' })}
+                    tabIndex={1}
+                    onclick={() => gameDispatch({ type: 'next' })}
                 />
-                <Badge emoji={"↻"} title={""} />
-                <Badge emoji={"⚠"} title={""} />
-                <Badge emoji={"⏭"} title={""} />
+                {/* Needs more focus, to compare the results */}
+                {/* <Badge emoji={"↻"} title={""}  */}
+                {/*     tabIndex={2}     */}
+                {/*     onclick={() => gameDispatch({ type: 'reload' })} */}
+                {/* /> */}
+                {/* <Badge emoji={"⚠"} title={""} /> */}
+                {/* <Badge emoji={"⏭"} title={""} /> */}
                 {/* <Badge emoji={"🏞"} title={""} /> */}
             </div>
         </div>
