@@ -8,9 +8,9 @@ const inter = Inter({ subsets: ['latin'] });
 export default function TypingMaster() {
     return (
         <PageProvider>
-            <div className={`${inter.className} w-full h-[115vh]
+            <div className={`${inter.className} w-full h-[100vh]
                             flex flex-col items-center 
-                            justify-center bg-gray-400 dark:bg-gray-600`} >
+                            justify-center bg-gray-400 dark:bg-dark-bag`} >
                 <TopPallet />
                 <MainScreen />
                 <BottomPallet />
