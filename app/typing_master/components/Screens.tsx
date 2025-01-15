@@ -3,6 +3,7 @@ import { PageContext } from "../context/PageContext";
 import { ArenaContext } from "../context/ArenaContext";
 
 export function BlurryScreen({ children }: any) {
+    const { gameInfo } = useContext(PageContext)
     const BlurryRef = useRef<HTMLDivElement>(null)
     const { isFocused, setIsFocused } = useContext(PageContext);
     useEffect(() => {
@@ -22,8 +23,12 @@ export function BlurryScreen({ children }: any) {
             window.removeEventListener('keypress', focusPress)
         }
     }, [setIsFocused, BlurryRef])
+    if (gameInfo.type == 'result') {
+        setIsFocused(false)
+        return
+    }
     return (
-        <div className={`relative  m-16 w-[80%] rounded-xl 
+        <div className={`relative my-32 m-16 w-[90%] rounded-xl
                         xl:h-[13rem] lg:h-[12.5rem] md:h-[9.5rem] sm:h-[8.0rem]
 `}>
             {!isFocused && <div ref={BlurryRef}
@@ -45,7 +50,9 @@ export function BlurryScreen({ children }: any) {
 
 export function Scrollable({ children }: any) {
     const { isRunning, typingContent } = useContext(PageContext)
-    const { activeWordRef, scrollableRef, userList, } = useContext(ArenaContext)
+    const { activeWordRef, scrollableRef, typedContentRef } = useContext(ArenaContext)
+    if(!typedContentRef.current) throw Error('error')
+    const typedContent = typedContentRef.current
 
     const scrollToCenter = useCallback(() => {
         if (!scrollableRef.current) return
@@ -84,13 +91,15 @@ export function Scrollable({ children }: any) {
     // }, [isRunning, scrollableRef])
 
     return (
-        <div className="flex items-baseline" >
+        <div 
+            id="typingContent"
+            className="flex items-baseline" >
             {isRunning &&
                 <div className={` xl:text-5xl md:text-4xl sm:text-2xl
                     xl:ml-10 md:ml-9 sm:ml-9 
                     xl:-translate-y-16 md:-translate-y-14 sm:-translate-y-10
                     w-full h-auto  dark:text-yellow-300 text-gray-800 `} >
-                    {userList.length} / {typingContent.length}
+                    {typedContent.length} / {typingContent.length}
                 </div>
             }
             <div ref={scrollableRef}
