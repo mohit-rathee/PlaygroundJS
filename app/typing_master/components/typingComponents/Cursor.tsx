@@ -36,6 +36,7 @@ export default function Cursor() {
             document.addEventListener('mousemove', handleMove)
         return (() => {
             document.removeEventListener('mousemove', handleMove)
+            document.body.style.cursor = 'default'
         })
     }, [isFocused, isRunning, setIsRunning])
     useEffect(() => {
