@@ -1,15 +1,13 @@
-import { useContext, useEffect, useCallback, useState } from "react";
+import { useContext, useEffect, useCallback, useRef } from "react";
 import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 import { PageContext } from "../../context/PageContext";
 import { ArenaContext } from "../../context/ArenaContext";
 
 export default function TypingArena() {
     const {
+        typedContentRef,
         activeWord,
-        setActiveWord,
-        userList,
-        setUserList,
-        statistics,
+        wordDispatch,
         activeWordRef,
         cursorPositonRef,
     } = useContext(ArenaContext)
@@ -20,86 +18,47 @@ export default function TypingArena() {
         setIsRunning,
         typingContent,
     } = useContext(PageContext);
-
+    if (!typedContentRef.current) throw Error('typedContentRef is null')
+    const typedContent = typedContentRef.current
     const wordList: string[] = typingContent
-
-    useEffect(() => {
-        setUserList([]) // just to do re-rendering of cursor
-    }, [setUserList])
-    useEffect(() => {
-        setUserList([]) // reset test if typingContent changes
-    }, [typingContent, setUserList])
 
     const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
         if (/^[a-zA-Z0-9,.!@#$%^&*()_+\\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
             if (!isRunning) setIsRunning(true)
-            setActiveWord((prevWord: string[]) => [...prevWord, e.key])
+            wordDispatch({
+                type: "add",
+                letter: e.key
+            })
         }
         else {
             switch (e.code) {
                 case 'Space': {
                     e.preventDefault()
                     if (e.shiftKey) {
-                        setActiveWord([])
-                        setUserList([])
-                        gameDispatch({ type: 'reload' })
-                        setTimestamps([])
+                        gameDispatch({ type: 'next' })
                         setIsRunning(false)
                         return
                     }
-                    setActiveWord((prevWord: string[]) => {
-                        if (prevWord.length)
-                            setUserList((prevList: string[]) => {
-                                if (prevList.length == wordList.length - 1) {
-                                    setIsRunning(false)
-                                    setUserList([])
-                                    setActiveWord([])
-                                    gameDispatch({ type: 'reload' })
-                                    setTimestamps([])
-                                }
-                                return [...prevList, prevWord.join('')]
-                            })
-                        return []
-                    })
+                    wordDispatch({ type: "next", })
                     break;
                 }
                 case 'Backspace': {
-                    // Complex Async Behaviour,  QUEUE = [...(1),(2),(3)...]
-                    setActiveWord((prevWord: string[]) => {          //----(1)----|
-                        if (prevWord.length) {                       //           |
-                            if (e.ctrlKey)                           //           |
-                                return []                            //           |
-                            else                                     //           | 
-                                return prevWord.slice(0, -1)         //           |
-                        }                                            //           |
-                        //If activeWord was empty, then              //           |       
-                        setUserList((prevUserList: string[]) => {    //--(2)--|   |       
-                            if (!prevUserList.length) return [];     //       |   |
-                            const lastWord = prevUserList.pop()      //       |   |
-                            if (!lastWord)                           //       |   |
-                                throw new Error('lastWord not found')//       |   |
-                            if (e.ctrlKey)                           //       |   |
-                                setActiveWord([])                    //-(3)-| |   |
-                            else                                     //     | |   |
-                                setActiveWord(lastWord.split(''))    //-(3)-| |   |
-                            return [...prevUserList]                 //       |   |
-                        });                                          //-------|   |
-                        return []                                    //           |
-                    })                                               //-----------|
+                    wordDispatch({
+                        type: 'back',
+                        isCtrl: e.ctrlKey
+                    })
+                    break;
                 }
                 case 'Enter': {
                     if (!e.shiftKey) return
                     setIsRunning(false)
-                    setUserList([])
-                    setActiveWord([])
-                    gameDispatch({ type: 'reload' })
-                    setTimestamps([])
+                    wordDispatch({ type: 'complete' })
                     break;
                 }
             }
         }
-    }, [isRunning, setIsRunning, gameDispatch, wordList, setActiveWord, setUserList])
+    }, [isRunning, wordDispatch, gameDispatch, setIsRunning])
     useEffect(() => {
         if (isFocused) {
             document.addEventListener('keydown', gamePressListner)
@@ -107,41 +66,23 @@ export default function TypingArena() {
         return () =>
             document.removeEventListener('keydown', gamePressListner)
     }, [gamePressListner, isFocused]);
-    const [timestamps, setTimestamps] = useState<number[]>([])
-    useEffect(() => {
-        // Define the function that will run the repeated logic
-        const updateTimestamp = () => {
-            if (!statistics.current) throw Error("IDK")
-            const total_length = statistics.current['correct']
-            console.log(statistics.current)
-            setTimestamps((prevTime) => [...prevTime, Number(total_length)]);
-        };
 
-        const interval = setInterval(updateTimestamp, 1000);
-
-        return () => {
-            clearInterval(interval)
-        };
-    }, [statistics]);
 
     return (
-        <div className={`
+        <div tabIndex={0}
+            className={`
                     xl:text-5xl lg:text-5xl md:text-4xl sm:text-2xl 
                     xl:gap-5 lg:gap-4 md:gap-3  sm:gap-2
-                    w-full  pt-[1vh] pb-[20vh] 
+                    w-full  pt-[1vh] pb-[20vh] focus:outline-none
                     inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
-            <div className="fixed top-16 w-[80%] flex flex-wrap rounded gap-3 text-sm">{timestamps.map((time, index) => {
-                return <div key={index}>{time}</div>
-            })
-            }</div>
             {wordList.map((word: string, idx: number) => {
-                if (idx < userList.length) {
+                if (idx < typedContent.length) {
                     return <TypedWord
                         key={idx}
-                        userWord={userList[idx]}
+                        userWord={typedContent[idx]}
                         realWord={word}
                     />
-                } else if (idx == userList.length) {
+                } else if (idx == typedContent.length) {
                     return <ActiveWord
                         key={idx}
                         activeWordRef={activeWordRef}
