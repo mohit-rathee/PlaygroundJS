@@ -1,14 +1,30 @@
 import React, { createContext, useReducer, ReactNode, useEffect, useState } from "react";
 import { generateCustom, quotesGenerator, randomWordsGenerator } from "../utils/testContentGenerator";
-import { GameInfoType, Action, PageContextType } from "../typex";
+import { GameInfoType, gameInfoAction, PageContextType } from "../types";
 
 
 const initialGameInfo: GameInfoType = { type: 'words', length: 25, punctuation: false, number: false };
 
-function reducer(state: GameInfoType, action: Action): GameInfoType {
+function reducer(state: GameInfoType, action: gameInfoAction): GameInfoType {
     switch (action.type) {
-        case 'reload':
-            return { ...state }
+        case 'complete':
+            console.log(state.type)
+            if (state.type == "result") throw Error('error')
+            return {
+                type: "result",
+                timestamps: action.timestamps,
+                lastConfig: state
+            }
+        case 'next':
+            if (state.type == "result")
+                return state.lastConfig
+            else
+                return { ...state }
+        case 'retake':
+            if (state.type == "result")
+                return state.lastConfig
+            else
+                return { ...state }
         case 'toggleNumber':
             if (state.type === 'words' || state.type === 'custom') {
                 return { ...state, number: !state.number };
@@ -68,6 +84,7 @@ const PageProvider = ({ children }: { children: ReactNode }) => {
     const [isFocused, setIsFocused] = useState(false)
 
     useEffect(() => {
+        console.log('Loading typingContent')
         switch (gameInfo.type) {
             case "zen":
                 setTypingContent(['I', 'am', 'lost.'])
@@ -83,6 +100,11 @@ const PageProvider = ({ children }: { children: ReactNode }) => {
             case "words":
                 const randomWords = randomWordsGenerator(gameInfo)
                 setTypingContent(randomWords)
+                break;
+            case "result":
+                // const randomWords2 = randomWordsGenerator(gameInfo)
+                // setTypingContent(['done'])
+                // setResult(gameInfo.timestamps)
                 break;
         }
     }, [gameInfo])
