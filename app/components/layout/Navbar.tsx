@@ -23,7 +23,7 @@ export default function Navbar({ title }: { title: string }) {
         }
     };
     return (
-        <div className="w-full h-14 bg-gray-400 dark:bg-gray-600 pl-5 p-2 z-50 flex justify-between items-center shadow-md">
+        <div className="w-full h-14 bg-gray-400 dark:bg-gray-700 pl-5 p-2 z-50 flex justify-between items-center shadow-md">
             <Image
                 onClick={handleClick}
                 className="mx-4 mt-2 text-red-100 bg-transparent cursor-pointer scale-[2.5]"
@@ -44,6 +44,7 @@ export default function Navbar({ title }: { title: string }) {
                                 transition-all duration-300 ease-out transform
             `} /> :
                 <button
+                    tabIndex={-1}
                     className={`rounded-full p-4 shadow-lg 
                                 bg-gray-600  dark:bg-gray-400 w-30 `}
                 />

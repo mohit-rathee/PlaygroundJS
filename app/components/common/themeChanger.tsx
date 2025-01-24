@@ -7,6 +7,7 @@ export default function ThemeToggle({ buttonClass }: any) {
 
     return (
         <button
+            tabIndex={-1}
             onClick={() => setTheme(resolvedTheme === 'light' ? 'dark' : 'light')}
             className={buttonClass}
         >
