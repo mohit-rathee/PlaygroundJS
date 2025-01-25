@@ -8,7 +8,12 @@ const config: Config = {
     ],
     darkMode: 'class', // Enable dark mode using the 'class' strategy
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                'dark-bag': '#2C3441',
+                'word': '#d3d3d3'
+            }
+        },
     },
     plugins: [],
 };
