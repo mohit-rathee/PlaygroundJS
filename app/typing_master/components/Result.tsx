@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, CartesianGrid } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useContext } from "react"
 import { PageContext } from "../context/PageContext"
 import { calculateResult } from '../utils/result_utils';
@@ -72,7 +72,7 @@ const MyLineChart = ({ data }: { data: { timestamps: number; correct: number }[]
                         <stop offset="95%" stopColor="blue" stopOpacity={0.0} />
                     </linearGradient>
                 </defs>
-                <CartesianGrid vertical='' horizontal='true' />
+                <CartesianGrid vertical={false} horizontal={true} />
                 <XAxis
                     dataKey="timestamps"
                     // type='number'
@@ -153,7 +153,7 @@ const MyLineChart = ({ data }: { data: { timestamps: number; correct: number }[]
         </ResponsiveContainer>
     );
 };
-const CustomDot = (props) => {
+const CustomDot = (props:any) => {
     const { cx, cy, value, width } = props;
 
     // Skip rendering for `value === 0`

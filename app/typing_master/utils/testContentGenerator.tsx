@@ -1,4 +1,4 @@
-import { GameInfoType } from "../typex";
+import { GameInfoType } from "../types";
 import { words, punctuations } from "../utils/random_words";
 import { longQuotes } from "./quotes/longQuotes";
 import { mediumQuotes } from "./quotes/mediumQuotes";
