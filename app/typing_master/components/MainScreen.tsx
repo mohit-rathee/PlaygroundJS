@@ -18,7 +18,6 @@ export default function MainPallet() {
                         <TypingArena />
                         <Cursor />
                     </Scrollable>
-                    <Result />
                 </BlurryScreen>
             </ArenaProvider>
         )

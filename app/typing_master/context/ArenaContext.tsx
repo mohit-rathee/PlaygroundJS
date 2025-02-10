@@ -33,7 +33,9 @@ function gameReducer(
     gameDispatch: Dispatch<gameInfoAction>,
     timestampsRef: React.MutableRefObject<Timestamps[]>,
     typingContent: string[],
-    statisticsRef: React.MutableRefObject<Statistics>
+    statisticsRef: React.MutableRefObject<Statistics>,
+    setIsFocused: React.SetStateAction<boolean>,
+    setIsRunning: React.SetStateAction<boolean>
 ): string[] {
 
     if (!typedWordsRef.current)
@@ -79,7 +81,7 @@ function gameReducer(
                 if (action.isCtrl) newWord = [];
             }
 
-            console.log("newWord", [...newWord]);
+            // console.log("newWord", [...newWord]);
             return [...newWord];
         }
 
@@ -88,7 +90,7 @@ function gameReducer(
             // const stat = getDiff(word, currentWord)
             const newWord = word.join("")
             typedWords.push(newWord)
-            statistics.past.correct += statistics.current.correct 
+            statistics.past.correct += statistics.current.correct
             if (newWord.length == currentWord.length)
                 statistics.past.correct += 1  //+1 for space
             statistics.past.incorrect += statistics.current.incorrect
@@ -105,11 +107,16 @@ function gameReducer(
             timestampsRef.current = []
             typedWordsRef.current = []
             statisticsRef.current = getInitStats()
+            setIsFocused(true)
+            console.log('seeting to true')
             return []
         case "reset":
             typedWordsRef.current = []
             timestampsRef.current = []
             statisticsRef.current = getInitStats()
+            setIsFocused(true)
+            setIsRunning(false)
+            console.log('seeting to true')
             return []
         default:
             throw Error('case not defined')
@@ -117,7 +124,7 @@ function gameReducer(
 }
 
 const ArenaProvider = ({ children }: { children: ReactNode }) => {
-    const { gameInfo, gameDispatch, isRunning, typingContent } = useContext(PageContext);
+    const { gameInfo, gameDispatch, isRunning, setIsRunning, setIsFocused, typingContent } = useContext(PageContext);
 
     const typedContentRef = useRef<string[]>([]);
     const timestampsRef = useRef<Timestamps[]>([])
@@ -129,7 +136,9 @@ const ArenaProvider = ({ children }: { children: ReactNode }) => {
                 gameDispatch,
                 timestampsRef,
                 typingContent,
-                statisticsRef
+                statisticsRef,
+                setIsFocused,
+                setIsRunning
             ),
         [typedContentRef, gameDispatch, typingContent]
     );
@@ -148,14 +157,16 @@ const ArenaProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         wordDispatch({ type: 'reset' })
-    }, [gameInfo]);
+    }, [gameInfo, setIsFocused]);
+
     useEffect(() => {
         if (!typedContentRef.current) throw Error('error')
         const typedContent = typedContentRef.current
         if (typedContent.length && typedContent.length == typingContent.length) {
+            setIsRunning(false)
             wordDispatch({ type: 'complete' })
         }
-    }, [typedContentRef.current.length, typingContent]);
+    }, [typedContentRef.current.length, setIsRunning, typingContent]);
 
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null)

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useCallback, useRef } from "react";
+import { useContext, useEffect, useCallback } from "react";
 import { ActiveWord, InactiveWord, TypedWord } from "./Word"
 import { PageContext } from "../../context/PageContext";
 import { ArenaContext } from "../../context/ArenaContext";
@@ -16,6 +16,7 @@ export default function TypingArena() {
         isRunning,
         isFocused,
         setIsRunning,
+        setIsFocused,
         typingContent,
     } = useContext(PageContext);
     if (!typedContentRef.current) throw Error('typedContentRef is null')
@@ -24,8 +25,9 @@ export default function TypingArena() {
 
     const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
-        if (!isRunning) setIsRunning(true)
         if (/^[a-zA-Z0-9,.!@#$%^&*()_+\\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
+            if (!isRunning) setIsRunning(true)
+            if (!isFocused) setIsFocused(true)
             wordDispatch({
                 type: "add",
                 letter: e.key
@@ -58,7 +60,7 @@ export default function TypingArena() {
                 }
             }
         }
-    }, [isRunning, wordDispatch, gameDispatch, setIsRunning])
+    }, [isRunning, isFocused, wordDispatch, setIsFocused, gameDispatch, setIsRunning])
     useEffect(() => {
         if (isFocused) {
             document.addEventListener('keydown', gamePressListner)
@@ -69,12 +71,14 @@ export default function TypingArena() {
 
 
     return (
-        <div tabIndex={0}
+        <div 
+            id="typingContent"
+            tabIndex={0}
             className={`
                     xl:text-5xl lg:text-5xl md:text-4xl sm:text-2xl 
                     xl:gap-5 lg:gap-4 md:gap-3  sm:gap-2
-                    w-full  pt-[1vh] pb-[20vh] focus:outline-none
-                    inline-flex items-baseline flex-wrap p-8 border-sky-50`}>
+                    w-full  focus:outline-none
+                    inline-flex items-baseline flex-wrap p-0 border-sky-50`}>
             {wordList.map((word: string, idx: number) => {
                 if (idx < typedContent.length) {
                     return <TypedWord

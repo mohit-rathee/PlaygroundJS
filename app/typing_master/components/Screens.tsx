@@ -5,34 +5,42 @@ import { ArenaContext } from "../context/ArenaContext";
 export function BlurryScreen({ children }: any) {
     const { gameInfo } = useContext(PageContext)
     const BlurryRef = useRef<HTMLDivElement>(null)
-    const { isFocused, setIsFocused } = useContext(PageContext);
+    const { isFocused, isRunning, setIsFocused } = useContext(PageContext);
     useEffect(() => {
         function focusClick(e: MouseEvent) {
-            if (BlurryRef.current &&
-                BlurryRef.current.contains(e.target as Node))
-                setIsFocused(true)
+            if (BlurryRef.current) {
+                if (BlurryRef.current.contains(e.target as Node)) {
+                    setIsFocused(true)
+                }
+            }
+            else
+                if (
+                    !isRunning &&
+                    !document.getElementById('typingContent')
+                        ?.contains(e.target as Node)
+                ) {
+                    console.log('setting to false')
+                    setIsFocused(false)
+                }
         }
         function focusPress() {
-            if (!document.getElementById('CustomDiv'))
-                setIsFocused(true)
+            setIsFocused(true)
         }
-        window.addEventListener('click', focusClick)
-        window.addEventListener('keypress', focusPress)
+        document.addEventListener('click', focusClick)
+        document.addEventListener('keypress', focusPress)
         return () => {
-            window.removeEventListener('click', focusClick)
-            window.removeEventListener('keypress', focusPress)
+            document.removeEventListener('click', focusClick)
+            document.removeEventListener('keypress', focusPress)
+            console.log('EventListener removed')
         }
-    }, [setIsFocused, BlurryRef])
-    if (gameInfo.type == 'result') {
-        setIsFocused(false)
-        return
-    }
+    }, [setIsFocused, isRunning, BlurryRef])
     return (
-        <div className={`relative my-32 m-16 w-[90%] rounded-xl
-                        xl:h-[13rem] lg:h-[12.5rem] md:h-[9.5rem] sm:h-[8.0rem]
+        <div className={`relative my-32 m-16 w-[80%] rounded-xl
+                        xl:h-[12rem] lg:h-[12rem] md:h-[9.5rem] sm:h-[8.0rem]
 `}>
             {!isFocused && <div ref={BlurryRef}
                 className={`absolute inset-0 flex justify-center items-center
+                                border-2 border-gray-600 h-52
                                 scale-x-110 scale-y-110
                                 z-20 text-3xl text-gray-50
                                 bg-gray-950 rounded-xl
@@ -51,7 +59,7 @@ export function BlurryScreen({ children }: any) {
 export function Scrollable({ children }: any) {
     const { isRunning, typingContent } = useContext(PageContext)
     const { activeWordRef, scrollableRef, typedContentRef } = useContext(ArenaContext)
-    if(!typedContentRef.current) throw Error('error')
+    if (!typedContentRef.current) throw Error('error')
     const typedContent = typedContentRef.current
 
     const scrollToCenter = useCallback(() => {
@@ -91,12 +99,13 @@ export function Scrollable({ children }: any) {
     // }, [isRunning, scrollableRef])
 
     return (
-        <div 
+        <div
             id="typingContent"
-            className="flex items-baseline" >
+            className="flex items-baseline">
             {isRunning &&
                 <div className={` xl:text-5xl md:text-4xl sm:text-2xl
                     xl:ml-10 md:ml-9 sm:ml-9 
+                    xl:-translate-x-9 md:-translate-x-8 sm:-translate-x-7
                     xl:-translate-y-16 md:-translate-y-14 sm:-translate-y-10
                     w-full h-auto  dark:text-yellow-300 text-gray-800 `} >
                     {typedContent.length} / {typingContent.length}

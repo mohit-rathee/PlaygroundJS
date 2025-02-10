@@ -38,10 +38,10 @@ export default function Cursor() {
             document.removeEventListener('mousemove', handleMove)
             document.body.style.cursor = 'default'
         })
-    }, [isFocused, isRunning, setIsRunning])
+    }, [isFocused,setIsFocused, isRunning, setIsRunning])
     useEffect(() => {
         setIsFocused(true)
-    })
+    },[setIsFocused])
     const replaceCursor = useCallback(() => {
         if (cursorPositonRef.current && cursorRef.current && scrollableRef.current) {
             const cursor = cursorPositonRef.current.getBoundingClientRect()

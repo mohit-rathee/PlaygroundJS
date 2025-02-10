@@ -57,7 +57,7 @@ export function TopPallet() {
                     dark:bg-gray-800 bg-gray-500 max-w-[90%]
                     xl:text-2xl lg:text-xl md:text-sm sm:text-xs 
                     justify-evenly items-center text-center rounded-xl
-                        ${gameInfo.type=="result" ? 'opacity-0' : ''}
+                        ${gameInfo.type == "result" ? 'opacity-0' : ''}
                         ${isRunning ? 'opacity-0' : ''}`}>
                 {(gameInfo.type === 'words' || gameInfo.type === "custom") &&
                     <>
@@ -154,54 +154,74 @@ function Divider() {
         <div className='w-1 m-2 h-[80%] rounded-lg dark:bg-gray-200' />
     )
 }
-function Badge({ emoji, title, onclick = () => { }, isSelected = false, tabIndex = -1 }: any) {
+function Badge({ emoji, title, hover, onclick = () => {}, isSelected = false, tabIndex = -1 }: any) {
     return (
-        <button
-            tabIndex={tabIndex}
-            // onKeyDown={(e) => {
-            //     if (e.key === 'Enter' || e.key === ' ') {
-            //         console.log(typeof(onclick))
-            //         if(!onclick) return
-            //         onclick()
-            //         (e.target as HTMLButtonElement).blur()
-            //         document.getElementById('typingContent')?.focus()
-            //     }
-            // }}
-            className={`p-1.5 px-2 dark:text-word cursor-pointer 
+        <div className="relative inline-block group">
+            {/* Tooltip */}
+            <div className="absolute left-1/2 -translate-x-1/2 -top-8 bg-gray-800 
+                text-white p-1 rounded text-lg opacity-0 group-hover:opacity-100 
+                transition-opacity duration-200">
+                {hover}
+            </div>
+
+            {/* Button */}
+            <button
+                tabIndex={tabIndex}
+                className={`p-1.5 px-2 dark:text-word cursor-pointer 
                     ${isSelected ? 'text-word dark:text-yellow-200' : 'text-word'}
                     focus:text-yellow-500 focus:outline-white hover:text-yellow-200
-                    `}
-            onClick={(e) => {
-                onclick()
-                if (e.target)
-                    (e.target as HTMLButtonElement).blur()
-            }}
-        >
-            {emoji} {title}
-        </button>
-    )
-}
-export function BottomPallet() {
-    const { isRunning, gameDispatch } = useContext(PageContext)
-    return (
-        <div
-            className={`absolute bottom-[3vh] w-auto text-4xl flex justify-around
-                        items-center text-center rounded-xl
-                        ${isRunning ? 'opacity-50' : 'opacity-50'}`}>
-            <div className="px-10 flex gap-24 ">
-                <Badge emoji={">"} title={""}
-                    tabIndex={1}
-                    onclick={() => gameDispatch({ type: 'next' })}
-                />
-                {/* Needs more focus, to compare the results */}
-                {/* <Badge emoji={"↻"} title={""}  */}
-                {/*     tabIndex={2}     */}
-                {/*     onclick={() => gameDispatch({ type: 'reload' })} */}
-                {/* /> */}
-                {/* <Badge emoji={"⚠"} title={""} /> */}
-                {/* <Badge emoji={"⏭"} title={""} /> */}
-                {/* <Badge emoji={"🏞"} title={""} /> */}
-            </div>
+                `}
+                onClick={(e) => {
+                    onclick();
+                    if (e.target) (e.target as HTMLButtonElement).blur();
+                }}
+            >
+                {emoji} {title}
+            </button>
         </div>
+    );
+}
+
+export function BottomPallet() {
+    const { isRunning, gameInfo, gameDispatch } = useContext(PageContext)
+    return (
+        <>
+            <div
+                className={`absolute bottom-[3vh] w-auto text-4xl flex justify-around
+                        items-center text-center rounded-xl
+                        ${isRunning ? "opacity-0" : "opacity-80"}
+                        `}>
+                <div className="px-10 flex gap-24 ">
+                    {gameInfo.type == "result" ?
+                        <Badge
+                            emoji={'>'}
+                            hover={'next'}
+                            tabIndex={1}
+                            onclick={() => gameDispatch({ type: 'next' })}
+                        /> :
+                        <Badge
+                            emoji={'↺'}
+                            hover={'restart'}
+                            tabIndex={1}
+                            onclick={() => gameDispatch({ type: 'next' })}
+                        />}
+                    {/* Needs more focus, to compare the results */}
+                    {/* <Badge emoji={"↻"} title={""}  */}
+                    {/*     tabIndex={2}     */}
+                    {/*     onclick={() => gameDispatch({ type: 'reload' })} */}
+                    {/* /> */}
+                    {/* <Badge emoji={"⚠"} title={""} /> */}
+                    {/* <Badge emoji={"⏭"} title={""} /> */}
+                    {/* <Badge emoji={"🏞"} title={""} /> */}
+                </div>
+            </div>
+            <div className={`absolute bottom-[3%] right-[5%] bg-gray-800 p-2 
+                            text-center rounded w-64 gap-24 text-xl
+                    ${(isRunning || gameInfo.type == "result") ? 'opacity-0' : 'opacity-80'}`}>
+                Shift+Space ={'>'} Restart
+                <br />
+                Shift+Enter  ={'>'} Submit
+            </div>
+        </>
     )
 }
