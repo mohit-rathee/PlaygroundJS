@@ -34,8 +34,8 @@ function gameReducer(
     timestampsRef: React.MutableRefObject<Timestamps[]>,
     typingContent: string[],
     statisticsRef: React.MutableRefObject<Statistics>,
-    setIsFocused: React.SetStateAction<boolean>,
-    setIsRunning: React.SetStateAction<boolean>
+    setIsFocused: React.Dispatch<React.SetStateAction<boolean>>,
+    setIsRunning: React.Dispatch<React.SetStateAction<boolean>>
 ): string[] {
 
     if (!typedWordsRef.current)
@@ -140,7 +140,7 @@ const ArenaProvider = ({ children }: { children: ReactNode }) => {
                 setIsFocused,
                 setIsRunning
             ),
-        [typedContentRef, gameDispatch, typingContent]
+        [setIsFocused, setIsRunning, typedContentRef, gameDispatch, typingContent]
     );
     const [activeWord, wordDispatch] = useReducer(reducerWrapper, []);
 
