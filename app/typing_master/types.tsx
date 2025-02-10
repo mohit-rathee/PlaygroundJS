@@ -69,5 +69,6 @@ export interface Timestamps {
     correct: number,
     error: number
     left: number,
-    overflow: number
+    overflow: number,
+    timestamps: number,
 }

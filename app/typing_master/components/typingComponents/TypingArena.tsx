@@ -24,8 +24,8 @@ export default function TypingArena() {
 
     const gamePressListner = useCallback((e: KeyboardEvent) => {
         e.stopPropagation()
+        if (!isRunning) setIsRunning(true)
         if (/^[a-zA-Z0-9,.!@#$%^&*()_+\\[\]{};':"\\|,.<>?\/]$/.test(e.key)) {
-            if (!isRunning) setIsRunning(true)
             wordDispatch({
                 type: "add",
                 letter: e.key

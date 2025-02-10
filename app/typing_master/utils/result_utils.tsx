@@ -3,21 +3,21 @@ import { GameInfoType, Timestamps } from "../types"
 const WPM = 60 / 5
 const ns = 100
 const items_in_1_sec = 1000 / ns
-const Lowest = 1
-const Low = 10
-const Mid = 30
+const LOW = 2
+const MID = 10
+const HIGH = 30
 
 export function calculateResult(gameInfo: GameInfoType) {
     if (gameInfo.type != 'result') throw Error('idk')
-    // console.log(gameInfo.timestamps)
+    console.log(gameInfo.timestamps)
     const total_time = gameInfo.timestamps.length / items_in_1_sec
     const steps = 25
     let dots;
-    if (total_time < Lowest)
-        dots = items_in_1_sec / 1000 // 0.01 sec
-    else if (total_time < Low)
+    if (total_time < LOW)
+        dots = items_in_1_sec / 10 // 0.01 sec
+    else if (total_time < MID)
         dots = items_in_1_sec / 2 // 0.5 sec
-    else if (total_time < Mid)
+    else if (total_time < HIGH)
         dots = items_in_1_sec
     else
         dots = Math.floor(gameInfo.timestamps.length / steps)
@@ -28,9 +28,11 @@ export function calculateResult(gameInfo: GameInfoType) {
 
         const prev = aggregatedData[idx - 1] ||
             { correct: 0, incorrect: 0, gross: 0, timestamps: 0 }
+        const prev2 = aggregatedData[idx - 2] || prev
+        const prev3 = aggregatedData[idx - 3] || prev2
 
-        const correctTyped = v.correct - prev.correct;
-        const incorrectTyped = v.incorrect - prev.incorrect;
+        const correctTyped = v.correct - prev3.correct;
+        const incorrectTyped = v.incorrect - prev3.incorrect;
         const gap = v.timestamps - prev.timestamps
         const totalTyped = Math.floor((correctTyped + incorrectTyped) / gap)
 
@@ -40,11 +42,15 @@ export function calculateResult(gameInfo: GameInfoType) {
         // console.log('letter in 1 sec', v.correct / v.timestamps)
         // console.log('----')
         return {
-            timestamps: (total_time > Low) ? Math.round(v.timestamps) : v.timestamps,
+            // timestamps: (total_time > Low) ? Math.round(v.timestamps) : v.timestamps,
+            timestamps: (total_time > MID) ? Math.round(v.timestamps) : v.timestamps,
             speed: Math.floor(((v.correct - prev.correct) * WPM)),
-            correct: Math.floor((v.correct / v.timestamps) * WPM),
-            incorrect: incorrectTyped,
-            gross: totalTyped * WPM
+            correct: Math.max(
+                Math.floor((v.correct  / v.timestamps) * WPM),
+                Math.floor(((v.correct - v.incorrect) / v.timestamps) * WPM)
+            ),
+            incorrect: v.incorrect - prev.incorrect,
+            gross: totalTyped / Math.min(idx + 1, 3) * WPM
         }
     })
     const lastResult = graphData[graphData.length - 1]
@@ -82,14 +88,16 @@ function aggregateResut(dots: number, timestamps: Timestamps[]) {
         left: 0,
         overflow: 0,
     }
-    timestamps.forEach((stamp: any, index: number) => {
+    const initialTime = timestamps[0].timestamps
+    timestamps.forEach((stamp: Timestamps, index: number) => {
         state.correct = Math.max(state.correct, stamp.correct)
         state.left = Math.max(state.left, stamp.left)
         state.overflow = Math.max(state.overflow, stamp.overflow)
         state.errors = Math.max(state.errors, stamp.error)
         if (index + 1 == timestamps.length || (index > 0 && index % dots == 0)) {
-            // console.log('timestamps', index / 100)
+            console.log('timestamps', stamp)
             aggData.push({
+                // timestamps: (stamp.timestamps - initialTime)/1000,
                 timestamps: index / items_in_1_sec,
                 correct: state.correct,
                 gross: state.correct + state.errors + state.overflow,

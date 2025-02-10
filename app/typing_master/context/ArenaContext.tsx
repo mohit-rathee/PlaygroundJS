@@ -168,13 +168,13 @@ const ArenaProvider = ({ children }: { children: ReactNode }) => {
                 error: 0,
                 left: 0,
                 overflow: 0,
-                time: 0
+                timestamps: 0
             }
             stat.correct = statistics.past.correct + statistics.current.correct
             stat.error = statistics.current.incorrect + statistics.past.incorrect
             stat.left = statistics.past.left
             stat.overflow = statistics.current.overflow + statistics.past.overflow
-            stat.time = Date.now()
+            stat.timestamps = Date.now()
 
             timestampsRef.current.push(stat)
         };
