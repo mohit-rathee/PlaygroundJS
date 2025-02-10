@@ -54,7 +54,6 @@ export default function TypingArena() {
                 }
                 case 'Enter': {
                     if (!e.shiftKey) return
-                    setIsRunning(false)
                     wordDispatch({ type: 'complete' })
                     break;
                 }
