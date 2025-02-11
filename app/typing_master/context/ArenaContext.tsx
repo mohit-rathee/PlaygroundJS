@@ -108,6 +108,7 @@ function gameReducer(
             typedWordsRef.current = []
             statisticsRef.current = getInitStats()
             setIsFocused(true)
+            setIsRunning(false)
             console.log('seeting to true')
             return []
         case "reset":
