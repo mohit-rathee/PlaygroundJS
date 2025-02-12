@@ -18,21 +18,32 @@ const styles: any = {
         c_width: 'text-5xl'
     },
 }
-function Block({ heading, content, type }: any) {
-    const styl: { h_width: string, c_width: string } = styles[type]
-    //w-[${styl.width}]
-    return (
-        <div className='flex flex-col mt-0 m-4 w-full'>
+function Block({ heading, content, extra, type, hoverText }: any) {
+    extra = extra || ''
+    const styl: { h_width: string, c_width: string } = styles[type];
+    let value;
+    if (!isNaN(Number(content))) {
+        value = Math.round(Number(content))
+        hoverText = Number(content).toFixed(2)
+    } else {
+        value = content
+    }
 
-            <div className={` text-gray-400 ${styl.h_width}`}>
+    return (
+        <div className="relative flex flex-col mt-0 m-4 w-full group">
+            <div className="absolute top-full left-0 mt-2 w-max bg-gray-600 text-white text-lg px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {hoverText + extra}
+            </div>
+            <div className={`text-gray-400 ${styl.h_width}`}>
                 {heading}
             </div>
-            <div className={` text-yellow-500 ${styl.c_width}`}>
-                {content}
+            <div className={`text-yellow-500 ${styl.c_width}`}>
+                {value}{extra}
             </div>
         </div>
-    )
+    );
 }
+
 export function Result() {
     const { gameInfo } = useContext(PageContext)
     if (gameInfo.type != 'result') return
@@ -43,17 +54,32 @@ export function Result() {
             <div className="absolute w-[100%] top-[15%] flex flex-col h-auto p-5 ">
                 <div className="flex flex-row h-full p-5 ">
                     <div className='flex flex-col justify-around w-[25%]'>
-                        <Block type='large' heading='wpm' content={result.wpm} />
-                        <Block type='large' heading='acc' content={`${result.accuracy}%`} />
+                        <Block type='large'
+                            heading='wpm'
+                            content={result.wpm}
+                        />
+                        <Block type='large'
+                            heading='acc'
+                            content={result.accuracy}
+                            extra={'%'}
+                        />
                     </div>
                     <MyLineChart data={result.graphData} />
                 </div>
                 <div className="w-full justify-around  flex flex-row h-auto px-5 ">
-                    <Block type='mid' heading='time' content={`${result.time}s`} />
-                    <Block type='mid' heading='raw' content={`${result.raw}`} />
-                    <Block type='mid' heading='remark' content={
-                        `${result.remark.correct}/${result.remark.error}/${result.remark.left}/${result.remark.overflow}`
-                    } />
+                    <Block type='mid'
+                        heading='time'
+                        content={result.time}
+                        extra={'s'} />
+                    <Block type='mid'
+                        heading='raw'
+                        content={result.raw} />
+                    <Block type='mid'
+                        heading='remark'
+                        content={
+                            ` ${result.remark.correct}/${result.remark.error}/${result.remark.left}/${result.remark.overflow}`
+                        }
+                        hoverText={`correct/incorrect/left/overflow`} />
                 </div>
             </div>
         </>
@@ -153,7 +179,7 @@ const MyLineChart = ({ data }: { data: { timestamps: number; correct: number }[]
         </ResponsiveContainer>
     );
 };
-const CustomDot = (props:any) => {
+const CustomDot = (props: any) => {
     const { cx, cy, value, width } = props;
 
     // Skip rendering for `value === 0`
