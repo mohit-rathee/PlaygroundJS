@@ -22,7 +22,7 @@ export function calculateResult(gameInfo: GameInfoType) {
     else
         dots = Math.floor(gameInfo.timestamps.length / steps)
     const aggregatedData = aggregateResut(dots, gameInfo.timestamps)
-    console.log('aggregatedData', aggregatedData)
+    // console.log('aggregatedData', aggregatedData)
 
     const graphData = aggregatedData.map((v: any, idx: number) => {
 
@@ -46,11 +46,11 @@ export function calculateResult(gameInfo: GameInfoType) {
             timestamps: (total_time > MID) ? Math.round(v.timestamps) : v.timestamps,
             speed: Math.floor(((v.correct - prev.correct) * WPM)),
             correct: Math.max(
-                Math.floor((v.correct  / v.timestamps) * WPM),
-                Math.floor(((v.correct - v.incorrect) / v.timestamps) * WPM)
+                (v.correct / v.timestamps) * WPM,
+                (v.correct - v.incorrect) / v.timestamps * WPM,
             ),
             incorrect: v.incorrect - prev.incorrect,
-            gross: totalTyped / Math.min(idx + 1, 3) * WPM
+            gross: totalTyped / Math.min(Math.max(1, idx), 3) * WPM
         }
     })
     const lastResult = graphData[graphData.length - 1]
@@ -59,22 +59,22 @@ export function calculateResult(gameInfo: GameInfoType) {
     const result = {
         wpm: lastResult.correct,
         graphData: graphData,
-        time: lastResult.timestamps,
-        accuracy: Math.round(Math.max(0, (1 - (lastAggData.incorrect / lastAggData.gross))) * 100),
+        time: lastAggData.timestamps,
+        accuracy: Math.max(0, (1 - (lastAggData.incorrect / lastAggData.gross))) * 100,
         remark: {
             correct: lastTimestamp.correct,
             error: lastTimestamp.error,
             left: lastTimestamp.left,
             overflow: lastTimestamp.overflow,
         },
-        raw: Math.floor(((lastAggData.correct + lastAggData.incorrect) / lastAggData.timestamps) * WPM)
+        raw: (lastAggData.correct + lastAggData.incorrect) / lastAggData.timestamps * WPM
 
     }
     return result
 }
 
 function aggregateResut(dots: number, timestamps: Timestamps[]) {
-    console.log(timestamps)
+    // console.log(timestamps)
     const aggData: {
         timestamps: number,
         correct: number,
@@ -88,16 +88,16 @@ function aggregateResut(dots: number, timestamps: Timestamps[]) {
         left: 0,
         overflow: 0,
     }
-    const initialTime = timestamps[0].timestamps
     timestamps.forEach((stamp: Timestamps, index: number) => {
-        state.correct = Math.max(state.correct, stamp.correct)
-        state.left = Math.max(state.left, stamp.left)
-        state.overflow = Math.max(state.overflow, stamp.overflow)
-        state.errors = Math.max(state.errors, stamp.error)
+        const firstStamp = timestamps[0]
+        state.correct = Math.max(state.correct, stamp.correct - firstStamp.correct)
+        state.left = Math.max(state.left, stamp.left - firstStamp.left)
+        state.overflow = Math.max(state.overflow, stamp.overflow - firstStamp.overflow)
+        state.errors = Math.max(state.errors, stamp.error - firstStamp.error)
         if (index + 1 == timestamps.length || (index > 0 && index % dots == 0)) {
-            console.log('timestamps', stamp)
+            // console.log('timestamps', stamp)
             aggData.push({
-                // timestamps: (stamp.timestamps - initialTime)/1000,
+                // timestamps: (stamp.timestamps - firstStamp.timestamps)/1000,
                 timestamps: index / items_in_1_sec,
                 correct: state.correct,
                 gross: state.correct + state.errors + state.overflow,
